@@ -2326,456 +2326,144 @@
         }
 
         async function generatePDF(appointmentId, format) {
+            const { jsPDF } = window.jspdf;
             const apt = appointments.find(a => a.id === appointmentId);
-            if (!apt) return;
+            if (!apt) {
+                showToast('Agendamento não encontrado.', 'error');
+                return;
+            }
 
             const isThermal = format === 'thermal';
             const generatedDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-            const schedulerName = apt.scheduler ? sanitizeInput(apt.scheduler) : 'Não informado'; // Show 'Não informado' if empty
+            const schedulerName = apt.scheduler ? sanitizeInput(apt.scheduler) : 'Não informado';
 
             // Determinar CNPJ baseado na localização (Paulista usa /0025-82, outros /0002-52)
             const cnpj = apt.location && apt.location.includes('Paulista') ? '03.910.210/0025-82' : '03.910.210/0002-52';
 
-            if (isThermal) {
-                // Usar janela de impressão com HTML/CSS otimizado para térmica, incluindo imagens
-                let title = 'COMPROVANTE DE AGENDAMENTO';
-                let printContent = `
-                    <html>
-                    <head>
-                      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                      <title>${title}</title>
-                      <style>
-                        @page {
-                          margin: 0;  /* Remove margens da página para maximizar o uso do papel térmico */
-                        }
-                        body {
-                          font-family: monospace;  /* Fonte monospace para alinhamento fixo e legibilidade em impressoras térmicas */
-                          font-size: 10pt;         /* Tamanho de fonte compacto (10pt) para caber em 80mm de largura */
-                          margin: 0;               /* Sem margens laterais na body */
-                          padding: 0 5mm 5mm 0;    /* Padding mínimo: 0 no topo/esquerda, 5mm na direita e fundo para evitar corte */
-                          width: 80mm;             /* Largura fixa de 80mm, padrão para rolos térmicos (ex: Epson TM-T20) */
-                          line-height: 1.2;        /* Espaçamento de linha apertado para economia de papel */
-                          color: #000;             /* Cor preta pura para compatibilidade com impressão térmica */
-                          background: #fff;        /* Fundo branco, mas irrelevante em térmica (impressão monocromática) */
-                          text-align: left;        /* Alinhamento à esquerda para layout linear */
-                        }
-                        .line { margin-bottom: 0.3em; }  /* Espaçamento entre linhas de texto */
-                        .divider { 
-                          border-top: 1px dashed #000;  /* Linhas divisórias tracejadas para separar seções */
-                          margin: 0.5em 0; 
-                        }
-                        .center { text-align: center; } /* Centralização para cabeçalhos */
-                        .bold { font-weight: bold; }    /* Negrito para destaques */
-                        .warning {
-                          margin: 0.5em 0;
-                          font-size: 9pt;              /* Fonte ligeiramente menor para avisos */
-                          text-align: center;
-                        }
-                        .warning-title { 
-                          font-weight: bold; 
-                          text-align: center; 
-                        }
-                        .thermal-logo {
-                          display: block;
-                          margin: 0 auto 0.5em auto; /* Centraliza a imagem e adiciona espaçamento abaixo */
-                          max-width: 60mm; /* Limita a largura para caber na largura do papel térmico (80mm) */
-                          max-height: 15mm; /* Altura compacta para economizar papel */
-                          width: auto;
-                          height: auto;
-                          filter: grayscale(100%) contrast(200%) brightness(0%); /* Converte para preto e branco otimizado para térmica: grayscale total, alto contraste e brilho ajustado para melhor legibilidade em monocromático */
-                          image-rendering: -webkit-optimize-contrast; /* Otimiza contraste para WebKit */
-                          image-rendering: crisp-edges; /* Bordas nítidas para imagens pequenas */
-                        }
-                      </style>
-                    </head>
-                    <body>
-                      ${logoBase64 ? `<img src="${logoBase64}" alt="Logo SESI" class="thermal-logo">` : ''}
-                      <div class="center bold line">SERVIÇO SOCIAL DA INDÚSTRIA</div>
-                      <div class="center line">CNPJ: ${cnpj}</div>
-                      <div class="center bold line">${title}</div>
-                `;
+            const doc = new jsPDF({
+                orientation: isThermal ? 'p' : 'p',
+                unit: 'mm',
+                format: isThermal ? [80, 200] : 'a4'
+            });
 
-                // Conteúdo para todos os tipos (campos listados)
-                printContent += `
-                  <div class="line">Data: ${apt.date || ''}</div>
-                  <div class="line">Horário: ${apt.time || ''}</div>
-                  <div class="line">Paciente: ${apt.patient || ''}</div>
-                  <div class="line">CPF: ${apt.cpf || ''}</div>
-                  <div class="line">Telefone: ${apt.phone || ''}</div>
-                  ${schedulerName ? `<div class="line">Responsável pelo Agendamento: ${schedulerName}</div>` : ''}
-                  <div class="line">Profissional: ${apt.professional || ''}</div>
-                  <div class="line">Tipo: ${apt.agendaType || ''}</div>
-                  <div class="line">Local: ${apt.location || ''}</div>
-                  <div class="divider"></div>
-                  ${apt.priority ? `<div class="line">Prioritário: ${apt.priority}</div>` : ''}
-                  ${apt.firstAppointment ? `<div class="line">1º Atendimento: ${apt.firstAppointment}</div>` : ''}
-                  ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
-                  <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
-                `;
+            // Configurações de fonte e estilo
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(isThermal ? 10 : 12);
 
-                // Aviso comum
-                printContent += `
-                      <div class="line">Gerado em: ${generatedDate}</div>
-                      <div class="divider"></div>
-                      <div class="warning">
-                        <div class="warning-title bold">AVISO IMPORTANTE</div>
-                        <div class="line">Ao solicitar o agendamento de consultas e exames, o cliente autoriza o uso de seus dados pessoais (nome, telefone, CPF) exclusivamente para essa finalidade. O agendamento possui validade a partir da data de sua solicitação até o término do ano corrente (2025).</div>
-                      </div>
-                      <div class="center line">Apresente este comprovante no dia do atendimento.</div>
-                    </body>
-                    </html>
-                `;
+            let yPos = 10;
+            const lineHeight = isThermal ? 4 : 6;
+            const marginLeft = isThermal ? 5 : 20;
+            const marginRight = isThermal ? 5 : 20;
 
-                const printWindow = window.open('', '_blank', 'width=300,height=600');
-                printWindow.document.write(printContent);
-                printWindow.document.close();
-                printWindow.print();
-                printWindow.close();
-            } else {
-                // Formato normal: usar window.print com HTML/CSS adaptado para A4, incluindo as imagens de SESI e Melhoria
-                let title = 'Comprovante de Agendamento';
-                const address = locationAddresses[apt.location] || 'Endereço não especificado';
-                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-                let printContent = `
-                    <html>
-                    <head>
-                      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                      <title>${title}</title>
-                      <style>
-                        @page {
-                          size: A4;
-                          margin: 1.5cm 1cm; /* Margens equilibradas: mais em cima para cabeçalho */
-                          @bottom-center {
-                            content: "Página " counter(page) " de " counter(pages);
-                            font-size: 10pt;
-                            color: #666;
-                          }
-                        }
-                        body {
-                          font-family: 'Roboto', Arial, sans-serif; /* Fonte principal com fallback */
-                          font-size: 11pt; /* Fonte ligeiramente maior para melhor legibilidade em impressão */
-                          margin: 0;
-                          padding: 0;
-                          line-height: 1.5; /* Espaçamento de linha melhorado para leitura */
-                          color: #000; /* Texto preto para impressão clara */
-                          background: white;
-                          text-align: left;
-                          width: 100%;
-                        }
-                        .print-container {
-                          max-width: 210mm; /* Largura A4 padrão */
-                          margin: 0 auto;
-                          padding: 20px;
-                          border: 2px solid #007bff;
-                          border-radius: 8px;
-                          background: #ffffff;
-                          box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Sombra sutil para profundidade */
-                        }
-                        .print-header {
-                          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-                          color: white;
-                          padding: 20px; /* Padding maior para header mais espaçoso */
-                          border-radius: 8px 8px 0 0;
-                          margin: -20px -20px 20px -20px;
-                          text-align: center;
-                          position: relative;
-                          overflow: hidden;
-                        }
-                        .print-header::after {
-                          content: '';
-                          position: absolute;
-                          bottom: 0;
-                          left: 0;
-                          right: 0;
-                          height: 4px;
-                          background: rgba(255,255,255,0.2); /* Linha sutil no rodapé do header */
-                        }
-                        .header-container {
-                          display: flex;
-                          align-items: center;
-                          justify-content: space-between;
-                          margin-bottom: 15px; /* Mais espaço entre logo e título */
-                          flex-wrap: wrap; /* Responsivo para telas menores */
-                        }
-                        .logo-container {
-                          display: flex;
-                          flex-direction: column;
-                          align-items: center;
-                          flex: 0 0 auto;
-                        }
-                        .logo-container img {
-                          max-width: 120px; /* Logo ligeiramente maior */
-                          height: auto;
-                          margin-bottom: 5px;
-                        }
-                        .logo-container p {
-                          margin: 0;
-                          font-size: 9pt; /* Fonte menor para legenda */
-                          color: rgba(255,255,255,0.9);
-                          text-align: center;
-                          font-weight: 300;
-                        }
-                        .title-container {
-                          flex: 1;
-                          text-align: center;
-                          margin: 0 15px; /* Mais margem para centralização */
-                          min-width: 200px; /* Garante espaço para título */
-                        }
-                        .cnpj-container {
-                          text-align: right;
-                          flex: 0 0 auto;
-                        }
-                        h1 {
-                          font-size: 20pt; /* Título maior e mais impactante */
-                          color: white;
-                          margin: 0 0 5px 0;
-                          font-weight: 600; /* Peso médio para elegância */
-                          letter-spacing: 0.5px; /* Espaçamento sutil para profissionalismo */
-                        }
-                        .header-info {
-                          font-size: 9pt;
-                          color: rgba(255,255,255,0.9);
-                          margin: 0;
-                          font-weight: 300;
-                        }
-                        .section {
-                          border-bottom: 1px solid #e0e0e0; /* Borda mais sutil */
-                          padding-bottom: 15px; /* Mais padding para seções */
-                          margin-bottom: 20px; /* Espaçamento maior entre seções */
-                        }
-                        .section:last-child {
-                          border-bottom: none;
-                          margin-bottom: 0;
-                        }
-                        .section-title {
-                          background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-                          color: #007bff;
-                          padding: 8px 12px; /* Padding maior para título de seção */
-                          border-radius: 6px;
-                          font-size: 12pt; /* Fonte maior para títulos de seção */
-                          font-weight: 500;
-                          margin-bottom: 15px; /* Mais margem abaixo */
-                          border-left: 4px solid #007bff;
-                          box-shadow: 0 2px 4px rgba(0,123,255,0.1); /* Sombra sutil */
-                        }
-                        p {
-                          margin: 8px 0; /* Margem consistente para parágrafos */
-                          font-size: 11pt; /* Fonte consistente */
-                          display: flex;
-                          align-items: center;
-                          gap: 8px; /* Gap maior para ícones */
-                          word-wrap: break-word; /* Quebra de linha para textos longos */
-                        }
-                        p i {
-                          width: 18px; /* Ícones maiores */
-                          text-align: center;
-                          color: #007bff;
-                          font-size: 12pt;
-                        }
-                        .print-table {
-                          width: 100%;
-                          border-collapse: collapse;
-                          margin: 20px 0; /* Mais margem para tabela */
-                          border: 1px solid #007bff;
-                          border-radius: 6px;
-                          overflow: hidden;
-                          box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Sombra para tabela */
-                        }
-                        .print-table th, .print-table td {
-                          border: 1px solid #007bff;
-                          padding: 10px 8px; /* Padding ajustado para células */
-                          text-align: left;
-                          font-size: 10pt; /* Fonte menor para células */
-                        }
-                        .print-table th {
-                          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-                          color: white;
-                          font-weight: 600;
-                          text-transform: uppercase;
-                          letter-spacing: 0.5px;
-                        }
-                        .print-table td {
-                          background: #f8f9fa;
-                        }
-                        .print-table tr:nth-child(even) td {
-                          background: #e9ecef; /* Linhas alternadas mais suaves */
-                        }
-                        .print-table tr:hover td {
-                          background: #e3f2fd; /* Hover sutil para impressão */
-                        }
-                        .print-summary {
-                          background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-                          padding: 20px; /* Padding maior para resumo */
-                          border-radius: 8px;
-                          margin: 20px 0;
-                          border-left: 4px solid #007bff;
-                          box-shadow: 0 2px 8px rgba(0,123,255,0.1);
-                        }
-                        .print-summary p {
-                          justify-content: space-between;
-                          font-size: 11pt;
-                          margin: 10px 0; /* Margem consistente */
-                          font-weight: 500;
-                          border-bottom: 1px dashed #007bff; /* Linha separadora sutil */
-                          padding-bottom: 5px;
-                        }
-                        .print-summary p:last-child {
-                          border-bottom: none;
-                        }
-                        .print-warning {
-                          background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); /* Gradiente suave para aviso */
-                          border: 2px solid #ffc107;
-                          border-radius: 8px;
-                          padding: 20px; /* Padding maior para legibilidade */
-                          margin: 25px 0;
-                          color: #856404;
-                          font-size: 10pt;
-                          line-height: 1.4; /* Melhor espaçamento para texto longo */
-                          box-shadow: 0 2px 6px rgba(255,193,7,0.2);
-                        }
-                        .print-warning .warning-title {
-                          font-weight: 700;
-                          color: #d39e00;
-                          margin-bottom: 12px; /* Mais margem para título */
-                          text-align: center;
-                          font-size: 12pt;
-                          text-transform: uppercase;
-                          letter-spacing: 1px;
-                        }
-                        .print-footer {
-                          text-align: center;
-                          color: #6c757d;
-                          font-size: 9pt;
-                          margin-top: 25px; /* Mais espaço no rodapé */
-                          border-top: 1px solid #dee2e6;
-                          padding-top: 15px;
-                          font-style: italic;
-                        }
-                        .print-footer p {
-                          margin: 8px 0;
-                          justify-content: center;
-                          display: flex;
-                          align-items: center;
-                          gap: 5px;
-                        }
-                        .maps-link {
-                          color: #007bff;
-                          text-decoration: underline;
-                          font-size: 10pt;
-                          transition: color 0.3s ease; /* Transição para hover, mesmo em print */
-                        }
-                        .maps-link:hover {
-                          color: #0056b3;
-                        }
-                        @media print {
-                          body { 
-                            -webkit-print-color-adjust: exact; 
-                            print-color-adjust: exact; 
-                            font-size: 11pt; /* Garante tamanho em impressão */
-                          }
-                          .print-table { 
-                            border-collapse: collapse; 
-                            box-shadow: none; /* Remove sombra em print para simplicidade */
-                          }
-                          .print-container {
-                            box-shadow: none;
-                            border: 1px solid #000; /* Borda mais visível em preto para print */
-                          }
-                          .print-header {
-                            -webkit-print-color-adjust: exact;
-                            print-color-adjust: exact;
-                          }
-                          .print-warning {
-                            -webkit-print-color-adjust: exact;
-                            print-color-adjust: exact;
-                          }
-                        }
-                        @media (max-width: 640px) {
-                          .print-table {
-                            font-size: 9pt;
-                            width: 100%;
-                          }
-                          .print-table td:before {
-                            content: attr(data-label) ": ";
-                            font-weight: bold;
-                            display: block; /* Stack para mobile print */
-                          }
-                          .print-table td {
-                            border: none;
-                            border-bottom: 1px solid #007bff;
-                            padding: 5px;
-                          }
-                          .header-container {
-                            flex-direction: column;
-                            gap: 10px;
-                          }
-                          .title-container {
-                            order: -1;
-                            margin: 0;
-                          }
-                        }
-                      </style>
-                    </head>
-                    <body onload="window.print()">
-                      <div class="print-container">
-                        <div class="print-header">
-                          <div class="header-container">
-                            <div class="logo-container">
-                              ${logoBase64 ? `<img src="${logoBase64}" alt="Logo SESI">` : ''}
-                            </div>
-                            <div class="title-container">
-                              <h1>${title}</h1>
-                            </div>
-                            <div class="cnpj-container">
-                              <p class="header-info">CNPJ: ${cnpj}</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="section">
-                          <div class="section-title">Informações Gerais</div>
-                          <p><i class="fas fa-calendar-alt"></i><span>Gerado em:</span> <span>${generatedDate}</span></p>
-                          <p><i class="fas fa-user"></i><span>Responsável pelo Orçamento:</span> <span>${schedulerName}</span></p>
-                          <p><i class="fas fa-user-md"></i><span>Cliente:</span> <span>${apt.patient || 'Não informado'}</span></p>
-                          <p><i class="fas fa-phone"></i><span>Telefone do Cliente:</span> <span>${apt.phone || 'Não informado'}</span></p>
-                `;
-
-                // Para todos os tipos, campos lineares
-                printContent += `
-                          <div class="section">
-                            <div class="section-title">Detalhes do Agendamento</div>
-                            <p><i class="fas fa-calendar-day"></i><span>Data:</span> <span>${apt.date || ''}</span></p>
-                            <p><i class="fas fa-clock"></i><span>Horário:</span> <span>${apt.time || ''}</span></p>
-                            <p><i class="fas fa-user-md"></i><span>Profissional:</span> <span>${apt.professional || ''}</span></p>
-                            <p><i class="fas fa-stethoscope"></i><span>Tipo:</span> <span>${apt.agendaType || ''}</span></p>
-                            <p><i class="fas fa-map-marker-alt"></i><span>Local:</span> <span>${apt.location || ''}</span></p>
-                            ${apt.priority ? `<p><i class="fas fa-exclamation-triangle"></i><span>Prioritário:</span> <span>${apt.priority}</span></p>` : ''}
-                            ${apt.firstAppointment ? `<p><i class="fas fa-star"></i><span>1º Atendimento.:</span> <span>${apt.firstAppointment}</span></p>` : ''}
-                            ${apt.observations ? `<p><i class="fas fa-sticky-note"></i><span>Obs.:</span> <span>${apt.observations}</span></p>` : ''}
-                          </div>
-                `;
-
-                // Aviso como na imagem
-                printContent += `
-                        </div>
-                        <div class="print-warning">
-                          <div class="warning-title">! AVISO IMPORTANTE</div>
-                          <div>Ao solicitar o agendamento de exames laboratoriais e especialidades médicas, o cliente declara expressamente que autoriza o tratamento dos seus dados pessoais de nome, telefone e CPF, para essa finalidade específica. Neste agendamento, possui validade a partir da data de sua solicitação até o término do ano corrente (2025).</div>
-                        </div>
-                        <div class="print-footer">
-                          <p><i class="fas fa-map-marker-alt"></i><span>Endereço:</span> <span><a href="${mapsUrl}" class="maps-link" target="_blank">${address}</a></span></p>
-                          <p><i class="fas fa-calendar-alt"></i><span>Data:</span> <span>${generatedDate}</span></p>
-                        </div>
-                      </div>
-                    </body>
-                    </html>
-                `;
-
-                const printWindow = window.open('', '_blank', 'width=800,height=600');
-                printWindow.document.write(printContent);
-                printWindow.document.close();
-                printWindow.print();
-                printWindow.close();
+            // Adicionar logo se disponível (escalado para o formato)
+            if (logoBase64) {
+                const logoWidth = isThermal ? 50 : 40;
+                const logoHeight = isThermal ? 15 : 15;
+                doc.addImage(logoBase64, 'PNG', marginLeft, yPos, logoWidth, logoHeight);
+                yPos += logoHeight + lineHeight;
             }
+
+            // Título centralizado
+            const title = isThermal ? 'COMPROVANTE DE AGENDAMENTO' : 'Comprovante de Agendamento';
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(isThermal ? 12 : 16);
+            const titleWidth = doc.getTextWidth(title);
+            const titleX = (doc.internal.pageSize.width - titleWidth) / 2;
+            doc.text(title, titleX, yPos);
+            yPos += lineHeight + 2;
+
+            // CNPJ
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(isThermal ? 9 : 10);
+            doc.text(`CNPJ: ${cnpj}`, isThermal ? (doc.internal.pageSize.width / 2) : doc.internal.pageSize.width - marginRight, yPos, { align: isThermal ? 'center' : 'right' });
+            yPos += lineHeight;
+
+            // Informações do agendamento
+            doc.setFontSize(isThermal ? 9 : 10);
+            const fields = [
+                { label: 'Data:', value: apt.date || '' },
+                { label: 'Horário:', value: apt.time || '' },
+                { label: 'Paciente:', value: apt.patient || '' },
+                { label: 'CPF:', value: apt.cpf || '' },
+                { label: 'Telefone:', value: apt.phone || '' },
+                ...(schedulerName !== 'Não informado' ? [{ label: 'Responsável:', value: schedulerName }] : []),
+                { label: 'Profissional:', value: apt.professional || '' },
+                { label: 'Tipo:', value: apt.agendaType || '' },
+                { label: 'Local:', value: apt.location || '' }
+            ];
+
+            fields.forEach(field => {
+                if (field.value) {
+                    const text = `${field.label} ${field.value}`;
+                    if (isThermal && doc.getTextWidth(text) > (doc.internal.pageSize.width - 10)) {
+                        // Quebra de linha para térmica
+                        const words = text.split(' ');
+                        let line = '';
+                        words.forEach(word => {
+                            if (doc.getTextWidth(line + word + ' ') > (doc.internal.pageSize.width - 10)) {
+                                doc.text(line, marginLeft, yPos);
+                                yPos += lineHeight;
+                                line = word + ' ';
+                            } else {
+                                line += word + ' ';
+                            }
+                        });
+                        if (line.trim()) {
+                            doc.text(line.trim(), marginLeft, yPos);
+                            yPos += lineHeight;
+                        }
+                    } else {
+                        doc.text(text, marginLeft, yPos);
+                        yPos += lineHeight;
+                    }
+                }
+            });
+
+            // Campos adicionais
+            if (apt.priority) {
+                doc.text(`Prioritário: ${apt.priority}`, marginLeft, yPos);
+                yPos += lineHeight;
+            }
+            if (apt.firstAppointment) {
+                doc.text(`1º Atendimento: ${apt.firstAppointment}`, marginLeft, yPos);
+                yPos += lineHeight;
+            }
+            if (apt.observations) {
+                doc.text(`Obs.: ${apt.observations}`, marginLeft, yPos);
+                yPos += lineHeight;
+            }
+
+            // Endereço
+            const address = locationAddresses[apt.location] || 'Endereço não especificado';
+            doc.text(`Endereço: ${address}`, marginLeft, yPos);
+            yPos += lineHeight * 2;
+
+            // Data de geração
+            doc.text(`Gerado em: ${generatedDate}`, marginLeft, yPos);
+            yPos += lineHeight * 2;
+
+            // Aviso importante
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(isThermal ? 10 : 12);
+            doc.text('AVISO IMPORTANTE', isThermal ? (doc.internal.pageSize.width / 2) : marginLeft, yPos, { align: isThermal ? 'center' : 'left' });
+            yPos += lineHeight;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(isThermal ? 8 : 10);
+            const warningText = 'Ao solicitar o agendamento de consultas e exames, o cliente autoriza o uso de seus dados pessoais (nome, telefone, CPF) exclusivamente para essa finalidade. O agendamento possui validade a partir da data de sua solicitação até o término do ano corrente (2025).';
+            const splitWarning = doc.splitTextToSize(warningText, isThermal ? (doc.internal.pageSize.width - 10) : (doc.internal.pageSize.width - marginLeft - marginRight));
+            splitWarning.forEach(line => {
+                doc.text(line, marginLeft, yPos);
+                yPos += lineHeight;
+            });
+            yPos += lineHeight;
+
+            // Rodapé
+            doc.setFontSize(isThermal ? 9 : 10);
+            doc.text('Apresente este comprovante no dia do atendimento.', isThermal ? (doc.internal.pageSize.width / 2) : marginLeft, yPos, { align: isThermal ? 'center' : 'left' });
+
+            // Nome do arquivo e download
+            const fileName = isThermal ? `comprovante_agendamento_termica_${apt.id}.pdf` : `comprovante_agendamento_${apt.id}.pdf`;
+            doc.save(fileName);
 
             showToast(`Comprovante ${isThermal ? 'térmica' : 'normal'} gerado com sucesso!`, 'success');
         }
@@ -2789,6 +2477,10 @@
 
         function generatePrintPDF() {
             const printType = document.querySelector('input[name="printType"]:checked').value;
+            if (!currentPrintId) {
+                showToast('ID do agendamento não encontrado. Tente novamente.', 'error');
+                return;
+            }
             generatePDF(currentPrintId, printType);
             closeModal('printTypeModal');
         }
@@ -2866,125 +2558,62 @@
         }
 
         function generateAttendanceDeclaration(cpf, patientName) {
+            const { jsPDF } = window.jspdf;
             const generatedDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-            const printContent = `
-                <html>
-                <head>
-                  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                  <title>Declaração de Comparecimento</title>
-                  <style>
-                    @page {
-                      size: A4;
-                      margin: 2cm;
-                    }
-                    body {
-                      font-family: 'Roboto', serif;
-                      font-size: 12pt;
-                      margin: 0;
-                      padding: 0;
-                      line-height: 1.6;
-                      color: #000;
-                      background: white;
-                      text-align: justify;
-                      width: 100%;
-                    }
-                    .print-container {
-                      max-width: 600px;
-                      margin: 0 auto;
-                      padding: 20px;
-                      border: 2px solid #007bff;
-                      border-radius: 8px;
-                      background: #ffffff;
-                    }
-                    .print-header {
-                      text-align: center;
-                      margin-bottom: 30px;
-                      border-bottom: 2px solid #007bff;
-                      padding-bottom: 15px;
-                    }
-                    .header-logo {
-                      max-width: 100px;
-                      height: auto;
-                      margin-bottom: 10px;
-                    }
-                    h1 {
-                      color: #007bff;
-                      font-size: 18pt;
-                      margin: 10px 0;
-                      font-weight: bold;
-                    }
-                    .declaration-body {
-                      text-align: justify;
-                      margin-bottom: 20px;
-                    }
-                    .declaration-body p {
-                      margin-bottom: 15px;
-                      text-indent: 2em;
-                    }
-                    .signature-section {
-                      display: flex;
-                      justify-content: space-between;
-                      margin-top: 40px;
-                    }
-                    .signature-box {
-                      border-bottom: 1px solid #000;
-                      width: 45%;
-                      padding-top: 50px;
-                      text-align: center;
-                      font-size: 10pt;
-                      color: #666;
-                    }
-                    .footer {
-                      text-align: center;
-                      margin-top: 30px;
-                      font-size: 10pt;
-                      color: #666;
-                    }
-                    @media print {
-                      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                    }
-                  </style>
-                </head>
-                <body onload="window.print()">
-                  <div class="print-container">
-                    <div class="print-header">
-                      ${logoBase64 ? `<img src="${logoBase64}" alt="Logo SESI Saúde" class="header-logo">` : ''}
-                      <h1>Declaração de Comparecimento</h1>
-                      <p>SERVIÇO SOCIAL DA INDÚSTRIA - SESI SAÚDE</p>
-                      <p>CNPJ: 03.910.210/0002-52</p>
-                    </div>
-                    <div class="declaration-body">
-                      <p>Eu, <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, declaro para os devidos fins que compareci ao atendimento no SESI Saúde na data de <strong>${generatedDate}</strong>.</p>
-                      <p>O atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.</p>
-                      <p>Esta declaração serve como comprovação de presença e comparecimento ao local e horário designados.</p>
-                      <p>Local e Data: Recife/PE, ${generatedDate}.</p>
-                    </div>
-                    <div class="signature-section">
-                      <div class="signature-box">
-                        Assinatura do Paciente<br>
-                        _________________________
-                      </div>
-                      <div class="signature-box">
-                        Assinatura do Responsável<br>
-                        _________________________
-                      </div>
-                    </div>
-                    <div class="footer">
-                      <p>Documento gerado automaticamente pelo Sistema de Agendamento SESI Saúde.</p>
-                      <p>Validade: Única emissão.</p>
-                    </div>
-                  </div>
-                </body>
-                </html>
-            `;
+            const doc = new jsPDF('p', 'mm', 'a4');
 
-            const printWindow = window.open('', '_blank', 'width=800,height=600');
-            printWindow.document.write(printContent);
-            printWindow.document.close();
-            printWindow.print();
-            printWindow.close();
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(12);
 
-            showToast('Declaração de Comparecimento gerada e aberta para impressão!', 'success');
+            let yPos = 20;
+            const lineHeight = 6;
+            const marginLeft = 20;
+
+            // Logo
+            if (logoBase64) {
+                doc.addImage(logoBase64, 'PNG', 80, yPos, 40, 15);
+                yPos += 20;
+            }
+
+            // Cabeçalho
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(18);
+            doc.text('Declaração de Comparecimento', 105, yPos, { align: 'center' });
+            yPos += 10;
+            doc.setFontSize(12);
+            doc.text('SERVIÇO SOCIAL DA INDÚSTRIA - SESI SAÚDE', 105, yPos, { align: 'center' });
+            yPos += lineHeight;
+            doc.text('CNPJ: 03.910.210/0002-52', 105, yPos, { align: 'center' });
+            yPos += 20;
+
+            // Corpo
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(12);
+            const bodyText = `Eu, ${sanitizeInput(patientName)}, portador(a) do CPF ${cpf}, declaro para os devidos fins que compareci ao atendimento no SESI Saúde na data de ${generatedDate}.\n\nO atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.\n\nEsta declaração serve como comprovação de presença e comparecimento ao local e horário designados.\n\nLocal e Data: Recife/PE, ${generatedDate}.`;
+            const splitText = doc.splitTextToSize(bodyText, 170);
+            splitText.forEach(line => {
+                doc.text(line, marginLeft, yPos);
+                yPos += lineHeight;
+            });
+
+            yPos += 20;
+
+            // Assinaturas
+            doc.setDrawColor(0);
+            doc.line(marginLeft, yPos, 90, yPos);
+            doc.text('Assinatura do Paciente', marginLeft, yPos + 5);
+            doc.line(120, yPos, 190, yPos);
+            doc.text('Assinatura do Responsável', 120, yPos + 5);
+            yPos += 30;
+
+            // Rodapé
+            doc.setFontSize(10);
+            doc.text('Documento gerado automaticamente pelo Sistema de Agendamento SESI Saúde.', 105, yPos, { align: 'center' });
+            yPos += lineHeight;
+            doc.text('Validade: Única emissão.', 105, yPos, { align: 'center' });
+
+            doc.save(`declaracao_comparecimento_${cpf}_${Date.now()}.pdf`);
+            showToast('Declaração de Comparecimento gerada e baixada!', 'success');
         }
 
         function generateCalendar(agendaType = currentAgendaType) {
