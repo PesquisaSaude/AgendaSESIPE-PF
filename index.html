@@ -2336,192 +2336,496 @@
             // Determinar CNPJ baseado na localização (Paulista usa /0025-82, outros /0002-52)
             const cnpj = apt.location && apt.location.includes('Paulista') ? '03.910.210/0025-82' : '03.910.210/0002-52';
 
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({
-                orientation: isThermal ? 'p' : 'p',
-                unit: 'mm',
-                format: isThermal ? [58, 200] : 'a4'
-            });
-
-            // Função auxiliar para adicionar imagem se disponível
-            const addLogo = (yPosition) => {
-                if (logoBase64) {
-                    doc.addImage(logoBase64, 'PNG', 10, yPosition, 38, 10); // Ajustado para térmica (menor)
-                    return yPosition + 12;
-                }
-                return yPosition;
-            };
-
-            let y = 10;
-
             if (isThermal) {
-                // Formato térmica (compacto, linear)
+                // Usar janela de impressão com HTML/CSS otimizado para térmica, incluindo imagens
                 let title = apt.agendaType === 'Agenda de Exames' ? 'ORÇAMENTO DE EXAMES' : 'COMPROVANTE DE AGENDAMENTO';
-                y = addLogo(y);
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.text('SERVIÇO SOCIAL DA INDÚSTRIA', 5, y += 5);
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'normal');
-                doc.text(`CNPJ: ${cnpj}`, 5, y += 4);
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.text(title, 5, y += 6);
+                let printContent = `
+                    <html>
+                    <head>
+                      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                      <title>${title}</title>
+                      <style>
+                        @page {
+                          margin: 0;  /* Remove margens da página para maximizar o uso do papel térmico */
+                        }
+                        body {
+                          font-family: monospace;  /* Fonte monospace para alinhamento fixo e legibilidade em impressoras térmicas */
+                          font-size: 10pt;         /* Tamanho de fonte compacto (10pt) para caber em 80mm de largura */
+                          margin: 0;               /* Sem margens laterais na body */
+                          padding: 0 5mm 5mm 0;    /* Padding mínimo: 0 no topo/esquerda, 5mm na direita e fundo para evitar corte */
+                          width: 80mm;             /* Largura fixa de 80mm, padrão para rolos térmicos (ex: Epson TM-T20) */
+                          line-height: 1.2;        /* Espaçamento de linha apertado para economia de papel */
+                          color: #000;             /* Cor preta pura para compatibilidade com impressão térmica */
+                          background: #fff;        /* Fundo branco, mas irrelevante em térmica (impressão monocromática) */
+                          text-align: left;        /* Alinhamento à esquerda para layout linear */
+                        }
+                        .line { margin-bottom: 0.3em; }  /* Espaçamento entre linhas de texto */
+                        .divider { 
+                          border-top: 1px dashed #000;  /* Linhas divisórias tracejadas para separar seções */
+                          margin: 0.5em 0; 
+                        }
+                        .center { text-align: center; } /* Centralização para cabeçalhos */
+                        .bold { font-weight: bold; }    /* Negrito para destaques */
+                        .warning {
+                          margin: 0.5em 0;
+                          font-size: 9pt;              /* Fonte ligeiramente menor para avisos */
+                          text-align: center;
+                        }
+                        .warning-title { 
+                          font-weight: bold; 
+                          text-align: center; 
+                        }
+                        .thermal-logo {
+                          display: block;
+                          margin: 0 auto 0.5em auto; /* Centraliza a imagem e adiciona espaçamento abaixo */
+                          max-width: 60mm; /* Limita a largura para caber na largura do papel térmico (80mm) */
+                          max-height: 15mm; /* Altura compacta para economizar papel */
+                          width: auto;
+                          height: auto;
+                          filter: grayscale(100%) contrast(200%) brightness(0%); /* Converte para preto e branco otimizado para térmica: grayscale total, alto contraste e brilho ajustado para melhor legibilidade em monocromático */
+                          image-rendering: -webkit-optimize-contrast; /* Otimiza contraste para WebKit */
+                          image-rendering: crisp-edges; /* Bordas nítidas para imagens pequenas */
+                        }
+                      </style>
+                    </head>
+                    <body>
+                      ${logoBase64 ? `<img src="${logoBase64}" alt="Logo SESI" class="thermal-logo">` : ''}
+                      <div class="center bold line">SERVIÇO SOCIAL DA INDÚSTRIA</div>
+                      <div class="center line">CNPJ: ${cnpj}</div>
+                      <div class="center bold line">${title}</div>
+                `;
 
                 if (apt.agendaType === 'Agenda de Exames') {
                     // Conteúdo específico para Exames
-                    doc.setFontSize(10);
-                    doc.setFont('helvetica', 'normal');
-                    doc.text(`Responsável pelo Orçamento: ${schedulerName}`, 5, y += 5);
-                    doc.text(`Paciente: ${apt.patient}`, 5, y += 4);
-                    doc.text(`Telefone do Paciente: ${apt.phone || ''}`, 5, y += 4);
-                    doc.text(`Tipo de Atendimento: ${apt.professional || ''}`, 5, y += 4);
-                    if (apt.observations) doc.text(`Obs.: ${apt.observations}`, 5, y += 4);
-                    doc.setDrawColor(0, 0, 0);
-                    doc.setLineWidth(0.5);
-                    doc.line(5, y += 2, 53, y);
-                    doc.text(`Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}`, 5, y += 5);
+                    printContent += `
+                      <div class="line">Responsável pelo Orçamento: ${schedulerName || ''}</div>
+                      <div class="line">Paciente: ${apt.patient}</div>
+                      <div class="line">Telefone do Paciente: ${apt.phone || ''}</div>
+                      <div class="line">Tipo de Atendimento: ${apt.professional || ''}</div>
+                      ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
+                      <div class="divider"></div>
+                      <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
+                    `;
                 } else {
-                    // Conteúdo para outros tipos
-                    doc.setFontSize(10);
-                    doc.setFont('helvetica', 'normal');
-                    doc.text(`Data: ${apt.date || ''}`, 5, y += 5);
-                    doc.text(`Horário: ${apt.time || ''}`, 5, y += 4);
-                    doc.text(`Paciente: ${apt.patient || ''}`, 5, y += 4);
-                    doc.text(`CPF: ${apt.cpf || ''}`, 5, y += 4);
-                    doc.text(`Telefone: ${apt.phone || ''}`, 5, y += 4);
-                    if (schedulerName !== 'Não informado') doc.text(`Responsável pelo Agendamento: ${schedulerName}`, 5, y += 4);
-                    doc.text(`Profissional: ${apt.professional || ''}`, 5, y += 4);
-                    doc.text(`Tipo: ${apt.agendaType || ''}`, 5, y += 4);
-                    doc.text(`Local: ${apt.location || ''}`, 5, y += 4);
-                    doc.setDrawColor(0, 0, 0);
-                    doc.setLineWidth(0.5);
-                    doc.line(5, y += 2, 53, y);
-                    if (apt.priority) doc.text(`Prioritário: ${apt.priority}`, 5, y += 4);
-                    if (apt.firstAppointment) doc.text(`1º Atendimento: ${apt.firstAppointment}`, 5, y += 4);
-                    if (apt.observations) doc.text(`Obs.: ${apt.observations}`, 5, y += 4);
-                    doc.text(`Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}`, 5, y += 4);
+                    // Conteúdo para outros tipos (campos listados)
+                    printContent += `
+                      <div class="line">Data: ${apt.date || ''}</div>
+                      <div class="line">Horário: ${apt.time || ''}</div>
+                      <div class="line">Paciente: ${apt.patient || ''}</div>
+                      <div class="line">CPF: ${apt.cpf || ''}</div>
+                      <div class="line">Telefone: ${apt.phone || ''}</div>
+                      ${schedulerName ? `<div class="line">Responsável pelo Agendamento: ${schedulerName}</div>` : ''}
+                      <div class="line">Profissional: ${apt.professional || ''}</div>
+                      <div class="line">Tipo: ${apt.agendaType || ''}</div>
+                      <div class="line">Local: ${apt.location || ''}</div>
+                      <div class="divider"></div>
+                      ${apt.priority ? `<div class="line">Prioritário: ${apt.priority}</div>` : ''}
+                      ${apt.firstAppointment ? `<div class="line">1º Atendimento: ${apt.firstAppointment}</div>` : ''}
+                      ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
+                      <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
+                    `;
                 }
 
                 // Aviso comum
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'normal');
-                doc.text(`Gerado em: ${generatedDate}`, 5, y += 5);
-                doc.setDrawColor(0, 0, 0);
-                doc.setLineWidth(0.5);
-                doc.line(5, y += 2, 53, y);
-                doc.setFontSize(9);
-                doc.setFont('helvetica', 'bold');
-                doc.text('AVISO IMPORTANTE', 5, y += 5);
-                doc.setFontSize(8);
-                doc.setFont('helvetica', 'normal');
-                const warningText = 'Ao solicitar o agendamento de consultas e exames, o cliente autoriza o uso de seus dados pessoais (nome, telefone, CPF) exclusivamente para essa finalidade. O agendamento possui validade a partir da data de sua solicitação até o término do ano corrente (2025). Durante esse período, os valores poderão ser atualizados, inclusive em razão de campanhas promocionais ou ajustes de tabela. Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em período com novas condições comerciais, o cliente será previamente informado sobre eventuais alterações nos preços antes da efetivação do agendamento.';
-                const splitWarning = doc.splitTextToSize(warningText, 53);
-                doc.text(splitWarning, 5, y += 4);
-                y += (splitWarning.length * 3.5); // Ajuste de espaçamento
-                doc.setFontSize(10);
-                doc.text('Apresente este comprovante no dia do atendimento.', 5, y += 4);
+                printContent += `
+                      <div class="line">Gerado em: ${generatedDate}</div>
+                      <div class="divider"></div>
+                      <div class="warning">
+                        <div class="warning-title bold">AVISO IMPORTANTE</div>
+                        <div class="line">Ao solicitar o agendamento de consultas e exames, o cliente autoriza o uso de seus dados pessoais (nome, telefone, CPF) exclusivamente para essa finalidade. O agendamento possui validade a partir da data de sua solicitação até o término do ano corrente (2025). Durante esse período, os valores poderão ser atualizados, inclusive em razão de campanhas promocionais ou ajustes de tabela.
+Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em período com novas condições comerciais, o cliente será previamente informado sobre eventuais alterações nos preços antes da efetivação do agendamento.</div>
+                      </div>
+                      <div class="center line">Apresente este comprovante no dia do atendimento.</div>
+                    </body>
+                    </html>
+                `;
 
+                const printWindow = window.open('', '_blank', 'width=300,height=600');
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.print();
+                printWindow.close();
             } else {
-                // Formato normal (A4, mais detalhado)
+                // Formato normal: usar window.print com HTML/CSS adaptado para A4, incluindo as imagens de SESI e Melhoria
                 let title = apt.agendaType === 'Agenda de Exames' ? 'Orçamento de Exames e Especialidades' : 'Comprovante de Agendamento';
                 const address = locationAddresses[apt.location] || 'Endereço não especificado';
                 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
-
-                // Header com logo e título
-                y = addLogo(15);
-                doc.setFontSize(16);
-                doc.setFont('helvetica', 'bold');
-                doc.text(title, 105, 25, { align: 'center' });
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'normal');
-                doc.text(`CNPJ: ${cnpj}`, 180, 25, { align: 'right' });
-                doc.setFontSize(8);
-                doc.text('SERVIÇO SOCIAL DA INDÚSTRIA - SESI SAÚDE', 105, 35, { align: 'center' });
-
-                // Informações Gerais
-                let currentY = 50;
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.text('Informações Gerais', 20, currentY);
-                currentY += 8;
-                doc.setFontSize(10);
-                doc.setFont('helvetica', 'normal');
-                doc.text(`Gerado em: ${generatedDate}`, 20, currentY += 6);
-                doc.text(`Responsável pelo Orçamento: ${schedulerName}`, 20, currentY += 5);
-                doc.text(`Cliente: ${apt.patient || 'Não informado'}`, 20, currentY += 5);
-                doc.text(`Telefone do Cliente: ${apt.phone || 'Não informado'}`, 20, currentY += 5);
+                let printContent = `
+                    <html>
+                    <head>
+                      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                      <title>${title}</title>
+                      <style>
+                        @page {
+                          size: A4;
+                          margin: 1.5cm 1cm; /* Margens equilibradas: mais em cima para cabeçalho */
+                          @bottom-center {
+                            content: "Página " counter(page) " de " counter(pages);
+                            font-size: 10pt;
+                            color: #666;
+                          }
+                        }
+                        body {
+                          font-family: 'Roboto', Arial, sans-serif; /* Fonte principal com fallback */
+                          font-size: 11pt; /* Fonte ligeiramente maior para melhor legibilidade em impressão */
+                          margin: 0;
+                          padding: 0;
+                          line-height: 1.5; /* Espaçamento de linha melhorado para leitura */
+                          color: #000; /* Texto preto para impressão clara */
+                          background: white;
+                          text-align: left;
+                          width: 100%;
+                        }
+                        .print-container {
+                          max-width: 210mm; /* Largura A4 padrão */
+                          margin: 0 auto;
+                          padding: 20px;
+                          border: 2px solid #007bff;
+                          border-radius: 8px;
+                          background: #ffffff;
+                          box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Sombra sutil para profundidade */
+                        }
+                        .print-header {
+                          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                          color: white;
+                          padding: 20px; /* Padding maior para header mais espaçoso */
+                          border-radius: 8px 8px 0 0;
+                          margin: -20px -20px 20px -20px;
+                          text-align: center;
+                          position: relative;
+                          overflow: hidden;
+                        }
+                        .print-header::after {
+                          content: '';
+                          position: absolute;
+                          bottom: 0;
+                          left: 0;
+                          right: 0;
+                          height: 4px;
+                          background: rgba(255,255,255,0.2); /* Linha sutil no rodapé do header */
+                        }
+                        .header-container {
+                          display: flex;
+                          align-items: center;
+                          justify-content: space-between;
+                          margin-bottom: 15px; /* Mais espaço entre logo e título */
+                          flex-wrap: wrap; /* Responsivo para telas menores */
+                        }
+                        .logo-container {
+                          display: flex;
+                          flex-direction: column;
+                          align-items: center;
+                          flex: 0 0 auto;
+                        }
+                        .logo-container img {
+                          max-width: 120px; /* Logo ligeiramente maior */
+                          height: auto;
+                          margin-bottom: 5px;
+                        }
+                        .logo-container p {
+                          margin: 0;
+                          font-size: 9pt; /* Fonte menor para legenda */
+                          color: rgba(255,255,255,0.9);
+                          text-align: center;
+                          font-weight: 300;
+                        }
+                        .title-container {
+                          flex: 1;
+                          text-align: center;
+                          margin: 0 15px; /* Mais margem para centralização */
+                          min-width: 200px; /* Garante espaço para título */
+                        }
+                        .cnpj-container {
+                          text-align: right;
+                          flex: 0 0 auto;
+                        }
+                        h1 {
+                          font-size: 20pt; /* Título maior e mais impactante */
+                          color: white;
+                          margin: 0 0 5px 0;
+                          font-weight: 600; /* Peso médio para elegância */
+                          letter-spacing: 0.5px; /* Espaçamento sutil para profissionalismo */
+                        }
+                        .header-info {
+                          font-size: 9pt;
+                          color: rgba(255,255,255,0.9);
+                          margin: 0;
+                          font-weight: 300;
+                        }
+                        .section {
+                          border-bottom: 1px solid #e0e0e0; /* Borda mais sutil */
+                          padding-bottom: 15px; /* Mais padding para seções */
+                          margin-bottom: 20px; /* Espaçamento maior entre seções */
+                        }
+                        .section:last-child {
+                          border-bottom: none;
+                          margin-bottom: 0;
+                        }
+                        .section-title {
+                          background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+                          color: #007bff;
+                          padding: 8px 12px; /* Padding maior para título de seção */
+                          border-radius: 6px;
+                          font-size: 12pt; /* Fonte maior para títulos de seção */
+                          font-weight: 500;
+                          margin-bottom: 15px; /* Mais margem abaixo */
+                          border-left: 4px solid #007bff;
+                          box-shadow: 0 2px 4px rgba(0,123,255,0.1); /* Sombra sutil */
+                        }
+                        p {
+                          margin: 8px 0; /* Margem consistente para parágrafos */
+                          font-size: 11pt; /* Fonte consistente */
+                          display: flex;
+                          align-items: center;
+                          gap: 8px; /* Gap maior para ícones */
+                          word-wrap: break-word; /* Quebra de linha para textos longos */
+                        }
+                        p i {
+                          width: 18px; /* Ícones maiores */
+                          text-align: center;
+                          color: #007bff;
+                          font-size: 12pt;
+                        }
+                        .print-table {
+                          width: 100%;
+                          border-collapse: collapse;
+                          margin: 20px 0; /* Mais margem para tabela */
+                          border: 1px solid #007bff;
+                          border-radius: 6px;
+                          overflow: hidden;
+                          box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Sombra para tabela */
+                        }
+                        .print-table th, .print-table td {
+                          border: 1px solid #007bff;
+                          padding: 10px 8px; /* Padding ajustado para células */
+                          text-align: left;
+                          font-size: 10pt; /* Fonte menor para células */
+                        }
+                        .print-table th {
+                          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+                          color: white;
+                          font-weight: 600;
+                          text-transform: uppercase;
+                          letter-spacing: 0.5px;
+                        }
+                        .print-table td {
+                          background: #f8f9fa;
+                        }
+                        .print-table tr:nth-child(even) td {
+                          background: #e9ecef; /* Linhas alternadas mais suaves */
+                        }
+                        .print-table tr:hover td {
+                          background: #e3f2fd; /* Hover sutil para impressão */
+                        }
+                        .print-summary {
+                          background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+                          padding: 20px; /* Padding maior para resumo */
+                          border-radius: 8px;
+                          margin: 20px 0;
+                          border-left: 4px solid #007bff;
+                          box-shadow: 0 2px 8px rgba(0,123,255,0.1);
+                        }
+                        .print-summary p {
+                          justify-content: space-between;
+                          font-size: 11pt;
+                          margin: 10px 0; /* Margem consistente */
+                          font-weight: 500;
+                          border-bottom: 1px dashed #007bff; /* Linha separadora sutil */
+                          padding-bottom: 5px;
+                        }
+                        .print-summary p:last-child {
+                          border-bottom: none;
+                        }
+                        .print-summary .final-price {
+                          font-size: 13pt; /* Destaque maior para preço final */
+                          color: #007bff;
+                          border-top: 2px solid #007bff;
+                          padding-top: 10px;
+                          margin-top: 10px;
+                          font-weight: 700;
+                          text-align: center;
+                        }
+                        .print-warning {
+                          background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); /* Gradiente suave para aviso */
+                          border: 2px solid #ffc107;
+                          border-radius: 8px;
+                          padding: 20px; /* Padding maior para legibilidade */
+                          margin: 25px 0;
+                          color: #856404;
+                          font-size: 10pt;
+                          line-height: 1.4; /* Melhor espaçamento para texto longo */
+                          box-shadow: 0 2px 6px rgba(255,193,7,0.2);
+                        }
+                        .print-warning .warning-title {
+                          font-weight: 700;
+                          color: #d39e00;
+                          margin-bottom: 12px; /* Mais margem para título */
+                          text-align: center;
+                          font-size: 12pt;
+                          text-transform: uppercase;
+                          letter-spacing: 1px;
+                        }
+                        .print-footer {
+                          text-align: center;
+                          color: #6c757d;
+                          font-size: 9pt;
+                          margin-top: 25px; /* Mais espaço no rodapé */
+                          border-top: 1px solid #dee2e6;
+                          padding-top: 15px;
+                          font-style: italic;
+                        }
+                        .print-footer p {
+                          margin: 8px 0;
+                          justify-content: center;
+                          display: flex;
+                          align-items: center;
+                          gap: 5px;
+                        }
+                        .maps-link {
+                          color: #007bff;
+                          text-decoration: underline;
+                          font-size: 10pt;
+                          transition: color 0.3s ease; /* Transição para hover, mesmo em print */
+                        }
+                        .maps-link:hover {
+                          color: #0056b3;
+                        }
+                        @media print {
+                          body { 
+                            -webkit-print-color-adjust: exact; 
+                            print-color-adjust: exact; 
+                            font-size: 11pt; /* Garante tamanho em impressão */
+                          }
+                          .print-table { 
+                            border-collapse: collapse; 
+                            box-shadow: none; /* Remove sombra em print para simplicidade */
+                          }
+                          .print-container {
+                            box-shadow: none;
+                            border: 1px solid #000; /* Borda mais visível em preto para print */
+                          }
+                          .print-header {
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                          }
+                          .print-warning {
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                          }
+                        }
+                        @media (max-width: 640px) {
+                          .print-table {
+                            font-size: 9pt;
+                            width: 100%;
+                          }
+                          .print-table td:before {
+                            content: attr(data-label) ": ";
+                            font-weight: bold;
+                            display: block; /* Stack para mobile print */
+                          }
+                          .print-table td {
+                            border: none;
+                            border-bottom: 1px solid #007bff;
+                            padding: 5px;
+                          }
+                          .header-container {
+                            flex-direction: column;
+                            gap: 10px;
+                          }
+                          .title-container {
+                            order: -1;
+                            margin: 0;
+                          }
+                        }
+                      </style>
+                    </head>
+                    <body onload="window.print()">
+                      <div class="print-container">
+                        <div class="print-header">
+                          <div class="header-container">
+                            <div class="logo-container">
+                              ${logoBase64 ? `<img src="${logoBase64}" alt="Logo SESI">` : ''}
+                            </div>
+                            <div class="title-container">
+                              <h1>${title}</h1>
+                            </div>
+                            <div class="cnpj-container">
+                              <p class="header-info">CNPJ: ${cnpj}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="section">
+                          <div class="section-title">Informações Gerais</div>
+                          <p><i class="fas fa-calendar-alt"></i><span>Gerado em:</span> <span>${generatedDate}</span></p>
+                          <p><i class="fas fa-user"></i><span>Responsável pelo Orçamento:</span> <span>${schedulerName}</span></p>
+                          <p><i class="fas fa-user-md"></i><span>Cliente:</span> <span>${apt.patient || 'Não informado'}</span></p>
+                          <p><i class="fas fa-phone"></i><span>Telefone do Cliente:</span> <span>${apt.phone || 'Não informado'}</span></p>
+                `;
 
                 if (apt.agendaType === 'Agenda de Exames') {
-                    // Tabela de exames
-                    currentY += 10;
-                    doc.setFontSize(12);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text('Exames Selecionados', 20, currentY);
-                    currentY += 8;
-                    doc.rect(20, currentY, 170, 10); // Cabeçalho tabela
-                    doc.text('Exame', 25, currentY + 6);
-                    doc.text('Valor (R$)', 150, currentY + 6);
-                    currentY += 12;
-                    doc.rect(20, currentY - 10, 170, 20); // Linha da tabela
-                    doc.setFont('helvetica', 'normal');
-                    doc.text(`${apt.professional || 'Não informado'}`, 25, currentY + 2);
-                    doc.text('72,00', 150, currentY + 2);
-                    currentY += 20;
-
-                    // Resumo
-                    doc.setFontSize(12);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text('Valor Total: R$ 72,00', 20, currentY += 10);
-                    doc.setFontSize(14);
-                    doc.text('Total do Pagamento: R$ 72,00', 20, currentY += 8, { align: 'center' });
-
+                    // Tabela de exames como na imagem
+                    printContent += `
+                          <div class="section">
+                            <div class="section-title">Exames Selecionados</div>
+                            <table class="print-table">
+                              <thead>
+                                <tr>
+                                  <th>Exame</th>
+                                  <th>Valor (R$)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td data-label="Exame">${apt.professional || 'Não informado'}</td>
+                                  <td data-label="Valor (R$)">72,00</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                          <div class="print-summary">
+                            <p><i class="fas fa-calculator"></i><span>Valor Total:</span> <span>R$ 72,00</span></p>
+                            <p class="final-price"><i class="fas fa-receipt"></i><span>Total do Pagamento:</span> <span>R$ 72,00</span></p>
+                          </div>
+                    `;
                 } else {
-                    // Detalhes do Agendamento
-                    currentY += 10;
-                    doc.setFontSize(12);
-                    doc.setFont('helvetica', 'bold');
-                    doc.text('Detalhes do Agendamento', 20, currentY);
-                    currentY += 8;
-                    doc.setFontSize(10);
-                    doc.setFont('helvetica', 'normal');
-                    doc.text(`Data: ${apt.date || ''}`, 20, currentY += 6);
-                    doc.text(`Horário: ${apt.time || ''}`, 20, currentY += 5);
-                    doc.text(`Profissional: ${apt.professional || ''}`, 20, currentY += 5);
-                    doc.text(`Tipo: ${apt.agendaType || ''}`, 20, currentY += 5);
-                    doc.text(`Local: ${apt.location || ''}`, 20, currentY += 5);
-                    if (apt.priority) doc.text(`Prioritário: ${apt.priority}`, 20, currentY += 5);
-                    if (apt.firstAppointment) doc.text(`1º Atendimento: ${apt.firstAppointment}`, 20, currentY += 5);
-                    if (apt.observations) doc.text(`Obs.: ${apt.observations}`, 20, currentY += 5);
+                    // Para outros tipos, campos lineares
+                    printContent += `
+                          <div class="section">
+                            <div class="section-title">Detalhes do Agendamento</div>
+                            <p><i class="fas fa-calendar-day"></i><span>Data:</span> <span>${apt.date || ''}</span></p>
+                            <p><i class="fas fa-clock"></i><span>Horário:</span> <span>${apt.time || ''}</span></p>
+                            <p><i class="fas fa-user-md"></i><span>Profissional:</span> <span>${apt.professional || ''}</span></p>
+                            <p><i class="fas fa-stethoscope"></i><span>Tipo:</span> <span>${apt.agendaType || ''}</span></p>
+                            <p><i class="fas fa-map-marker-alt"></i><span>Local:</span> <span>${apt.location || ''}</span></p>
+                            ${apt.priority ? `<p><i class="fas fa-exclamation-triangle"></i><span>Prioritário:</span> <span>${apt.priority}</span></p>` : ''}
+                            ${apt.firstAppointment ? `<p><i class="fas fa-star"></i><span>1º Atendimento.:</span> <span>${apt.firstAppointment}</span></p>` : ''}
+                            ${apt.observations ? `<p><i class="fas fa-sticky-note"></i><span>Obs.:</span> <span>${apt.observations}</span></p>` : ''}
+                          </div>
+                    `;
                 }
 
-                // Aviso
-                currentY += 15;
-                doc.setFillColor(255, 193, 7);
-                doc.rect(20, currentY, 170, 30, 'F');
-                doc.setFontSize(12);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(139, 69, 19);
-                doc.text('! AVISO IMPORTANTE', 105, currentY + 8, { align: 'center' });
-                currentY += 12;
-                doc.setFontSize(9);
-                doc.setFont('helvetica', 'normal');
-                const warningTextA4 = 'Ao solicitar o agendamento de exames laboratoriais e especialidades médicas, o cliente declara expressamente que autoriza o tratamento dos seus dados pessoais de nome, telefone e CPF, para essa finalidade específica. Neste orçamento, possui validade a partir da data de sua solicitação até o término do ano corrente (2025). Durante esse período, os valores poderão ser atualizados, inclusive em razão de campanhas promocionais ou ajustes de tabela. Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em período com novas condições comerciais, o cliente será previamente informado sobre eventuais alterações nos preços antes da confirmação do atendimento.';
-                const splitWarningA4 = doc.splitTextToSize(warningTextA4, 170);
-                doc.text(splitWarningA4, 20, currentY, { maxWidth: 170 });
+                // Aviso como na imagem
+                printContent += `
+                        </div>
+                        <div class="print-warning">
+                          <div class="warning-title">! AVISO IMPORTANTE</div>
+                          <div>Ao solicitar o agendamento de exames laboratoriais e especialidades médicas, o cliente declara expressamente que autoriza o tratamento dos seus dados pessoais de nome, telefone e CPF, para essa finalidade específica. Neste orçamento, possui validade a partir da data de sua solicitação até o término do ano corrente (2025). Durante esse período, os valores poderão ser atualizados, inclusive em razão de campanhas promocionais ou ajustes de tabela. Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em período com novas condições comerciais, o cliente será previamente informado sobre eventuais alterações nos preços antes da confirmação do atendimento.</div>
+                        </div>
+                        <div class="print-footer">
+                          <p><i class="fas fa-map-marker-alt"></i><span>Endereço:</span> <span><a href="${mapsUrl}" class="maps-link" target="_blank">${address}</a></span></p>
+                          <p><i class="fas fa-calendar-alt"></i><span>Data:</span> <span>${generatedDate}</span></p>
+                        </div>
+                      </div>
+                    </body>
+                    </html>
+                `;
 
-                // Footer
-                currentY = 270;
-                doc.setFontSize(9);
-                doc.setFont('helvetica', 'italic');
-                doc.setTextColor(102, 102, 102);
-                doc.text(`Endereço: ${address}`, 20, currentY += 5);
-                doc.text(`Data: ${generatedDate}`, 20, currentY += 5);
+                const printWindow = window.open('', '_blank', 'width=800,height=600');
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.print();
+                printWindow.close();
             }
-
-            // Salvar o PDF
-            const filename = isThermal ? `comprovante_termica_${apt.patient.replace(/\s+/g, '_')}_${Date.now()}.pdf` : `comprovante_${apt.patient.replace(/\s+/g, '_')}_${Date.now()}.pdf`;
-            doc.save(filename);
 
             showToast(`Comprovante ${isThermal ? 'térmica' : 'normal'} gerado com sucesso!`, 'success');
         }
@@ -2613,51 +2917,124 @@
 
         function generateAttendanceDeclaration(cpf, patientName) {
             const generatedDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const printContent = `
+                <html>
+                <head>
+                  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                  <title>Declaração de Comparecimento</title>
+                  <style>
+                    @page {
+                      size: A4;
+                      margin: 2cm;
+                    }
+                    body {
+                      font-family: 'Roboto', serif;
+                      font-size: 12pt;
+                      margin: 0;
+                      padding: 0;
+                      line-height: 1.6;
+                      color: #000;
+                      background: white;
+                      text-align: justify;
+                      width: 100%;
+                    }
+                    .print-container {
+                      max-width: 600px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      border: 2px solid #007bff;
+                      border-radius: 8px;
+                      background: #ffffff;
+                    }
+                    .print-header {
+                      text-align: center;
+                      margin-bottom: 30px;
+                      border-bottom: 2px solid #007bff;
+                      padding-bottom: 15px;
+                    }
+                    .header-logo {
+                      max-width: 100px;
+                      height: auto;
+                      margin-bottom: 10px;
+                    }
+                    h1 {
+                      color: #007bff;
+                      font-size: 18pt;
+                      margin: 10px 0;
+                      font-weight: bold;
+                    }
+                    .declaration-body {
+                      text-align: justify;
+                      margin-bottom: 20px;
+                    }
+                    .declaration-body p {
+                      margin-bottom: 15px;
+                      text-indent: 2em;
+                    }
+                    .signature-section {
+                      display: flex;
+                      justify-content: space-between;
+                      margin-top: 40px;
+                    }
+                    .signature-box {
+                      border-bottom: 1px solid #000;
+                      width: 45%;
+                      padding-top: 50px;
+                      text-align: center;
+                      font-size: 10pt;
+                      color: #666;
+                    }
+                    .footer {
+                      text-align: center;
+                      margin-top: 30px;
+                      font-size: 10pt;
+                      color: #666;
+                    }
+                    @media print {
+                      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    }
+                  </style>
+                </head>
+                <body onload="window.print()">
+                  <div class="print-container">
+                    <div class="print-header">
+                      ${logoBase64 ? `<img src="${logoBase64}" alt="Logo SESI Saúde" class="header-logo">` : ''}
+                      <h1>Declaração de Comparecimento</h1>
+                      <p>SERVIÇO SOCIAL DA INDÚSTRIA - SESI SAÚDE</p>
+                      <p>CNPJ: 03.910.210/0002-52</p>
+                    </div>
+                    <div class="declaration-body">
+                      <p>Eu, <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, declaro para os devidos fins que compareci ao atendimento no SESI Saúde na data de <strong>${generatedDate}</strong>.</p>
+                      <p>O atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.</p>
+                      <p>Esta declaração serve como comprovação de presença e comparecimento ao local e horário designados.</p>
+                      <p>Local e Data: Recife/PE, ${generatedDate}.</p>
+                    </div>
+                    <div class="signature-section">
+                      <div class="signature-box">
+                        Assinatura do Paciente<br>
+                        _________________________
+                      </div>
+                      <div class="signature-box">
+                        Assinatura do Responsável<br>
+                        _________________________
+                      </div>
+                    </div>
+                    <div class="footer">
+                      <p>Documento gerado automaticamente pelo Sistema de Agendamento SESI Saúde.</p>
+                      <p>Validade: Única emissão.</p>
+                    </div>
+                  </div>
+                </body>
+                </html>
+            `;
 
-            let y = 30;
-            if (logoBase64) {
-                doc.addImage(logoBase64, 'PNG', 85, y, 40, 15);
-                y += 20;
-            }
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            printWindow.print();
+            printWindow.close();
 
-            doc.setFontSize(18);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Declaração de Comparecimento', 105, y, { align: 'center' });
-            y += 15;
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            doc.text('SERVIÇO SOCIAL DA INDÚSTRIA - SESI SAÚDE', 105, y, { align: 'center' });
-            y += 5;
-            doc.text('CNPJ: 03.910.210/0002-52', 105, y, { align: 'center' });
-
-            y += 20;
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Eu, ' + sanitizeInput(patientName) + ', portador(a) do CPF ' + cpf + ', declaro para os devidos fins que compareci ao atendimento no SESI Saúde na data de ' + generatedDate + '.', 20, y, { maxWidth: 170 });
-            y += 10;
-            doc.text('O atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.', 20, y, { maxWidth: 170 });
-            y += 8;
-            doc.text('Esta declaração serve como comprovação de presença e comparecimento ao local e horário designados.', 20, y, { maxWidth: 170 });
-            y += 8;
-            doc.text('Local e Data: Recife/PE, ' + generatedDate + '.', 20, y, { maxWidth: 170 });
-
-            y += 30;
-            doc.line(50, y, 100, y); // Linha para assinatura paciente
-            doc.text('Assinatura do Paciente', 50, y + 5, { align: 'center' });
-            doc.line(110, y, 160, y); // Linha para assinatura responsável
-            doc.text('Assinatura do Responsável', 110, y + 5, { align: 'center' });
-
-            y += 30;
-            doc.setFontSize(9);
-            doc.setFont('helvetica', 'italic');
-            doc.text('Documento gerado automaticamente pelo Sistema de Agendamento SESI Saúde.', 105, y, { align: 'center' });
-            y += 5;
-            doc.text('Validade: Única emissão.', 105, y, { align: 'center' });
-
-            doc.save(`declaracao_comparecimento_${patientName.replace(/\s+/g, '_')}_${Date.now()}.pdf`);
-            showToast('Declaração de Comparecimento gerada e baixada!', 'success');
+            showToast('Declaração de Comparecimento gerada e aberta para impressão!', 'success');
         }
 
         function generateCalendar(agendaType = currentAgendaType) {
@@ -3566,14 +3943,14 @@
             // Aviso sobre localStorage (melhoria de segurança)
             console.warn('Aviso: Dados salvos em localStorage. Para produção, migre para Firebase ou Supabase para melhor segurança e persistência.');
 
-            // Pré-carregar logo como base64 para impressões (com retry) - alterado para versão colorida
+            // Pré-carregar logo como base64 para impressões (com retry)
             try {
-                logoBase64 = await getImageBase64('img/sesicolorido.png');
+                logoBase64 = await getImageBase64('img/sesibranco.png');
                 if (!logoBase64) {
-                    console.warn('Logo colorido não carregado. Verifique o caminho do arquivo "img/sesicolorido.png".');
+                    console.warn('Logo não carregado. Verifique o caminho do arquivo "img/sesibranco.png".');
                 }
             } catch (e) {
-                console.error('Falha ao carregar logo colorido para impressões:', e);
+                console.error('Falha ao carregar logo para impressões:', e);
                 logoBase64 = '';
             }
 
