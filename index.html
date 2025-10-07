@@ -2338,7 +2338,7 @@
 
             if (isThermal) {
                 // Usar janela de impressão com HTML/CSS otimizado para térmica, incluindo imagens
-                let title = apt.agendaType === 'Agenda de Exames' ? 'ORÇAMENTO DE EXAMES' : 'COMPROVANTE DE AGENDAMENTO';
+                let title = 'COMPROVANTE DE AGENDAMENTO';
                 let printContent = `
                     <html>
                     <head>
@@ -2395,36 +2395,23 @@
                       <div class="center bold line">${title}</div>
                 `;
 
-                if (apt.agendaType === 'Agenda de Exames') {
-                    // Conteúdo específico para Exames
-                    printContent += `
-                      <div class="line">Responsável pelo Orçamento: ${schedulerName || ''}</div>
-                      <div class="line">Paciente: ${apt.patient}</div>
-                      <div class="line">Telefone do Paciente: ${apt.phone || ''}</div>
-                      <div class="line">Tipo de Atendimento: ${apt.professional || ''}</div>
-                      ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
-                      <div class="divider"></div>
-                      <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
-                    `;
-                } else {
-                    // Conteúdo para outros tipos (campos listados)
-                    printContent += `
-                      <div class="line">Data: ${apt.date || ''}</div>
-                      <div class="line">Horário: ${apt.time || ''}</div>
-                      <div class="line">Paciente: ${apt.patient || ''}</div>
-                      <div class="line">CPF: ${apt.cpf || ''}</div>
-                      <div class="line">Telefone: ${apt.phone || ''}</div>
-                      ${schedulerName ? `<div class="line">Responsável pelo Agendamento: ${schedulerName}</div>` : ''}
-                      <div class="line">Profissional: ${apt.professional || ''}</div>
-                      <div class="line">Tipo: ${apt.agendaType || ''}</div>
-                      <div class="line">Local: ${apt.location || ''}</div>
-                      <div class="divider"></div>
-                      ${apt.priority ? `<div class="line">Prioritário: ${apt.priority}</div>` : ''}
-                      ${apt.firstAppointment ? `<div class="line">1º Atendimento: ${apt.firstAppointment}</div>` : ''}
-                      ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
-                      <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
-                    `;
-                }
+                // Conteúdo para todos os tipos (campos listados)
+                printContent += `
+                  <div class="line">Data: ${apt.date || ''}</div>
+                  <div class="line">Horário: ${apt.time || ''}</div>
+                  <div class="line">Paciente: ${apt.patient || ''}</div>
+                  <div class="line">CPF: ${apt.cpf || ''}</div>
+                  <div class="line">Telefone: ${apt.phone || ''}</div>
+                  ${schedulerName ? `<div class="line">Responsável pelo Agendamento: ${schedulerName}</div>` : ''}
+                  <div class="line">Profissional: ${apt.professional || ''}</div>
+                  <div class="line">Tipo: ${apt.agendaType || ''}</div>
+                  <div class="line">Local: ${apt.location || ''}</div>
+                  <div class="divider"></div>
+                  ${apt.priority ? `<div class="line">Prioritário: ${apt.priority}</div>` : ''}
+                  ${apt.firstAppointment ? `<div class="line">1º Atendimento: ${apt.firstAppointment}</div>` : ''}
+                  ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
+                  <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
+                `;
 
                 // Aviso comum
                 printContent += `
@@ -2432,8 +2419,7 @@
                       <div class="divider"></div>
                       <div class="warning">
                         <div class="warning-title bold">AVISO IMPORTANTE</div>
-                        <div class="line">Ao solicitar o agendamento de consultas e exames, o cliente autoriza o uso de seus dados pessoais (nome, telefone, CPF) exclusivamente para essa finalidade. O agendamento possui validade a partir da data de sua solicitação até o término do ano corrente (2025). Durante esse período, os valores poderão ser atualizados, inclusive em razão de campanhas promocionais ou ajustes de tabela.
-Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em período com novas condições comerciais, o cliente será previamente informado sobre eventuais alterações nos preços antes da efetivação do agendamento.</div>
+                        <div class="line">Ao solicitar o agendamento de consultas e exames, o cliente autoriza o uso de seus dados pessoais (nome, telefone, CPF) exclusivamente para essa finalidade. O agendamento possui validade a partir da data de sua solicitação até o término do ano corrente (2025).</div>
                       </div>
                       <div class="center line">Apresente este comprovante no dia do atendimento.</div>
                     </body>
@@ -2447,7 +2433,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 printWindow.close();
             } else {
                 // Formato normal: usar window.print com HTML/CSS adaptado para A4, incluindo as imagens de SESI e Melhoria
-                let title = apt.agendaType === 'Agenda de Exames' ? 'Orçamento de Exames e Especialidades' : 'Comprovante de Agendamento';
+                let title = 'Comprovante de Agendamento';
                 const address = locationAddresses[apt.location] || 'Endereço não especificado';
                 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
                 let printContent = `
@@ -2636,15 +2622,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         .print-summary p:last-child {
                           border-bottom: none;
                         }
-                        .print-summary .final-price {
-                          font-size: 13pt; /* Destaque maior para preço final */
-                          color: #007bff;
-                          border-top: 2px solid #007bff;
-                          padding-top: 10px;
-                          margin-top: 10px;
-                          font-weight: 700;
-                          text-align: center;
-                        }
                         .print-warning {
                           background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); /* Gradiente suave para aviso */
                           border: 2px solid #ffc107;
@@ -2762,34 +2739,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           <p><i class="fas fa-phone"></i><span>Telefone do Cliente:</span> <span>${apt.phone || 'Não informado'}</span></p>
                 `;
 
-                if (apt.agendaType === 'Agenda de Exames') {
-                    // Tabela de exames como na imagem
-                    printContent += `
-                          <div class="section">
-                            <div class="section-title">Exames Selecionados</div>
-                            <table class="print-table">
-                              <thead>
-                                <tr>
-                                  <th>Exame</th>
-                                  <th>Valor (R$)</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr>
-                                  <td data-label="Exame">${apt.professional || 'Não informado'}</td>
-                                  <td data-label="Valor (R$)">72,00</td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                          <div class="print-summary">
-                            <p><i class="fas fa-calculator"></i><span>Valor Total:</span> <span>R$ 72,00</span></p>
-                            <p class="final-price"><i class="fas fa-receipt"></i><span>Total do Pagamento:</span> <span>R$ 72,00</span></p>
-                          </div>
-                    `;
-                } else {
-                    // Para outros tipos, campos lineares
-                    printContent += `
+                // Para todos os tipos, campos lineares
+                printContent += `
                           <div class="section">
                             <div class="section-title">Detalhes do Agendamento</div>
                             <p><i class="fas fa-calendar-day"></i><span>Data:</span> <span>${apt.date || ''}</span></p>
@@ -2801,15 +2752,14 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             ${apt.firstAppointment ? `<p><i class="fas fa-star"></i><span>1º Atendimento.:</span> <span>${apt.firstAppointment}</span></p>` : ''}
                             ${apt.observations ? `<p><i class="fas fa-sticky-note"></i><span>Obs.:</span> <span>${apt.observations}</span></p>` : ''}
                           </div>
-                    `;
-                }
+                `;
 
                 // Aviso como na imagem
                 printContent += `
                         </div>
                         <div class="print-warning">
                           <div class="warning-title">! AVISO IMPORTANTE</div>
-                          <div>Ao solicitar o agendamento de exames laboratoriais e especialidades médicas, o cliente declara expressamente que autoriza o tratamento dos seus dados pessoais de nome, telefone e CPF, para essa finalidade específica. Neste orçamento, possui validade a partir da data de sua solicitação até o término do ano corrente (2025). Durante esse período, os valores poderão ser atualizados, inclusive em razão de campanhas promocionais ou ajustes de tabela. Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em período com novas condições comerciais, o cliente será previamente informado sobre eventuais alterações nos preços antes da confirmação do atendimento.</div>
+                          <div>Ao solicitar o agendamento de exames laboratoriais e especialidades médicas, o cliente declara expressamente que autoriza o tratamento dos seus dados pessoais de nome, telefone e CPF, para essa finalidade específica. Neste agendamento, possui validade a partir da data de sua solicitação até o término do ano corrente (2025).</div>
                         </div>
                         <div class="print-footer">
                           <p><i class="fas fa-map-marker-alt"></i><span>Endereço:</span> <span><a href="${mapsUrl}" class="maps-link" target="_blank">${address}</a></span></p>
