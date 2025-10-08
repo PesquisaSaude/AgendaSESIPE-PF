@@ -1883,6 +1883,7 @@
         let currentPatientCpf = ''; // Global para CPF do paciente atual no histórico
         let currentPatientName = ''; // Global para nome do paciente atual no histórico
         let logoBase64 = ''; // Para imagens em impressões
+        let coloredLogoBase64 = ''; // Para imagem colorida em declarações
 
         // Função para carregar imagem como base64 (melhorada com retry e fallback)
         function getImageBase64(src, retries = 3) {
@@ -2915,7 +2916,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             focusTrap(modal);
         }
 
-        function generateAttendanceDeclaration(cpf, patientName) {
+        async function generateAttendanceDeclaration(cpf, patientName) {
             const generatedDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
             const printContent = `
                 <html>
@@ -2998,7 +2999,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 <body onload="window.print()">
                   <div class="print-container">
                     <div class="print-header">
-                      ${logoBase64 ? `<img src="${logoBase64}" alt="Logo SESI Saúde" class="header-logo">` : ''}
+                      ${coloredLogoBase64 ? `<img src="${coloredLogoBase64}" alt="Logo SESI Saúde" class="header-logo">` : ''}
                       <h1>Declaração de Comparecimento</h1>
                       <p>SERVIÇO SOCIAL DA INDÚSTRIA - SESI SAÚDE</p>
                       <p>CNPJ: 03.910.210/0002-52</p>
@@ -3952,6 +3953,17 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             } catch (e) {
                 console.error('Falha ao carregar logo para impressões:', e);
                 logoBase64 = '';
+            }
+
+            // Carregar logo colorido para declarações (assumindo arquivo 'img/sesicolor.png' - ajuste o nome se necessário)
+            try {
+                coloredLogoBase64 = await getImageBase64('img/sesicolor.png');
+                if (!coloredLogoBase64) {
+                    console.warn('Logo colorido não carregado. Verifique o caminho do arquivo "img/sesicolor.png".');
+                }
+            } catch (e) {
+                console.error('Falha ao carregar logo colorido para declarações:', e);
+                coloredLogoBase64 = '';
             }
 
             updateAppointmentDatesSet();
