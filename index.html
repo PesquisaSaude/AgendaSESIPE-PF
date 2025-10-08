@@ -4496,7 +4496,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         ${apt.observations ? `<p class="observations">Observações: ${sanitizeInput(apt.observations)}</p>` : ''}
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
                             <span class="status ${statusClass}">Status: ${statusText}</span>
-                            <button class="btn-clinica" onclick="confirmOpenFicha('${apt.cpf || ''}', '${apt.patient}', '${apt.phone || ''}', '${apt.observations || ''}')" aria-label="Abrir Ficha Clínica" role="button">Ficha Clínica</button>
+                            <button class="btn-clinica" onclick="confirmOpenFicha('${apt.cpf || ''}', '${apt.patient}', '${apt.phone || ''}', '${apt.observations || ''}')" aria-label="Abrir Ficha Odontológica" role="button">Ficha Odontológica</button>
                         </div>
                     `;
                     setTimeout(() => card.classList.add('show'), index * 50);
