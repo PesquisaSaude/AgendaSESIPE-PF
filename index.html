@@ -2787,6 +2787,12 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <p><i class="fas fa-calculator"></i><span>Valor Total:</span> <span>R$ 72,00</span></p>
                             <p class="final-price"><i class="fas fa-receipt"></i><span>Total do Pagamento:</span> <span>R$ 72,00</span></p>
                           </div>
+                          ${apt.observations ? `
+                          <div class="section">
+                            <div class="section-title">Observações</div>
+                            <p><i class="fas fa-sticky-note"></i><span>${sanitizeInput(apt.observations)}</span></p>
+                          </div>
+                          ` : ''}
                     `;
                 } else {
                     // Para outros tipos, campos lineares
@@ -2800,7 +2806,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <p><i class="fas fa-map-marker-alt"></i><span>Local:</span> <span>${apt.location || ''}</span></p>
                             ${apt.priority ? `<p><i class="fas fa-exclamation-triangle"></i><span>Prioritário:</span> <span>${apt.priority}</span></p>` : ''}
                             ${apt.firstAppointment ? `<p><i class="fas fa-star"></i><span>1º Atendimento.:</span> <span>${apt.firstAppointment}</span></p>` : ''}
-                            ${apt.observations ? `<p><i class="fas fa-sticky-note"></i><span>Obs.:</span> <span>${apt.observations}</span></p>` : ''}
+                            ${apt.observations ? `<p><i class="fas fa-sticky-note"></i><span>Obs.:</span> <span>${sanitizeInput(apt.observations)}</span></p>` : ''}
                           </div>
                     `;
                 }
