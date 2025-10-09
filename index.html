@@ -2954,20 +2954,28 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                       background: #ffffff;
                     }
                     .print-header {
-                      text-align: center;
+                      display: flex;
+                      align-items: center;
+                      justify-content: flex-start;
+                      text-align: left;
                       margin-bottom: 30px;
                       border-bottom: 2px solid #007bff;
                       padding-bottom: 15px;
+                      gap: 20px;
                     }
                     .header-logo {
                       max-width: 100px;
                       height: auto;
-                      margin-bottom: 10px;
+                      margin: 0;
+                      flex-shrink: 0;
+                    }
+                    .header-text {
+                      flex: 1;
                     }
                     h1 {
                       color: #007bff;
                       font-size: 18pt;
-                      margin: 10px 0;
+                      margin: 0 0 10px 0;
                       font-weight: bold;
                     }
                     .declaration-body {
@@ -3006,9 +3014,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                   <div class="print-container">
                     <div class="print-header">
                       ${coloredLogoBase64 ? `<img src="${coloredLogoBase64}" alt="Logo SESI Saúde" class="header-logo">` : ''}
-                      <h1>Declaração de Comparecimento</h1>
-                      <p>SERVIÇO SOCIAL DA INDÚSTRIA - SESI SAÚDE</p>
-                      <p>CNPJ: 03.910.210/0002-52</p>
+                      <div class="header-text">
+                        <h1>Declaração de Comparecimento</h1>
+                        <p>SERVIÇO SOCIAL DA INDÚSTRIA - SESI SAÚDE</p>
+                        <p>CNPJ: 03.910.210/0002-52</p>
+                      </div>
                     </div>
                     <div class="declaration-body">
                       <p>Eu, <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, declaro para os devidos fins que compareci ao atendimento no SESI Saúde na data de <strong>${generatedDate}</strong>.</p>
