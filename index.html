@@ -1455,19 +1455,6 @@
             transform: translateY(-1px) scale(1.05);
             box-shadow: 0 4px 12px rgba(23,162,184,0.3);
         }
-        .discount-info {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            border: 1px solid #ffc107;
-            border-radius: 6px;
-            padding: 10px;
-            margin-top: 5px;
-            font-size: 12px;
-            color: #856404;
-            font-weight: 500;
-        }
-        .discount-info.hidden {
-            display: none;
-        }
     </style>
 </head>
 <body data-theme="light">
@@ -1566,11 +1553,6 @@
                 <option value="Não">Não</option>
             </select>
             <small id="firstAppointmentDesc" class="sr-only">Indique se é o primeiro atendimento.</small>
-
-            <label for="discountPercent">Desconto (%) <span class="help-tooltip">?<span class="tooltip-text">Aplique desconto percentual para exames e especialidades médicas (opcional).</span></span></label>
-            <input type="number" id="discountPercent" min="0" max="100" step="0.01" placeholder="Ex: 10 para 10%" aria-describedby="discountDesc" style="display: none;">
-            <small id="discountDesc" class="sr-only">Campo opcional para desconto percentual em serviços de exames e especialidades médicas.</small>
-            <div id="discountInfo" class="discount-info hidden"></div>
 
             <label for="observations">Observações <span class="help-tooltip">?<span class="tooltip-text">Adicione detalhes importantes sobre o paciente ou consulta.</span></span></label>
             <textarea id="observations" placeholder="Digite observações adicionais (opcional)" aria-describedby="observationsDesc"></textarea>
@@ -1723,9 +1705,6 @@
                             <th>Primeiro Atendimento</th>
                             <th>Status</th>
                             <th>Observações</th>
-                            <th>Preço Original</th>
-                            <th>Desconto (%)</th>
-                            <th>Preço Final</th>
                         </tr>
                     </thead>
                     <tbody id="reportTableBody" role="rowgroup"></tbody>
@@ -1839,11 +1818,6 @@
                 <option value="Não">Não</option>
             </select>
 
-            <label for="editDiscountPercent">Desconto (%) <span class="help-tooltip">?<span class="tooltip-text">Aplique desconto percentual para exames e especialidades médicas (opcional).</span></span></label>
-            <input type="number" id="editDiscountPercent" min="0" max="100" step="0.01" placeholder="Ex: 10 para 10%" aria-describedby="editDiscountDesc">
-            <small id="editDiscountDesc" class="sr-only">Campo opcional para desconto percentual em serviços de exames e especialidades médicas.</small>
-            <div id="editDiscountInfo" class="discount-info hidden"></div>
-
             <label for="editObservations">Observações</label>
             <textarea id="editObservations" placeholder="Digite observações adicionais (opcional)"></textarea>
             
@@ -1911,57 +1885,12 @@
         let logoBase64 = ''; // Para imagens em impressões
         let coloredLogoBase64 = ''; // Para imagem colorida em declarações
 
-        // Preços para serviços (Odontologia sem valores)
-        const prices = {
-            // Especialidades Médicas
-            'Clínico Geral': 119,
-            'Cardiologista (inclui Eletrocardiograma e parecer cardiológico)': 139,
-            'Oftalmologista': 119,
-            'Otorrino': 119,
-            'Ginecologista': 119,
-            'Dermatologia': 119, // Assumido
-            'Psicologia (por sessão)': 107,
-            'Nutricionista': 107,
-            'Combo Otorrino': 184,
-            'Combo Nutricional': 239,
-            'Combo Gineco': 157,
-            'Combo Coração': 339,
-            // Ultrassonografias
-            'Ultrassonografia Abdômen Superior': 122,
-            'Ultrassonografia Abdômen Total': 202,
-            'Ultrassonografia Axila': 130,
-            'Ultrassonografia Bolsa Escrotal': 134,
-            'Ultrassonografia Mamária': 165,
-            'Ultrassonografia Obstétrica': 141,
-            'Ultrassonografia Parede Abdominal': 138,
-            'Ultrassonografia Parede Abdominal (Casual)': 160,
-            'Ultrassonografia Partes Moles (Couro Cabeludo)': 127,
-            'Ultrassonografia Partes Moles (Membros Superiores e Inferiores)': 127,
-            'Ultrassonografia Partes Moles (Região Cervical)': 127,
-            'Ultrassonografia Partes Moles (Região Dorsal)': 127,
-            'Ultrassonografia Partes Moles (Região Inframandibular)': 127,
-            'Ultrassonografia Partes Moles (Região Lombar)': 127,
-            'Ultrassonografia Partes Moles (Tórax)': 127,
-            'Ultrassonografia Próstata': 126,
-            'Ultrassonografia Região Inguinal': 126,
-            'Ultrassonografia Renal': 126,
-            'Ultrassonografia Tireóide': 126,
-            'Ultrassonografia Transretal': 126,
-            'Ultrassonografia Transvaginal': 126
-        };
-
-        // Função para calcular preço com desconto
-        function calculateDiscountedPrice(originalPrice, discountPercent) {
-            if (discountPercent <= 0 || !originalPrice) return originalPrice || 0;
-            return Math.max(0, originalPrice - (originalPrice * (discountPercent / 100)));
-        }
-
         // Função para carregar imagem como base64 (melhorada com retry e fallback)
         function getImageBase64(src, retries = 3) {
             return new Promise((resolve, reject) => {
                 const loadImage = (attempt) => {
                     const img = new Image();
-                    // Removido crossOrigin='anonymous' para imagens locais, evitando tainting do canvas em Chrome/Edge
+                    img.crossOrigin = 'anonymous';
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         canvas.width = img.width;
@@ -2089,18 +2018,14 @@
         ];
 
         const medicalSpecialists = [
-            'Clínico Geral',
-            'Cardiologista (inclui Eletrocardiograma e parecer cardiológico)',
-            'Oftalmologista',
-            'Otorrino',
-            'Ginecologista',
+            'Clínica Geral',
+            'Cardiologia',
+            'Oftalmologia',
+            'Otorrinolaringologia',
+            'Ginecologia',
             'Dermatologia',
-            'Psicologia (por sessão)',
-            'Nutricionista',
-            'Combo Otorrino',
-            'Combo Nutricional',
-            'Combo Gineco',
-            'Combo Coração'
+            'Psicologia',
+            'Nutrição'
         ];
 
         const examSpecialists = [
@@ -2111,7 +2036,6 @@
             'Ultrassonografia Mamária',
             'Ultrassonografia Obstétrica',
             'Ultrassonografia Parede Abdominal',
-            'Ultrassonografia Parede Abdominal (Casual)',
             'Ultrassonografia Partes Moles (Couro Cabeludo)',
             'Ultrassonografia Partes Moles (Membros Superiores e Inferiores)',
             'Ultrassonografia Partes Moles (Região Cervical)',
@@ -2145,18 +2069,14 @@
             'Edson': 50,
             'Dr. João Santos': 20,
             // Medical
-            'Clínico Geral': 30,
-            'Cardiologista (inclui Eletrocardiograma e parecer cardiológico)': 20,
-            'Oftalmologista': 25,
-            'Otorrino': 20,
-            'Ginecologista': 40,
+            'Clínica Geral': 30,
+            'Cardiologia': 20,
+            'Oftalmologia': 25,
+            'Otorrinolaringologia': 20,
+            'Ginecologia': 40,
             'Dermatologia': 30,
-            'Psicologia (por sessão)': 60,
-            'Nutricionista': 50,
-            'Combo Otorrino': 20,
-            'Combo Nutricional': 50,
-            'Combo Gineco': 40,
-            'Combo Coração': 20
+            'Psicologia': 60,
+            'Nutrição': 50
         };
 
         function generateSlots(startHour, endHour, intervalMin) {
@@ -2381,7 +2301,6 @@
         function populateEditProfessionals() {
             const agendaType = document.getElementById('editAgendaTypeSelect').value;
             populateProfessionals(agendaType, 'editDentistSelect');
-            updateEditDiscountVisibility();
         }
 
         function populateEditTimes() {
@@ -2407,59 +2326,6 @@
             });
         }
 
-        function updateDiscountVisibility() {
-            const agendaType = document.getElementById('agendaTypeSelect').value;
-            const discountInput = document.getElementById('discountPercent');
-            const discountInfo = document.getElementById('discountInfo');
-            if (agendaType === 'Agenda Especialidades Médicas' || agendaType === 'Agenda de Exames') {
-                discountInput.style.display = 'block';
-                discountInput.oninput = function() {
-                    const discount = parseFloat(this.value) || 0;
-                    const professional = document.getElementById('dentistSelect').value;
-                    const originalPrice = prices[professional] || 0;
-                    const finalPrice = calculateDiscountedPrice(originalPrice, discount);
-                    if (originalPrice > 0) {
-                        discountInfo.innerHTML = `Preço original: R$ ${originalPrice.toFixed(2).replace('.', ',')} | Desconto: ${discount}% | Preço final: R$ ${finalPrice.toFixed(2).replace('.', ',')}`;
-                        discountInfo.classList.remove('hidden');
-                    } else {
-                        discountInfo.classList.add('hidden');
-                    }
-                };
-                discountInput.dispatchEvent(new Event('input'));
-            } else {
-                discountInput.style.display = 'none';
-                discountInfo.classList.add('hidden');
-                discountInput.value = '';
-            }
-            updateScheduleButton();
-        }
-
-        function updateEditDiscountVisibility() {
-            const agendaType = document.getElementById('editAgendaTypeSelect').value;
-            const discountInput = document.getElementById('editDiscountPercent');
-            const discountInfo = document.getElementById('editDiscountInfo');
-            if (agendaType === 'Agenda Especialidades Médicas' || agendaType === 'Agenda de Exames') {
-                discountInput.style.display = 'block';
-                discountInput.oninput = function() {
-                    const discount = parseFloat(this.value) || 0;
-                    const professional = document.getElementById('editDentistSelect').value;
-                    const originalPrice = prices[professional] || 0;
-                    const finalPrice = calculateDiscountedPrice(originalPrice, discount);
-                    if (originalPrice > 0) {
-                        discountInfo.innerHTML = `Preço original: R$ ${originalPrice.toFixed(2).replace('.', ',')} | Desconto: ${discount}% | Preço final: R$ ${finalPrice.toFixed(2).replace('.', ',')}`;
-                        discountInfo.classList.remove('hidden');
-                    } else {
-                        discountInfo.classList.add('hidden');
-                    }
-                };
-                discountInput.dispatchEvent(new Event('input'));
-            } else {
-                discountInput.style.display = 'none';
-                discountInfo.classList.add('hidden');
-                discountInput.value = '';
-            }
-        }
-
         async function generatePDF(appointmentId, format) {
             const apt = appointments.find(a => a.id === appointmentId);
             if (!apt) return;
@@ -2470,12 +2336,6 @@
 
             // Determinar CNPJ baseado na localização (Paulista usa /0025-82, outros /0002-52)
             const cnpj = apt.location && apt.location.includes('Paulista') ? '03.910.210/0025-82' : '03.910.210/0002-52';
-
-            const originalPrice = apt.agendaType !== 'Agenda Odontológica' ? prices[apt.professional] || 0 : 0;
-            const discountPercent = apt.discountPercent || 0;
-            const finalPrice = calculateDiscountedPrice(originalPrice, discountPercent);
-            const formattedOriginalPrice = originalPrice > 0 ? `R$ ${originalPrice.toFixed(2).replace('.', ',')}` : 'N/A';
-            const formattedFinalPrice = finalPrice > 0 ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'N/A';
 
             if (isThermal) {
                 // Usar janela de impressão com HTML/CSS otimizado para térmica, incluindo imagens
@@ -2527,10 +2387,6 @@
                           image-rendering: -webkit-optimize-contrast; /* Otimiza contraste para WebKit */
                           image-rendering: crisp-edges; /* Bordas nítidas para imagens pequenas */
                         }
-                        .discount-line {
-                          font-weight: bold;
-                          margin-top: 0.2em;
-                        }
                       </style>
                     </head>
                     <body>
@@ -2547,34 +2403,12 @@
                       <div class="line">Paciente: ${apt.patient}</div>
                       <div class="line">Telefone do Paciente: ${apt.phone || ''}</div>
                       <div class="line">Tipo de Atendimento: ${apt.professional || ''}</div>
-                      <div class="discount-line">Preço: ${formattedOriginalPrice} (Desconto: ${discountPercent}%)</div>
-                      <div class="discount-line">Preço Final: ${formattedFinalPrice}</div>
                       ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
                       <div class="divider"></div>
-                      <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
-                    `;
-                } else if (apt.agendaType === 'Agenda Especialidades Médicas') {
-                    // Conteúdo para médicas com valor
-                    printContent += `
-                      <div class="line">Data: ${apt.date || ''}</div>
-                      <div class="line">Horário: ${apt.time || ''}</div>
-                      <div class="line">Paciente: ${apt.patient || ''}</div>
-                      <div class="line">CPF: ${apt.cpf || ''}</div>
-                      <div class="line">Telefone: ${apt.phone || ''}</div>
-                      ${schedulerName ? `<div class="line">Responsável pelo Agendamento: ${schedulerName}</div>` : ''}
-                      <div class="line">Profissional: ${apt.professional || ''}</div>
-                      <div class="discount-line">Preço: ${formattedOriginalPrice} (Desconto: ${discountPercent}%)</div>
-                      <div class="discount-line">Preço Final: ${formattedFinalPrice}</div>
-                      <div class="line">Tipo: ${apt.agendaType || ''}</div>
-                      <div class="line">Local: ${apt.location || ''}</div>
-                      <div class="divider"></div>
-                      ${apt.priority ? `<div class="line">Prioritário: ${apt.priority}</div>` : ''}
-                      ${apt.firstAppointment ? `<div class="line">1º Atendimento: ${apt.firstAppointment}</div>` : ''}
-                      ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
                       <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
                     `;
                 } else {
-                    // Conteúdo para outros tipos (sem valor para odontologia)
+                    // Conteúdo para outros tipos (campos listados)
                     printContent += `
                       <div class="line">Data: ${apt.date || ''}</div>
                       <div class="line">Horário: ${apt.time || ''}</div>
@@ -2812,14 +2646,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           font-weight: 700;
                           text-align: center;
                         }
-                        .print-summary .discount-info {
-                          background: #fff3cd;
-                          padding: 5px;
-                          border-radius: 4px;
-                          font-size: 10pt;
-                          color: #856404;
-                          margin: 5px 0;
-                        }
                         .print-warning {
                           background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); /* Gradiente suave para aviso */
                           border: 2px solid #ffc107;
@@ -2946,47 +2772,24 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                               <thead>
                                 <tr>
                                   <th>Exame</th>
-                                  <th>Preço Original (R$)</th>
-                                  <th>Desconto (%)</th>
-                                  <th>Preço Final (R$)</th>
+                                  <th>Valor (R$)</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 <tr>
                                   <td data-label="Exame">${apt.professional || 'Não informado'}</td>
-                                  <td data-label="Preço Original (R$)">${formattedOriginalPrice}</td>
-                                  <td data-label="Desconto (%)">${discountPercent}%</td>
-                                  <td data-label="Preço Final (R$)">${formattedFinalPrice}</td>
+                                  <td data-label="Valor (R$)">72,00</td>
                                 </tr>
                               </tbody>
                             </table>
                           </div>
                           <div class="print-summary">
-                            <p><i class="fas fa-calculator"></i><span>Valor Total Original:</span> <span>${formattedOriginalPrice}</span></p>
-                            <div class="discount-info"><i class="fas fa-percentage"></i> Desconto Aplicado: ${discountPercent}%</div>
-                            <p class="final-price"><i class="fas fa-receipt"></i><span>Total do Pagamento:</span> <span>${formattedFinalPrice}</span></p>
-                          </div>
-                    `;
-                } else if (apt.agendaType === 'Agenda Especialidades Médicas') {
-                    // Para médicas, campos lineares com valor
-                    printContent += `
-                          <div class="section">
-                            <div class="section-title">Detalhes do Agendamento</div>
-                            <p><i class="fas fa-calendar-day"></i><span>Data:</span> <span>${apt.date || ''}</span></p>
-                            <p><i class="fas fa-clock"></i><span>Horário:</span> <span>${apt.time || ''}</span></p>
-                            <p><i class="fas fa-user-md"></i><span>Profissional:</span> <span>${apt.professional || ''}</span></p>
-                            <p><i class="fas fa-dollar-sign"></i><span>Preço Original:</span> <span>${formattedOriginalPrice}</span></p>
-                            <p><i class="fas fa-percentage"></i><span>Desconto:</span> <span>${discountPercent}%</span></p>
-                            <p><i class="fas fa-tag"></i><span>Preço Final:</span> <span>${formattedFinalPrice}</span></p>
-                            <p><i class="fas fa-stethoscope"></i><span>Tipo:</span> <span>${apt.agendaType || ''}</span></p>
-                            <p><i class="fas fa-map-marker-alt"></i><span>Local:</span> <span>${apt.location || ''}</span></p>
-                            ${apt.priority ? `<p><i class="fas fa-exclamation-triangle"></i><span>Prioritário:</span> <span>${apt.priority}</span></p>` : ''}
-                            ${apt.firstAppointment ? `<p><i class="fas fa-star"></i><span>1º Atendimento.:</span> <span>${apt.firstAppointment}</span></p>` : ''}
-                            ${apt.observations ? `<p><i class="fas fa-sticky-note"></i><span>Obs.:</span> <span>${apt.observations}</span></p>` : ''}
+                            <p><i class="fas fa-calculator"></i><span>Valor Total:</span> <span>R$ 72,00</span></p>
+                            <p class="final-price"><i class="fas fa-receipt"></i><span>Total do Pagamento:</span> <span>R$ 72,00</span></p>
                           </div>
                     `;
                 } else {
-                    // Para outros tipos, campos lineares (sem valor para odontologia)
+                    // Para outros tipos, campos lineares
                     printContent += `
                           <div class="section">
                             <div class="section-title">Detalhes do Agendamento</div>
@@ -3100,13 +2903,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const item = document.createElement('div');
                 item.className = 'history-item';
                 const statusClass = getStatusClass(apt.status);
-                const originalPrice = apt.agendaType !== 'Agenda Odontológica' ? prices[apt.professional] || 0 : 0;
-                const discountPercent = apt.discountPercent || 0;
-                const finalPrice = calculateDiscountedPrice(originalPrice, discountPercent);
-                const formattedOriginalPrice = originalPrice > 0 ? `R$ ${originalPrice.toFixed(2).replace('.', ',')}` : 'N/A';
-                const formattedFinalPrice = finalPrice > 0 ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'N/A';
                 item.innerHTML = `
-                    <p><strong>Data:</strong> ${apt.date} | <strong>Horário:</strong> ${apt.time} | <strong>Preço Original:</strong> ${formattedOriginalPrice} | <strong>Desconto:</strong> ${discountPercent}% | <strong>Preço Final:</strong> ${formattedFinalPrice}</p>
+                    <p><strong>Data:</strong> ${apt.date} | <strong>Horário:</strong> ${apt.time}</p>
                     <p><strong>Tipo:</strong> ${apt.agendaType} | <strong>Profissional:</strong> ${sanitizeInput(apt.professional)}</p>
                     <p><strong>Status:</strong> <span class="status ${statusClass}">${getStatusText(apt.status)}</span></p>
                     ${apt.observations ? `<p><strong>Observações:</strong> ${sanitizeInput(apt.observations)}</p>` : ''}
@@ -3120,19 +2918,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
 
         async function generateAttendanceDeclaration(cpf, patientName) {
             const generatedDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-            const attendedAppts = appointments.filter(apt => apt.cpf === cpf && apt.status === 'attended');
-            let servicesList = '';
-            if (attendedAppts.length > 0) {
-                servicesList = attendedAppts.map(apt => {
-                    const originalPrice = apt.agendaType !== 'Agenda Odontológica' ? prices[apt.professional] || 0 : 0;
-                    const discountPercent = apt.discountPercent || 0;
-                    const finalPrice = calculateDiscountedPrice(originalPrice, discountPercent);
-                    const formattedFinalPrice = finalPrice > 0 ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'N/A';
-                    return `- ${apt.professional} (${formattedFinalPrice}) em ${apt.date}`;
-                }).join('<br>');
-            } else {
-                servicesList = 'Nenhum atendimento comparecido registrado.';
-            }
             const printContent = `
                 <html>
                 <head>
@@ -3187,11 +2972,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                       margin-bottom: 15px;
                       text-indent: 2em;
                     }
-                    .services-list {
-                      margin: 15px 0;
-                      padding-left: 2em;
-                      text-align: left;
-                    }
                     .signature-section {
                       display: flex;
                       justify-content: space-between;
@@ -3228,8 +3008,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                       <p>Eu, <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, declaro para os devidos fins que compareci ao atendimento no SESI Saúde na data de <strong>${generatedDate}</strong>.</p>
                       <p>O atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.</p>
                       <p>Esta declaração serve como comprovação de presença e comparecimento ao local e horário designados.</p>
-                      <p>Os serviços comparecidos incluem:</p>
-                      <div class="services-list">${servicesList}</div>
                       <p>Local e Data: Recife/PE, ${generatedDate}.</p>
                     </div>
                     <div class="signature-section">
@@ -3611,8 +3389,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('dentistSelect').value = '';
             document.getElementById('prioritySelect').value = '';
             document.getElementById('firstAppointmentSelect').value = '';
-            document.getElementById('discountPercent').value = '';
-            document.getElementById('discountInfo').classList.add('hidden');
             document.querySelectorAll('.hour-slot').forEach(s => s.classList.remove('selected'));
             document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
             document.getElementById('hoursGrid').innerHTML = '';
@@ -3738,12 +3514,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     const statusClass = getStatusClass(apt.status);
                     row.insertCell(10).innerHTML = `<span class="status ${statusClass}">${getStatusText(apt.status)}</span>`;
                     row.insertCell(11).textContent = sanitizeInput(apt.observations || '');
-                    const originalPrice = apt.agendaType !== 'Agenda Odontológica' ? prices[apt.professional] || 0 : 0;
-                    const discountPercent = apt.discountPercent || 0;
-                    const finalPrice = calculateDiscountedPrice(originalPrice, discountPercent);
-                    row.insertCell(12).textContent = originalPrice > 0 ? `R$ ${originalPrice.toFixed(2).replace('.', ',')}` : 'N/A';
-                    row.insertCell(13).textContent = discountPercent > 0 ? `${discountPercent}%` : '';
-                    row.insertCell(14).textContent = finalPrice > 0 ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'N/A';
                 });
 
                 // Summary Stats
@@ -4045,31 +3815,23 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 return;
             }
 
-            const headers = ['Paciente', 'CPF', 'Telefone', 'Data', 'Horário', 'Profissional', 'Tipo', 'Local', 'Prioritário', 'Primeiro Atendimento', 'Status', 'Observações', 'Preço Original', 'Desconto (%)', 'Preço Final'];
+            const headers = ['Paciente', 'CPF', 'Telefone', 'Data', 'Horário', 'Profissional', 'Tipo', 'Local', 'Prioritário', 'Primeiro Atendimento', 'Status', 'Observações'];
             const data = [
                 headers,
-                ...filteredAppointments.map(apt => {
-                    const originalPrice = apt.agendaType !== 'Agenda Odontológica' ? prices[apt.professional] || 0 : 0;
-                    const discountPercent = apt.discountPercent || 0;
-                    const finalPrice = calculateDiscountedPrice(originalPrice, discountPercent);
-                    return [
-                        apt.patient,
-                        apt.cpf || '',
-                        apt.phone || '',
-                        apt.date,
-                        apt.time,
-                        apt.professional,
-                        apt.agendaType,
-                        apt.location,
-                        apt.priority || '',
-                        apt.firstAppointment || '',
-                        getStatusText(apt.status),
-                        apt.observations || '',
-                        originalPrice > 0 ? originalPrice.toFixed(2).replace('.', ',') : 'N/A',
-                        discountPercent > 0 ? discountPercent.toFixed(2).replace('.', ',') + '%' : '',
-                        finalPrice > 0 ? finalPrice.toFixed(2).replace('.', ',') : 'N/A'
-                    ];
-                })
+                ...filteredAppointments.map(apt => [
+                    apt.patient,
+                    apt.cpf || '',
+                    apt.phone || '',
+                    apt.date,
+                    apt.time,
+                    apt.professional,
+                    apt.agendaType,
+                    apt.location,
+                    apt.priority || '',
+                    apt.firstAppointment || '',
+                    getStatusText(apt.status),
+                    apt.observations || ''
+                ])
             ];
 
             const ws = XLSX.utils.aoa_to_sheet(data);
@@ -4116,41 +3878,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 };
             }
 
-            // Colunas de preço: verde para final, amarelo para desconto
-            for(let row=1; row<data.length; row++){
-                // Preço Original (col 12)
-                const cell12 = XLSX.utils.encode_cell({r:row, c:12});
-                if(ws[cell12]) {
-                    ws[cell12].s = {
-                        font: { color: {rgb: "000000"} },
-                        fill: { fgColor: {rgb: "E3F2FD"} },
-                        alignment: { horizontal: "right", vertical: "center" }
-                    };
-                }
-                // Desconto (col 13)
-                const cell13 = XLSX.utils.encode_cell({r:row, c:13});
-                if(ws[cell13]) {
-                    ws[cell13].s = {
-                        font: { color: {rgb: "856404"}, bold: true },
-                        fill: { fgColor: {rgb: "FFF3CD"} },
-                        alignment: { horizontal: "center", vertical: "center" }
-                    };
-                }
-                // Preço Final (col 14)
-                const cell14 = XLSX.utils.encode_cell({r:row, c:14});
-                if(ws[cell14]) {
-                    ws[cell14].s = {
-                        font: { color: {rgb: "155724"}, bold: true },
-                        fill: { fgColor: {rgb: "D4EDDA"} },
-                        alignment: { horizontal: "right", vertical: "center" }
-                    };
-                }
-            }
-
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Relatório de Agendamentos');
             XLSX.writeFile(wb, `relatorio_agendamentos_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showToast('Relatório exportado para Excel com cores e descontos! ✅');
+            showToast('Relatório exportado para Excel com cores! ✅');
         }
 
         // Toast notification expandido
@@ -4329,7 +4060,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const agendaType = this.value;
                 populateProfessionals(agendaType, 'dentistSelect');
                 document.getElementById('dentistSelect').value = '';
-                updateDiscountVisibility();
                 generateCalendar(currentAgendaType);
                 if (selectedDay) {
                     populateHours(selectedDay);
@@ -4341,7 +4071,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 if (selectedDay) {
                     populateHours(selectedDay);
                 }
-                updateDiscountVisibility();
                 updateScheduleButton();
             };
 
@@ -4419,7 +4148,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const patientPhone = document.getElementById('patientPhone').value.trim();
                 const phoneClean = patientPhone.replace(/\D/g, '');
                 const schedulerName = sanitizeInput(document.getElementById('schedulerName').value.trim()); // Novo campo
-                const discountPercent = parseFloat(document.getElementById('discountPercent').value) || 0;
                 const observations = sanitizeInput(document.getElementById('observations').value.trim());
                 const agendaType = document.getElementById('agendaTypeSelect').value;
                 const professional = sanitizeInput(document.getElementById('dentistSelect').value);
@@ -4478,7 +4206,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     cpf: patientCpf,
                     phone: patientPhone,
                     scheduler: schedulerName, // Novo campo
-                    discountPercent: (agendaType === 'Agenda Odontológica') ? 0 : discountPercent, // Só aplica para não-odontologia
                     observations,
                     location,
                     agendaType,
@@ -4517,7 +4244,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 document.getElementById('editPatientCpf').value = appointment.cpf || '';
                 document.getElementById('editPatientPhone').value = appointment.phone || '';
                 document.getElementById('editSchedulerName').value = appointment.scheduler || ''; // Novo campo
-                document.getElementById('editDiscountPercent').value = appointment.discountPercent || ''; // Novo campo
                 document.getElementById('editObservations').value = appointment.observations || '';
                 document.getElementById('editLocationSelect').value = appointment.location || '';
                 const agendaType = appointment.agendaType || '';
@@ -4533,7 +4259,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 document.getElementById('editDate').value = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
                 // Set time
                 document.getElementById('editTime').value = appointment.time;
-                updateEditDiscountVisibility();
                 document.getElementById('editModal').style.display = 'block';
                 document.getElementById('editPatientName').focus();
                 focusTrap(document.getElementById('editModal'));
@@ -4547,7 +4272,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const patientPhone = document.getElementById('editPatientPhone').value.trim();
             const phoneClean = patientPhone.replace(/\D/g, '');
             const schedulerName = sanitizeInput(document.getElementById('editSchedulerName').value.trim()); // Novo campo
-            const discountPercent = parseFloat(document.getElementById('editDiscountPercent').value) || 0;
             const observations = sanitizeInput(document.getElementById('editObservations').value.trim());
             const location = document.getElementById('editLocationSelect').value;
             const agendaType = document.getElementById('editAgendaTypeSelect').value;
@@ -4597,7 +4321,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 appointment.cpf = patientCpf;
                 appointment.phone = patientPhone;
                 appointment.scheduler = schedulerName; // Novo campo
-                appointment.discountPercent = (agendaType === 'Agenda Odontológica') ? 0 : discountPercent; // Só aplica para não-odontologia
                 appointment.observations = observations;
                 appointment.location = location;
                 appointment.agendaType = agendaType;
@@ -4801,12 +4524,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     const statusClass = getStatusClass(apt.status);
                     const statusText = getStatusText(apt.status);
                     const schedulerText = apt.scheduler ? ` | Responsável: ${sanitizeInput(apt.scheduler)}` : '';
-                    const originalPrice = prices[apt.professional] || 0;
-                    const discountPercent = apt.discountPercent || 0;
-                    const finalPrice = calculateDiscountedPrice(originalPrice, discountPercent);
-                    const formattedOriginalPrice = originalPrice > 0 ? `R$ ${originalPrice.toFixed(2).replace('.', ',')}` : 'N/A';
-                    const formattedFinalPrice = finalPrice > 0 ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'N/A';
-                    const discountText = discountPercent > 0 ? ` (Desconto: ${discountPercent}%)` : '';
                     const card = document.createElement('div');
                     card.className = 'appointment-card';
                     card.style.animationDelay = `${index * 0.1}s`;
@@ -4823,7 +4540,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <button class="btn-pdf" onclick="preparePrint(${apt.id})" aria-label="Imprimir comprovante" role="button">Imprimir</button>
                         </div>
                         <h4><span class="patient-name" onclick="showPatientHistory('${apt.cpf}')" aria-label="Ver histórico de ${apt.patient}">${sanitizeInput(apt.patient)}</span> - ${apt.time} | ${apt.date}</h4>
-                        <p>CPF: ${apt.cpf || 'Não informado'} | Telefone: ${apt.phone || 'Não informado'} | Profissional: ${sanitizeInput(apt.professional)} ${discountText} | Tipo: ${apt.agendaType || 'Não informado'} | Local: ${apt.location || 'Não informado'} | Prioritário: ${apt.priority || 'Não informado'} | Primeiro Atendimento: ${apt.firstAppointment || 'Não informado'}${schedulerText}</p>
+                        <p>CPF: ${apt.cpf || 'Não informado'} | Telefone: ${apt.phone || 'Não informado'} | Profissional: ${sanitizeInput(apt.professional)} | Tipo: ${apt.agendaType || 'Não informado'} | Local: ${apt.location || 'Não informado'} | Prioritário: ${apt.priority || 'Não informado'} | Primeiro Atendimento: ${apt.firstAppointment || 'Não informado'}${schedulerText}</p>
                         ${apt.observations ? `<p class="observations">Observações: ${sanitizeInput(apt.observations)}</p>` : ''}
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
                             <span class="status ${statusClass}">Status: ${statusText}</span>
@@ -4843,12 +4560,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     const statusClass = getStatusClass(apt.status);
                     const statusText = getStatusText(apt.status);
                     const schedulerText = apt.scheduler ? ` | Responsável: ${sanitizeInput(apt.scheduler)}` : '';
-                    const originalPrice = prices[apt.professional] || 0;
-                    const discountPercent = apt.discountPercent || 0;
-                    const finalPrice = calculateDiscountedPrice(originalPrice, discountPercent);
-                    const formattedOriginalPrice = originalPrice > 0 ? `R$ ${originalPrice.toFixed(2).replace('.', ',')}` : 'N/A';
-                    const formattedFinalPrice = finalPrice > 0 ? `R$ ${finalPrice.toFixed(2).replace('.', ',')}` : 'N/A';
-                    const discountText = discountPercent > 0 ? ` (Desconto: ${discountPercent}%)` : '';
                     const card = document.createElement('div');
                     card.className = 'appointment-card';
                     card.style.animationDelay = `${index * 0.1}s`;
@@ -4865,7 +4576,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <button class="btn-pdf" onclick="preparePrint(${apt.id})" aria-label="Imprimir comprovante" role="button">Imprimir</button>
                         </div>
                         <h4><span class="patient-name" onclick="showPatientHistory('${apt.cpf}')" aria-label="Ver histórico de ${apt.patient}">${sanitizeInput(apt.patient)}</span> - ${apt.time} | ${apt.date}</h4>
-                        <p>CPF: ${apt.cpf || 'Não informado'} | Telefone: ${apt.phone || 'Não informado'} | Profissional: ${sanitizeInput(apt.professional)} ${discountText} | Tipo: ${apt.agendaType || 'Não informado'} | Local: ${apt.location || 'Não informado'} | Prioritário: ${apt.priority || 'Não informado'} | Primeiro Atendimento: ${apt.firstAppointment || 'Não informado'}${schedulerText}</p>
+                        <p>CPF: ${apt.cpf || 'Não informado'} | Telefone: ${apt.phone || 'Não informado'} | Profissional: ${sanitizeInput(apt.professional)} | Tipo: ${apt.agendaType || 'Não informado'} | Local: ${apt.location || 'Não informado'} | Prioritário: ${apt.priority || 'Não informado'} | Primeiro Atendimento: ${apt.firstAppointment || 'Não informado'}${schedulerText}</p>
                         ${apt.observations ? `<p class="observations">Observações: ${sanitizeInput(apt.observations)}</p>` : ''}
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
                             <span class="status ${statusClass}">Status: ${statusText}</span>
