@@ -3014,11 +3014,13 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 <body onload="window.print()">
                   <div class="print-container">
                     <div class="print-header">
-                      ${coloredLogoBase64 ? `<img src="${coloredLogoBase64}" alt="Logo SESI Saúde" class="header-logo">` : ''}
-                      <div class="header-text">
-                        <h1>Declaração de Comparecimento</h1>
-                        <p>SERVIÇO SOCIAL DA INDÚSTRIA - SESI SAÚDE</p>
-                        <p>CNPJ: 03.910.210/0002-52</p>
+                      <div style="display: flex; align-items: center; justify-content: center; width: 100%; gap: 20px;">
+                        ${coloredLogoBase64 ? `<img src="${coloredLogoBase64}" alt="Logo SESI Saúde" class="header-logo">` : ''}
+                        <div class="header-text">
+                          <h1>Declaração de Comparecimento</h1>
+                          <p>SERVIÇO SOCIAL DA INDÚSTRIA - SESI SAÚDE</p>
+                          <p>CNPJ: 03.910.210/0002-52</p>
+                        </div>
                       </div>
                     </div>
                     <div class="declaration-body">
