@@ -1885,12 +1885,51 @@
         let logoBase64 = ''; // Para imagens em impressões
         let coloredLogoBase64 = ''; // Para imagem colorida em declarações
 
+        // Preços para serviços (Odontologia sem valores)
+        const prices = {
+            // Especialidades Médicas
+            'Clínico Geral': 119,
+            'Cardiologista (inclui Eletrocardiograma e parecer cardiológico)': 139,
+            'Oftalmologista': 119,
+            'Otorrino': 119,
+            'Ginecologista': 119,
+            'Dermatologia': 119, // Assumido
+            'Psicologia (por sessão)': 107,
+            'Nutricionista': 107,
+            'Combo Otorrino': 184,
+            'Combo Nutricional': 239,
+            'Combo Gineco': 157,
+            'Combo Coração': 339,
+            // Ultrassonografias
+            'Ultrassonografia Abdômen Superior': 122,
+            'Ultrassonografia Abdômen Total': 202,
+            'Ultrassonografia Axila': 130,
+            'Ultrassonografia Bolsa Escrotal': 134,
+            'Ultrassonografia Mamária': 165,
+            'Ultrassonografia Obstétrica': 141,
+            'Ultrassonografia Parede Abdominal': 138,
+            'Ultrassonografia Parede Abdominal (Casual)': 160,
+            'Ultrassonografia Partes Moles (Couro Cabeludo)': 127,
+            'Ultrassonografia Partes Moles (Membros Superiores e Inferiores)': 127,
+            'Ultrassonografia Partes Moles (Região Cervical)': 127,
+            'Ultrassonografia Partes Moles (Região Dorsal)': 127,
+            'Ultrassonografia Partes Moles (Região Inframandibular)': 127,
+            'Ultrassonografia Partes Moles (Região Lombar)': 127,
+            'Ultrassonografia Partes Moles (Tórax)': 127,
+            'Ultrassonografia Próstata': 126,
+            'Ultrassonografia Região Inguinal': 126,
+            'Ultrassonografia Renal': 126,
+            'Ultrassonografia Tireóide': 126,
+            'Ultrassonografia Transretal': 126,
+            'Ultrassonografia Transvaginal': 126
+        };
+
         // Função para carregar imagem como base64 (melhorada com retry e fallback)
         function getImageBase64(src, retries = 3) {
             return new Promise((resolve, reject) => {
                 const loadImage = (attempt) => {
                     const img = new Image();
-                    img.crossOrigin = 'anonymous';
+                    // Removido crossOrigin='anonymous' para imagens locais, evitando tainting do canvas em Chrome/Edge
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         canvas.width = img.width;
@@ -2018,14 +2057,18 @@
         ];
 
         const medicalSpecialists = [
-            'Clínica Geral',
-            'Cardiologia',
-            'Oftalmologia',
-            'Otorrinolaringologia',
-            'Ginecologia',
+            'Clínico Geral',
+            'Cardiologista (inclui Eletrocardiograma e parecer cardiológico)',
+            'Oftalmologista',
+            'Otorrino',
+            'Ginecologista',
             'Dermatologia',
-            'Psicologia',
-            'Nutrição'
+            'Psicologia (por sessão)',
+            'Nutricionista',
+            'Combo Otorrino',
+            'Combo Nutricional',
+            'Combo Gineco',
+            'Combo Coração'
         ];
 
         const examSpecialists = [
@@ -2036,6 +2079,7 @@
             'Ultrassonografia Mamária',
             'Ultrassonografia Obstétrica',
             'Ultrassonografia Parede Abdominal',
+            'Ultrassonografia Parede Abdominal (Casual)',
             'Ultrassonografia Partes Moles (Couro Cabeludo)',
             'Ultrassonografia Partes Moles (Membros Superiores e Inferiores)',
             'Ultrassonografia Partes Moles (Região Cervical)',
@@ -2069,14 +2113,18 @@
             'Edson': 50,
             'Dr. João Santos': 20,
             // Medical
-            'Clínica Geral': 30,
-            'Cardiologia': 20,
-            'Oftalmologia': 25,
-            'Otorrinolaringologia': 20,
-            'Ginecologia': 40,
+            'Clínico Geral': 30,
+            'Cardiologista (inclui Eletrocardiograma e parecer cardiológico)': 20,
+            'Oftalmologista': 25,
+            'Otorrino': 20,
+            'Ginecologista': 40,
             'Dermatologia': 30,
-            'Psicologia': 60,
-            'Nutrição': 50
+            'Psicologia (por sessão)': 60,
+            'Nutricionista': 50,
+            'Combo Otorrino': 20,
+            'Combo Nutricional': 50,
+            'Combo Gineco': 40,
+            'Combo Coração': 20
         };
 
         function generateSlots(startHour, endHour, intervalMin) {
@@ -2337,6 +2385,9 @@
             // Determinar CNPJ baseado na localização (Paulista usa /0025-82, outros /0002-52)
             const cnpj = apt.location && apt.location.includes('Paulista') ? '03.910.210/0025-82' : '03.910.210/0002-52';
 
+            const servicePrice = apt.agendaType !== 'Agenda Odontológica' ? prices[apt.professional] || 0 : 0;
+            const formattedPrice = servicePrice > 0 ? `R$ ${servicePrice.toFixed(2).replace('.', ',')}` : 'N/A';
+
             if (isThermal) {
                 // Usar janela de impressão com HTML/CSS otimizado para térmica, incluindo imagens
                 let title = apt.agendaType === 'Agenda de Exames' ? 'ORÇAMENTO DE EXAMES' : 'COMPROVANTE DE AGENDAMENTO';
@@ -2402,13 +2453,31 @@
                       <div class="line">Responsável pelo Orçamento: ${schedulerName || ''}</div>
                       <div class="line">Paciente: ${apt.patient}</div>
                       <div class="line">Telefone do Paciente: ${apt.phone || ''}</div>
-                      <div class="line">Tipo de Atendimento: ${apt.professional || ''}</div>
+                      <div class="line">Tipo de Atendimento: ${apt.professional || ''} - ${formattedPrice}</div>
                       ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
                       <div class="divider"></div>
                       <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
                     `;
+                } else if (apt.agendaType === 'Agenda Especialidades Médicas') {
+                    // Conteúdo para médicas com valor
+                    printContent += `
+                      <div class="line">Data: ${apt.date || ''}</div>
+                      <div class="line">Horário: ${apt.time || ''}</div>
+                      <div class="line">Paciente: ${apt.patient || ''}</div>
+                      <div class="line">CPF: ${apt.cpf || ''}</div>
+                      <div class="line">Telefone: ${apt.phone || ''}</div>
+                      ${schedulerName ? `<div class="line">Responsável pelo Agendamento: ${schedulerName}</div>` : ''}
+                      <div class="line">Profissional: ${apt.professional || ''} - ${formattedPrice}</div>
+                      <div class="line">Tipo: ${apt.agendaType || ''}</div>
+                      <div class="line">Local: ${apt.location || ''}</div>
+                      <div class="divider"></div>
+                      ${apt.priority ? `<div class="line">Prioritário: ${apt.priority}</div>` : ''}
+                      ${apt.firstAppointment ? `<div class="line">1º Atendimento: ${apt.firstAppointment}</div>` : ''}
+                      ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
+                      <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
+                    `;
                 } else {
-                    // Conteúdo para outros tipos (campos listados)
+                    // Conteúdo para outros tipos (sem valor para odontologia)
                     printContent += `
                       <div class="line">Data: ${apt.date || ''}</div>
                       <div class="line">Horário: ${apt.time || ''}</div>
@@ -2778,18 +2847,34 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                               <tbody>
                                 <tr>
                                   <td data-label="Exame">${apt.professional || 'Não informado'}</td>
-                                  <td data-label="Valor (R$)">72,00</td>
+                                  <td data-label="Valor (R$)">${formattedPrice}</td>
                                 </tr>
                               </tbody>
                             </table>
                           </div>
                           <div class="print-summary">
-                            <p><i class="fas fa-calculator"></i><span>Valor Total:</span> <span>R$ 72,00</span></p>
-                            <p class="final-price"><i class="fas fa-receipt"></i><span>Total do Pagamento:</span> <span>R$ 72,00</span></p>
+                            <p><i class="fas fa-calculator"></i><span>Valor Total:</span> <span>${formattedPrice}</span></p>
+                            <p class="final-price"><i class="fas fa-receipt"></i><span>Total do Pagamento:</span> <span>${formattedPrice}</span></p>
+                          </div>
+                    `;
+                } else if (apt.agendaType === 'Agenda Especialidades Médicas') {
+                    // Para médicas, campos lineares com valor
+                    printContent += `
+                          <div class="section">
+                            <div class="section-title">Detalhes do Agendamento</div>
+                            <p><i class="fas fa-calendar-day"></i><span>Data:</span> <span>${apt.date || ''}</span></p>
+                            <p><i class="fas fa-clock"></i><span>Horário:</span> <span>${apt.time || ''}</span></p>
+                            <p><i class="fas fa-user-md"></i><span>Profissional:</span> <span>${apt.professional || ''}</span></p>
+                            <p><i class="fas fa-dollar-sign"></i><span>Valor:</span> <span>${formattedPrice}</span></p>
+                            <p><i class="fas fa-stethoscope"></i><span>Tipo:</span> <span>${apt.agendaType || ''}</span></p>
+                            <p><i class="fas fa-map-marker-alt"></i><span>Local:</span> <span>${apt.location || ''}</span></p>
+                            ${apt.priority ? `<p><i class="fas fa-exclamation-triangle"></i><span>Prioritário:</span> <span>${apt.priority}</span></p>` : ''}
+                            ${apt.firstAppointment ? `<p><i class="fas fa-star"></i><span>1º Atendimento.:</span> <span>${apt.firstAppointment}</span></p>` : ''}
+                            ${apt.observations ? `<p><i class="fas fa-sticky-note"></i><span>Obs.:</span> <span>${apt.observations}</span></p>` : ''}
                           </div>
                     `;
                 } else {
-                    // Para outros tipos, campos lineares
+                    // Para outros tipos, campos lineares (sem valor para odontologia)
                     printContent += `
                           <div class="section">
                             <div class="section-title">Detalhes do Agendamento</div>
@@ -2903,8 +2988,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const item = document.createElement('div');
                 item.className = 'history-item';
                 const statusClass = getStatusClass(apt.status);
+                const servicePrice = apt.agendaType !== 'Agenda Odontológica' ? prices[apt.professional] || 0 : 0;
+                const formattedPrice = servicePrice > 0 ? `R$ ${servicePrice.toFixed(2).replace('.', ',')}` : 'N/A';
                 item.innerHTML = `
-                    <p><strong>Data:</strong> ${apt.date} | <strong>Horário:</strong> ${apt.time}</p>
+                    <p><strong>Data:</strong> ${apt.date} | <strong>Horário:</strong> ${apt.time} | <strong>Valor:</strong> ${formattedPrice}</p>
                     <p><strong>Tipo:</strong> ${apt.agendaType} | <strong>Profissional:</strong> ${sanitizeInput(apt.professional)}</p>
                     <p><strong>Status:</strong> <span class="status ${statusClass}">${getStatusText(apt.status)}</span></p>
                     ${apt.observations ? `<p><strong>Observações:</strong> ${sanitizeInput(apt.observations)}</p>` : ''}
@@ -2918,6 +3005,17 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
 
         async function generateAttendanceDeclaration(cpf, patientName) {
             const generatedDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+            const attendedAppts = appointments.filter(apt => apt.cpf === cpf && apt.status === 'attended');
+            let servicesList = '';
+            if (attendedAppts.length > 0) {
+                servicesList = attendedAppts.map(apt => {
+                    const servicePrice = apt.agendaType !== 'Agenda Odontológica' ? prices[apt.professional] || 0 : 0;
+                    const formattedPrice = servicePrice > 0 ? `R$ ${servicePrice.toFixed(2).replace('.', ',')}` : 'N/A';
+                    return `- ${apt.professional} (${formattedPrice}) em ${apt.date}`;
+                }).join('<br>');
+            } else {
+                servicesList = 'Nenhum atendimento comparecido registrado.';
+            }
             const printContent = `
                 <html>
                 <head>
@@ -2972,6 +3070,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                       margin-bottom: 15px;
                       text-indent: 2em;
                     }
+                    .services-list {
+                      margin: 15px 0;
+                      padding-left: 2em;
+                      text-align: left;
+                    }
                     .signature-section {
                       display: flex;
                       justify-content: space-between;
@@ -3008,6 +3111,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                       <p>Eu, <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, declaro para os devidos fins que compareci ao atendimento no SESI Saúde na data de <strong>${generatedDate}</strong>.</p>
                       <p>O atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.</p>
                       <p>Esta declaração serve como comprovação de presença e comparecimento ao local e horário designados.</p>
+                      <p>Os serviços comparecidos incluem:</p>
+                      <div class="services-list">${servicesList}</div>
                       <p>Local e Data: Recife/PE, ${generatedDate}.</p>
                     </div>
                     <div class="signature-section">
@@ -4524,6 +4629,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     const statusClass = getStatusClass(apt.status);
                     const statusText = getStatusText(apt.status);
                     const schedulerText = apt.scheduler ? ` | Responsável: ${sanitizeInput(apt.scheduler)}` : '';
+                    const servicePrice = prices[apt.professional] || 0;
+                    const formattedPrice = servicePrice > 0 ? `R$ ${servicePrice.toFixed(2).replace('.', ',')}` : 'N/A';
                     const card = document.createElement('div');
                     card.className = 'appointment-card';
                     card.style.animationDelay = `${index * 0.1}s`;
@@ -4540,7 +4647,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <button class="btn-pdf" onclick="preparePrint(${apt.id})" aria-label="Imprimir comprovante" role="button">Imprimir</button>
                         </div>
                         <h4><span class="patient-name" onclick="showPatientHistory('${apt.cpf}')" aria-label="Ver histórico de ${apt.patient}">${sanitizeInput(apt.patient)}</span> - ${apt.time} | ${apt.date}</h4>
-                        <p>CPF: ${apt.cpf || 'Não informado'} | Telefone: ${apt.phone || 'Não informado'} | Profissional: ${sanitizeInput(apt.professional)} | Tipo: ${apt.agendaType || 'Não informado'} | Local: ${apt.location || 'Não informado'} | Prioritário: ${apt.priority || 'Não informado'} | Primeiro Atendimento: ${apt.firstAppointment || 'Não informado'}${schedulerText}</p>
+                        <p>CPF: ${apt.cpf || 'Não informado'} | Telefone: ${apt.phone || 'Não informado'} | Profissional: ${sanitizeInput(apt.professional)} (${formattedPrice}) | Tipo: ${apt.agendaType || 'Não informado'} | Local: ${apt.location || 'Não informado'} | Prioritário: ${apt.priority || 'Não informado'} | Primeiro Atendimento: ${apt.firstAppointment || 'Não informado'}${schedulerText}</p>
                         ${apt.observations ? `<p class="observations">Observações: ${sanitizeInput(apt.observations)}</p>` : ''}
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
                             <span class="status ${statusClass}">Status: ${statusText}</span>
@@ -4560,6 +4667,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     const statusClass = getStatusClass(apt.status);
                     const statusText = getStatusText(apt.status);
                     const schedulerText = apt.scheduler ? ` | Responsável: ${sanitizeInput(apt.scheduler)}` : '';
+                    const servicePrice = prices[apt.professional] || 0;
+                    const formattedPrice = servicePrice > 0 ? `R$ ${servicePrice.toFixed(2).replace('.', ',')}` : 'N/A';
                     const card = document.createElement('div');
                     card.className = 'appointment-card';
                     card.style.animationDelay = `${index * 0.1}s`;
@@ -4576,7 +4685,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <button class="btn-pdf" onclick="preparePrint(${apt.id})" aria-label="Imprimir comprovante" role="button">Imprimir</button>
                         </div>
                         <h4><span class="patient-name" onclick="showPatientHistory('${apt.cpf}')" aria-label="Ver histórico de ${apt.patient}">${sanitizeInput(apt.patient)}</span> - ${apt.time} | ${apt.date}</h4>
-                        <p>CPF: ${apt.cpf || 'Não informado'} | Telefone: ${apt.phone || 'Não informado'} | Profissional: ${sanitizeInput(apt.professional)} | Tipo: ${apt.agendaType || 'Não informado'} | Local: ${apt.location || 'Não informado'} | Prioritário: ${apt.priority || 'Não informado'} | Primeiro Atendimento: ${apt.firstAppointment || 'Não informado'}${schedulerText}</p>
+                        <p>CPF: ${apt.cpf || 'Não informado'} | Telefone: ${apt.phone || 'Não informado'} | Profissional: ${sanitizeInput(apt.professional)} (${formattedPrice}) | Tipo: ${apt.agendaType || 'Não informado'} | Local: ${apt.location || 'Não informado'} | Prioritário: ${apt.priority || 'Não informado'} | Primeiro Atendimento: ${apt.firstAppointment || 'Não informado'}${schedulerText}</p>
                         ${apt.observations ? `<p class="observations">Observações: ${sanitizeInput(apt.observations)}</p>` : ''}
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
                             <span class="status ${statusClass}">Status: ${statusText}</span>
@@ -4591,4 +4700,3 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
     </script>
 </body> 
 </html>
-
