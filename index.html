@@ -4539,100 +4539,99 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             btn.classList.add('loading');
             spinner.style.display = 'block';
 
-            setTimeout(() => {
-                const patientName = sanitizeInput(document.getElementById('patientName').value.trim());
-                const patientCpf = document.getElementById('patientCpf').value.trim();
-                const cpfClean = patientCpf.replace(/\D/g, '');
-                const patientPhone = document.getElementById('patientPhone').value.trim();
-                const phoneClean = patientPhone.replace(/\D/g, '');
-                const schedulerName = sanitizeInput(document.getElementById('schedulerName').value.trim()); // Novo campo
-                const observations = sanitizeInput(document.getElementById('observations').value.trim());
-                const agendaType = document.getElementById('agendaTypeSelect').value;
-                const professional = sanitizeInput(document.getElementById('dentistSelect').value);
-                const location = document.getElementById('locationSelect').value;
-                const priority = document.getElementById('prioritySelect').value;
-                const firstAppointment = document.getElementById('firstAppointmentSelect').value;
-                const dateStr = selectedDay.toLocaleDateString('pt-BR');
+            // Removido o setTimeout para execução imediata, corrigindo o problema de "não funcionar" (atraso simulado removido)
+            const patientName = sanitizeInput(document.getElementById('patientName').value.trim());
+            const patientCpf = document.getElementById('patientCpf').value.trim();
+            const cpfClean = patientCpf.replace(/\D/g, '');
+            const patientPhone = document.getElementById('patientPhone').value.trim();
+            const phoneClean = patientPhone.replace(/\D/g, '');
+            const schedulerName = sanitizeInput(document.getElementById('schedulerName').value.trim()); // Novo campo
+            const observations = sanitizeInput(document.getElementById('observations').value.trim());
+            const agendaType = document.getElementById('agendaTypeSelect').value;
+            const professional = sanitizeInput(document.getElementById('dentistSelect').value);
+            const location = document.getElementById('locationSelect').value;
+            const priority = document.getElementById('prioritySelect').value;
+            const firstAppointment = document.getElementById('firstAppointmentSelect').value;
+            const dateStr = selectedDay.toLocaleDateString('pt-BR');
 
-                if (isHoliday(selectedDay)) {
-                    showToast(`Não é possível agendar em feriados: ${getHolidayName(selectedDay)}.`, 'error');
-                    btn.classList.remove('loading');
-                    spinner.style.display = 'none';
-                    return;
-                }
-
-                if (isBlocked(dateStr, agendaType)) {
-                    const reason = blockedDates.find(b => b.date === dateStr && b.agendaType === agendaType)?.reason;
-                    showToast(`Não é possível agendar em data bloqueada para ${agendaType}: ${reason}.`, 'error');
-                    btn.classList.remove('loading');
-                    spinner.style.display = 'none';
-                    return;
-                }
-
-                if (!isValidCPF(cpfClean)) {
-                    showToast('CPF inválido.', 'error');
-                    btn.classList.remove('loading');
-                    spinner.style.display = 'none';
-                    return;
-                }
-
-                if (phoneClean.length < 10 || phoneClean.length > 11) {
-                    showToast('Telefone inválido.', 'error');
-                    btn.classList.remove('loading');
-                    spinner.style.display = 'none';
-                    return;
-                }
-
-                // Check for duplicate
-                const existing = appointments.find(apt => 
-                    apt.agendaType === agendaType &&
-                    apt.date === dateStr && 
-                    apt.time === selectedHour && 
-                    apt.professional === professional
-                );
-                if (existing) {
-                    showToast('Já existe um agendamento para este profissional nesta data e horário.', 'error');
-                    btn.classList.remove('loading');
-                    spinner.style.display = 'none';
-                    return;
-                }
-
-                // Create new appointment com desconto
-                const appointment = {
-                    id: Date.now(),
-                    patient: patientName,
-                    cpf: patientCpf,
-                    phone: patientPhone,
-                    scheduler: schedulerName, // Novo campo
-                    observations,
-                    location,
-                    agendaType,
-                    date: dateStr,
-                    time: selectedHour,
-                    professional,
-                    priority,
-                    firstAppointment,
-                    status: 'pending', // Status inicial
-                    timestamp: new Date().toISOString(),
-                    discount: Object.keys(discountObj).length > 0 ? discountObj : undefined // Adiciona desconto se aplicável
-                };
-                appointments.unshift(appointment);
-                localStorage.setItem('appointments', JSON.stringify(appointments));
-                currentPrintId = appointment.id; // Para impressão posterior
-                updateAppointmentDatesSet();
-                showToast('Consulta agendada com sucesso! ✅');
-                clearSelections();
-                generateCalendar(currentAgendaType);
-                if (document.getElementById('scheduledGrid').style.display !== 'none') {
-                    displayAppointments();
-                }
+            if (isHoliday(selectedDay)) {
+                showToast(`Não é possível agendar em feriados: ${getHolidayName(selectedDay)}.`, 'error');
                 btn.classList.remove('loading');
                 spinner.style.display = 'none';
+                return;
+            }
 
-                // Mostrar pop-up de impressão após agendamento
-                document.getElementById('printConfirmModal').style.display = 'block';
-                focusTrap(document.getElementById('printConfirmModal'));
-            }, 1000);
+            if (isBlocked(dateStr, agendaType)) {
+                const reason = blockedDates.find(b => b.date === dateStr && b.agendaType === agendaType)?.reason;
+                showToast(`Não é possível agendar em data bloqueada para ${agendaType}: ${reason}.`, 'error');
+                btn.classList.remove('loading');
+                spinner.style.display = 'none';
+                return;
+            }
+
+            if (!isValidCPF(cpfClean)) {
+                showToast('CPF inválido.', 'error');
+                btn.classList.remove('loading');
+                spinner.style.display = 'none';
+                return;
+            }
+
+            if (phoneClean.length < 10 || phoneClean.length > 11) {
+                showToast('Telefone inválido.', 'error');
+                btn.classList.remove('loading');
+                spinner.style.display = 'none';
+                return;
+            }
+
+            // Check for duplicate
+            const existing = appointments.find(apt => 
+                apt.agendaType === agendaType &&
+                apt.date === dateStr && 
+                apt.time === selectedHour && 
+                apt.professional === professional
+            );
+            if (existing) {
+                showToast('Já existe um agendamento para este profissional nesta data e horário.', 'error');
+                btn.classList.remove('loading');
+                spinner.style.display = 'none';
+                return;
+            }
+
+            // Create new appointment com desconto
+            const appointment = {
+                id: Date.now(),
+                patient: patientName,
+                cpf: patientCpf,
+                phone: patientPhone,
+                scheduler: schedulerName, // Novo campo
+                observations,
+                location,
+                agendaType,
+                date: dateStr,
+                time: selectedHour,
+                professional,
+                priority,
+                firstAppointment,
+                status: 'pending', // Status inicial
+                timestamp: new Date().toISOString(),
+                discount: Object.keys(discountObj).length > 0 ? discountObj : undefined // Adiciona desconto se aplicável
+            };
+            appointments.unshift(appointment);
+            localStorage.setItem('appointments', JSON.stringify(appointments));
+            currentPrintId = appointment.id; // Para impressão posterior
+            updateAppointmentDatesSet();
+            showToast('Consulta agendada com sucesso! ✅');
+            clearSelections();
+            generateCalendar(currentAgendaType);
+            if (document.getElementById('scheduledGrid').style.display !== 'none') {
+                displayAppointments();
+            }
+            btn.classList.remove('loading');
+            spinner.style.display = 'none';
+
+            // Mostrar pop-up de impressão após agendamento
+            document.getElementById('printConfirmModal').style.display = 'block';
+            focusTrap(document.getElementById('printConfirmModal'));
         }
 
         function editAppointment(id) {
