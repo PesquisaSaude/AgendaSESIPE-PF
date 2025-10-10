@@ -3970,11 +3970,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 logoBase64 = '';
             }
 
-            // Carregar logo colorido para declarações (assumindo arquivo 'img/sesicolor.png' - ajuste o nome se necessário)
+            // Carregar logo colorido para declarações (assumindo arquivo 'img/sesisaude.png' - ajuste o nome se necessário)
             try {
-                coloredLogoBase64 = await getImageBase64('img/sesicolor.png');
+                coloredLogoBase64 = await getImageBase64('img/sesisaude.png');
                 if (!coloredLogoBase64) {
-                    console.warn('Logo colorido não carregado. Verifique o caminho do arquivo "img/sesicolor.png".');
+                    console.warn('Logo colorido não carregado. Verifique o caminho do arquivo "img/sesisaude.png".');
                 }
             } catch (e) {
                 console.error('Falha ao carregar logo colorido para declarações:', e);
@@ -4606,5 +4606,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
     </script>
 </body> 
 </html>
+
 
 
