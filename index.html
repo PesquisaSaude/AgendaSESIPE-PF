@@ -2060,14 +2060,8 @@
         let discountObj = {}; // Objeto global para armazenar descontos durante o agendamento
         let currentServicePrice = 0; // Preço atual do serviço para cálculos de desconto
 
-        // Objeto de preços para serviços (exemplo de valores - ajuste conforme necessário)
+        // Objeto de preços para serviços (removidos valores de odontologia; adicionados combos para especialidades médicas)
         const prices = {
-            // Odontológica
-            'Ana Paula': 150.00,
-            'Carlson': 150.00,
-            'Cinara': 200.00,
-            'Edson': 200.00,
-            'Dr. João Santos': 150.00,
             // Especialidades Médicas
             'Clínica Geral': 120.00,
             'Cardiologia': 180.00,
@@ -2077,6 +2071,10 @@
             'Dermatologia': 150.00,
             'Psicologia': 180.00,
             'Nutrição': 140.00,
+            'Combo Otorrino': 184.00,
+            'Combo Nutricional': 239.00,
+            'Combo Gineco': 157.00,
+            'Combo Coração': 339.00,
             // Exames (exemplo fixo baseado no código original)
             'Ultrassonografia Abdômen Superior': 72.00,
             'Ultrassonografia Abdômen Total': 72.00,
@@ -2240,7 +2238,11 @@
             'Ginecologia',
             'Dermatologia',
             'Psicologia',
-            'Nutrição'
+            'Nutrição',
+            'Combo Otorrino',
+            'Combo Nutricional',
+            'Combo Gineco',
+            'Combo Coração'
         ];
 
         const examSpecialists = [
@@ -2291,7 +2293,11 @@
             'Ginecologia': 40,
             'Dermatologia': 30,
             'Psicologia': 60,
-            'Nutrição': 50
+            'Nutrição': 50,
+            'Combo Otorrino': 30,
+            'Combo Nutricional': 30,
+            'Combo Gineco': 30,
+            'Combo Coração': 30
         };
 
         function generateSlots(startHour, endHour, intervalMin) {
@@ -4207,6 +4213,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const professional = document.getElementById('dentistSelect').value;
             if (!agendaType || !professional) {
                 showToast('Selecione o tipo de agenda e o profissional para adicionar desconto.', 'error');
+                return;
+            }
+            if (agendaType === 'Agenda Odontológica') {
+                showToast('Descontos não são aplicáveis para agenda odontológica.', 'error');
                 return;
             }
 
