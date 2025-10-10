@@ -1993,6 +1993,10 @@
                     <label for="endDate">Data de Término</label>
                     <input type="date" id="endDate">
                 </div>
+                <div>
+                    <label for="otherPromotion">Outra promoção</label>
+                    <input type="text" id="otherPromotion" placeholder="Digite o nome da promoção" style="display: none;">
+                </div>
             </div>
             <button class="apply-discount-btn" onclick="applyDiscount()">Aplicar Desconto</button>
             <button class="apply-promo-btn" onclick="applyPromotion()">⭐ Aplicar Promoção</button>
@@ -4101,6 +4105,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('promotionType').value = '';
             document.getElementById('startDate').value = '';
             document.getElementById('endDate').value = '';
+            document.getElementById('otherPromotion').style.display = 'none';
+            document.getElementById('otherPromotion').value = '';
         }
 
         function toggleDiscountInput(inputGroupId, isChecked) {
@@ -4141,6 +4147,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const promotionType = document.getElementById('promotionType').value;
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
+            const otherPromotion = document.getElementById('otherPromotion').value.trim();
             if (!promotionType) {
                 showToast('Selecione um tipo de promoção.', 'error');
                 return;
@@ -4149,7 +4156,15 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 showToast('Informe as datas de início e término.', 'error');
                 return;
             }
-            showToast(`Promoção "${promotionType}" aplicada de ${startDate} a ${endDate}.`, 'success');
+            let promotionName = promotionType;
+            if (promotionType === 'Outros') {
+                if (!otherPromotion) {
+                    showToast('Informe o nome da outra promoção.', 'error');
+                    return;
+                }
+                promotionName = otherPromotion;
+            }
+            showToast(`Promoção "${promotionName}" aplicada de ${startDate} a ${endDate}.`, 'success');
             closeModal('discountModal');
             // Aqui você pode integrar com o agendamento, ex: adicionar ao objeto appointment
         }
@@ -4319,6 +4334,17 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
 
             // Listener para tecla Esc
             document.addEventListener('keydown', handleEscapeKey);
+
+            // Event listener para o select de promoção (mostrar/esconder "Outra promoção")
+            document.getElementById('promotionType').onchange = function() {
+                const otherInput = document.getElementById('otherPromotion');
+                if (this.value === 'Outros') {
+                    otherInput.style.display = 'block';
+                } else {
+                    otherInput.style.display = 'none';
+                    otherInput.value = '';
+                }
+            };
 
             // Inicializar seção de datas bloqueadas se houver bloqueios
             const blockedGrid = document.getElementById('blockedGrid');
