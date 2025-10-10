@@ -1455,6 +1455,91 @@
             transform: translateY(-1px) scale(1.05);
             box-shadow: 0 4px 12px rgba(23,162,184,0.3);
         }
+        /* Discount Modal Styles */
+        .discount-checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .discount-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .discount-checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        .discount-input-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .discount-input-group input {
+            width: 80px;
+            text-align: right;
+        }
+        .discount-input-group span {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .promotion-select-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .apply-discount-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .apply-discount-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        .apply-promo-btn {
+            background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .apply-promo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+        }
+        .add-discount-btn {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .add-discount-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -1557,6 +1642,8 @@
             <label for="observations">Observações <span class="help-tooltip">?<span class="tooltip-text">Adicione detalhes importantes sobre o paciente ou consulta.</span></span></label>
             <textarea id="observations" placeholder="Digite observações adicionais (opcional)" aria-describedby="observationsDesc"></textarea>
             <small id="observationsDesc" class="sr-only">Campo opcional para observações adicionais.</small>
+
+            <button class="add-discount-btn" onclick="openDiscountModal()" aria-label="Adicionar Desconto">Adicionar Desconto</button>
 
             <button class="schedule-btn" id="scheduleBtn" onclick="saveAppointment()" disabled aria-label="Agendar consulta (desabilitado até preencher todos os campos obrigatórios)" role="button">
                 Agendar Consulta
@@ -1860,6 +1947,55 @@
             <div id="historyList" class="history-list"></div>
             <button class="declaration-btn" id="declarationBtn" onclick="generateAttendanceDeclaration(currentPatientCpf, currentPatientName)" aria-label="Gerar Declaração de Comparecimento" role="button">Declaração de Comparecimento</button>
             <button class="modal-btn cancel-btn" onclick="closeModal('patientHistoryModal')" aria-label="Fechar histórico" role="button">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Discount Modal -->
+    <div id="discountModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="discountTitle">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('discountModal')" aria-label="Fechar modal de desconto">&times;</span>
+            <h3 id="discountTitle">Adicionar Desconto</h3>
+            <div class="discount-checkbox-group">
+                <div class="discount-checkbox-item">
+                    <input type="checkbox" id="industryDiscount" onchange="toggleDiscountInput('industryDiscountInput', this.checked)">
+                    <label for="industryDiscount">Desconto Industria</label>
+                    <div class="discount-input-group" id="industryDiscountInput" style="display: none;">
+                        <input type="number" id="industryDiscountValue" placeholder="10.00" step="0.01" min="0" max="100">
+                        <span>%</span>
+                    </div>
+                    <small>Digite um valor em %</small>
+                </div>
+                <div class="discount-checkbox-item">
+                    <input type="checkbox" id="promotionalDiscount" onchange="toggleDiscountInput('promotionalDiscountInput', this.checked)">
+                    <label for="promotionalDiscount">Desconto Promocional</label>
+                    <div class="discount-input-group" id="promotionalDiscountInput" style="display: none;">
+                        <input type="number" id="promotionalDiscountValue" placeholder="0.00" step="0.01" min="0" max="100">
+                        <span>%</span>
+                    </div>
+                    <small>Digite um valor em %</small>
+                </div>
+            </div>
+            <div class="promotion-select-group">
+                <div>
+                    <label for="promotionType">Seleção de promoção</label>
+                    <select id="promotionType">
+                        <option value="">Selecione</option>
+                        <option value="Semana do Consumidor">Semana do Consumidor</option>
+                        <option value="Black Friday">Black Friday</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="startDate">Data de Início</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div>
+                    <label for="endDate">Data de Término</label>
+                    <input type="date" id="endDate">
+                </div>
+            </div>
+            <button class="apply-discount-btn" onclick="applyDiscount()">Aplicar Desconto</button>
+            <button class="apply-promo-btn" onclick="applyPromotion()">⭐ Aplicar Promoção</button>
         </div>
     </div>
 
@@ -3954,6 +4090,70 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             });
         }
 
+        // Discount Modal Functions
+        function openDiscountModal() {
+            document.getElementById('discountModal').style.display = 'block';
+            focusTrap(document.getElementById('discountModal'));
+            document.getElementById('industryDiscount').checked = false;
+            document.getElementById('promotionalDiscount').checked = false;
+            document.getElementById('industryDiscountInput').style.display = 'none';
+            document.getElementById('promotionalDiscountInput').style.display = 'none';
+            document.getElementById('promotionType').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+        }
+
+        function toggleDiscountInput(inputGroupId, isChecked) {
+            const inputGroup = document.getElementById(inputGroupId);
+            inputGroup.style.display = isChecked ? 'flex' : 'none';
+        }
+
+        function applyDiscount() {
+            const industryChecked = document.getElementById('industryDiscount').checked;
+            const promotionalChecked = document.getElementById('promotionalDiscount').checked;
+            if (!industryChecked && !promotionalChecked) {
+                showToast('Selecione pelo menos um tipo de desconto.', 'error');
+                return;
+            }
+            let discountInfo = '';
+            if (industryChecked) {
+                const value = document.getElementById('industryDiscountValue').value;
+                if (!value || value <= 0) {
+                    showToast('Informe um valor válido para Desconto Industria.', 'error');
+                    return;
+                }
+                discountInfo += `Desconto Industria: ${value}% `;
+            }
+            if (promotionalChecked) {
+                const value = document.getElementById('promotionalDiscountValue').value;
+                if (!value || value <= 0) {
+                    showToast('Informe um valor válido para Desconto Promocional.', 'error');
+                    return;
+                }
+                discountInfo += `Desconto Promocional: ${value}% `;
+            }
+            showToast(`Desconto aplicado: ${discountInfo}`, 'success');
+            closeModal('discountModal');
+            // Aqui você pode integrar com o agendamento, ex: adicionar ao objeto appointment
+        }
+
+        function applyPromotion() {
+            const promotionType = document.getElementById('promotionType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            if (!promotionType) {
+                showToast('Selecione um tipo de promoção.', 'error');
+                return;
+            }
+            if (!startDate || !endDate) {
+                showToast('Informe as datas de início e término.', 'error');
+                return;
+            }
+            showToast(`Promoção "${promotionType}" aplicada de ${startDate} a ${endDate}.`, 'success');
+            closeModal('discountModal');
+            // Aqui você pode integrar com o agendamento, ex: adicionar ao objeto appointment
+        }
+
         // Populate selects
         window.onload = async function() {
             // Aviso sobre localStorage (melhoria de segurança)
@@ -4399,6 +4599,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const printConfirmModal = document.getElementById('printConfirmModal');
             const printTypeModal = document.getElementById('printTypeModal');
             const patientHistoryModal = document.getElementById('patientHistoryModal');
+            const discountModal = document.getElementById('discountModal');
             if (event.target === deleteModal) {
                 closeModal('deleteModal');
             }
@@ -4416,6 +4617,9 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             }
             if (event.target === patientHistoryModal) {
                 closeModal('patientHistoryModal');
+            }
+            if (event.target === discountModal) {
+                closeModal('discountModal');
             }
         }
 
