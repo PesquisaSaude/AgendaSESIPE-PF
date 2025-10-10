@@ -2923,121 +2923,180 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         }
 
         async function generateAttendanceDeclaration(cpf, patientName) {
+            const appointment = appointments.find(apt => apt.cpf === cpf && apt.status === 'attended'); // Pega o último atendimento comparecido
+            if (!appointment) {
+                showToast('Nenhum atendimento comparecido encontrado para este paciente.', 'error');
+                return;
+            }
             const generatedDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+            const [day, month, year] = appointment.date.split('/');
+            const startHour = parseInt(appointment.time.split(':')[0]);
+            const startMin = parseInt(appointment.time.split(':')[1]);
+            const endHour = startHour;
+            const endMin = startMin + 30; // Assume 30 min de duração, ajuste conforme necessário
             const printContent = `
                 <html>
                 <head>
-                  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                  <title>Declaração de Comparecimento</title>
+                  <title>Declaração de Comparecimento - SESI Saúde</title>
                   <style>
                     @page {
                       size: A4;
-                      margin: 2cm;
+                      margin: 2cm 1.5cm;
                     }
                     body {
-                      font-family: 'Roboto', serif;
+                      font-family: 'Arial', serif;
                       font-size: 12pt;
                       margin: 0;
                       padding: 0;
-                      line-height: 1.6;
+                      line-height: 1.4;
                       color: #000;
                       background: white;
-                      text-align: center;
+                      text-align: justify;
                       width: 100%;
                     }
                     .print-container {
-                      max-width: 600px;
+                      max-width: 210mm;
                       margin: 0 auto;
                       padding: 20px;
-                      border: 2px solid #007bff;
-                      border-radius: 8px;
-                      background: #ffffff;
+                      border: 2px solid #000;
+                      position: relative;
                     }
-                    .print-header {
+                    .logo {
+                      position: absolute;
+                      top: 10px;
+                      right: 10px;
+                      width: 80px;
+                      height: auto;
+                    }
+                    .title {
+                      text-align: center;
+                      font-size: 14pt;
+                      font-weight: bold;
+                      margin-bottom: 20px;
+                      text-transform: uppercase;
+                    }
+                    .form-line {
+                      margin-bottom: 8px;
+                      line-height: 1.2;
+                    }
+                    .blank-line {
+                      border-bottom: 1px solid #000;
+                      min-height: 20px;
+                      margin: 5px 0;
+                    }
+                    .checkbox-group {
+                      display: flex;
+                      gap: 10px;
+                      margin: 10px 0;
+                    }
+                    .checkbox {
+                      width: 15px;
+                      height: 15px;
+                      border: 1px solid #000;
+                      margin-right: 5px;
+                    }
+                    .radio-text {
                       display: flex;
                       align-items: center;
-                      justify-content: center;
-                      text-align: center;
-                      margin-bottom: 30px;
-                      border-bottom: 2px solid #007bff;
-                      padding-bottom: 15px;
-                      gap: 20px;
-                    }
-                    .header-logo {
-                      max-width: 125px;
-                      height: auto;
-                      margin: 0;
-                      flex-shrink: 0;
-                    }
-                    .header-text {
-                      flex: 1;
-                      text-align: center;
-                    }
-                    h1 {
-                      color: #007bff;
-                      font-size: 18pt;
-                      margin: 0 0 10px 0;
-                      font-weight: bold;
-                    }
-                    .declaration-body {
-                      text-align: center;
-                      margin-bottom: 20px;
-                    }
-                    .declaration-body p {
-                      margin-bottom: 15px;
-                      text-indent: 0;
-                    }
-                    .signature-section {
-                      display: flex;
-                      justify-content: flex-start;
-                      margin-top: 40px;
-                    }
-                    .signature-box {
-                      border-bottom: 1px solid #000;
-                      width: 100%;
-                      padding-top: 50px;
-                      text-align: left;
-                      font-size: 10pt;
-                      color: #666;
+                      gap: 5px;
+                      margin: 5px 0;
                     }
                     .footer {
+                      margin-top: 40px;
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: flex-end;
+                    }
+                    .date-section {
+                      text-align: left;
+                    }
+                    .signature-section {
+                      text-align: right;
+                      border-bottom: 1px solid #000;
+                      width: 200px;
+                      padding-top: 50px;
+                    }
+                    .address {
+                      margin-top: 20px;
                       text-align: center;
-                      margin-top: 30px;
                       font-size: 10pt;
-                      color: #666;
+                      line-height: 1.2;
+                    }
+                    .purpose-section {
+                      margin: 15px 0;
+                    }
+                    .purpose-options {
+                      display: flex;
+                      flex-direction: column;
+                      gap: 5px;
+                    }
+                    .purpose-option {
+                      display: flex;
+                      align-items: flex-start;
+                      gap: 5px;
+                    }
+                    .purpose-blank {
+                      border-bottom: 1px solid #000;
+                      min-height: 15px;
+                      width: 100%;
+                      margin-left: 5px;
                     }
                     @media print {
                       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                      .print-container { border: 2px solid #000; }
                     }
                   </style>
                 </head>
                 <body onload="window.print()">
                   <div class="print-container">
-                    <div class="print-header">
-                      <div style="display: flex; align-items: center; justify-content: center; width: 100%; gap: 20px;">
-                        ${coloredLogoBase64 ? `<img src="${coloredLogoBase64}" alt="Logo SESI Saúde" class="header-logo">` : ''}
-                        <div class="header-text">
-                          <h1>Declaração de Comparecimento</h1>
-                          <p>SERVIÇO SOCIAL DA INDÚSTRIA - SESI SAÚDE</p>
-                          <p>CNPJ: 03.910.210/0002-52</p>
-                        </div>
+                    ${coloredLogoBase64 ? `<img src="${coloredLogoBase64}" alt="Logo SESI" class="logo">` : ''}
+                    <div class="title">DECLARAÇÃO DE COMPARENCIMENTO</div>
+                    <div class="form-line">Declaramos para os devidos fins que o Senhor(a):</div>
+                    <div class="blank-line"></div>
+                    <div class="form-line">compareceu à clínica SESI Saúde no dia <span style="border-bottom: 1px solid #000; min-height: 15px; display: inline-block; width: 80px;">${day}/${month}/${year}</span>,</div>
+                    <div class="form-line">das <span style="border-bottom: 1px solid #000; min-height: 15px; display: inline-block; width: 50px;">${startHour}h</span> min às <span style="border-bottom: 1px solid #000; min-height: 15px; display: inline-block; width: 50px;">${endHour}h</span> min, com:</div>
+                    <div class="checkbox-group">
+                      <div class="radio-text">
+                        <div class="checkbox"></div>
+                        <span>Paciente</span>
+                      </div>
+                      <div class="radio-text">
+                        <div class="checkbox"></div>
+                        <span>Acompanhante de</span>
+                        <span class="purpose-blank"></span>
                       </div>
                     </div>
-                    <div class="declaration-body">
-                      <p>Eu, <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, declaro para os devidos fins que compareci ao atendimento no SESI Saúde na data de <strong>${generatedDate}</strong>.</p>
-                      <p>O atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.</p>
-                      <p>Esta declaração serve como comprovação de presença e comparecimento ao local e horário designados.</p>
-                      <p>Local e Data: Recife/PE, ${generatedDate}.</p>
-                    </div>
-                    <div class="signature-section">
-                      <div class="signature-box">
-                        Assinatura do Responsável<br>
-                        __________________________________________________________________________________________
+                    <div class="purpose-section">Para:</div>
+                    <div class="purpose-options">
+                      <div class="purpose-option">
+                        <div class="checkbox"></div>
+                        <span>Agendamento de consulta</span>
+                      </div>
+                      <div class="purpose-option">
+                        <div class="checkbox"></div>
+                        <span>Consulta médica</span>
+                      </div>
+                      <div class="purpose-option">
+                        <div class="checkbox"></div>
+                        <span>Realização de Exame. Especificar:</span>
+                        <span class="purpose-blank"></span>
+                      </div>
+                      <div class="purpose-option">
+                        <div class="checkbox"></div>
+                        <span>Outros. Especificar:</span>
+                        <span class="purpose-blank"></span>
                       </div>
                     </div>
                     <div class="footer">
-                      <p>Documento gerado automaticamente pelo Sistema de Agendamento SESI Saúde.</p>
-                      <p>Validade: Única emissão.</p>
+                      <div class="date-section">
+                        Data <span style="border-bottom: 1px solid #000; min-height: 15px; display: inline-block; width: 120px;"></span>
+                      </div>
+                      <div class="signature-section">
+                        Assinatura e Carimbo
+                      </div>
+                    </div>
+                    <div class="address">
+                      Rua Frei Cassimiro, 88, Santo Amaro - Recife/PE - CEP: 50100-260 | Telefone: (81) 3202.9300
                     </div>
                   </div>
                 </body>
@@ -4606,6 +4665,3 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
     </script>
 </body> 
 </html>
-
-
-
