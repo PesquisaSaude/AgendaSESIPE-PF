@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-       
+      
         :root {
             --bg-primary: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
             --bg-secondary: white;
@@ -19,7 +19,7 @@
             --error: #e74c3c;
             --warning: #ffc107;
         }
-       
+      
         [data-theme="dark"] {
             --bg-primary: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             --bg-secondary: #2d2d2d;
@@ -29,7 +29,7 @@
             --error: e74c3c;
             --warning: #ffc107;
         }
-       
+      
         body {
             font-family: 'Roboto', sans-serif;
             margin: 0;
@@ -1566,6 +1566,41 @@
             color: #28a745;
             font-weight: bold;
         }
+        /* Discount Display Section */
+        #displayedDiscounts {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+        #displayedDiscounts h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        #displayedDiscounts p {
+            margin: 5px 0;
+            font-weight: 500;
+            color: #d39e00;
+        }
+        .close-discount-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .close-discount-btn:hover {
+            background: #5a6268;
+            transform: scale(1.02);
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -1625,12 +1660,12 @@
             <label for="patientName">Nome do Paciente <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Digite o nome completo do paciente para facilitar a identificação.</span></span></label>
             <input type="text" id="patientName" placeholder="Digite o nome completo do paciente" aria-required="true" aria-describedby="patientNameDesc" required>
             <small id="patientNameDesc" class="sr-only">Campo obrigatório. Digite o nome completo do paciente.</small>
-           
+          
             <label for="patientCpf">CPF do Paciente <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Formato: 123.456.789-00. Validação automática.</span></span></label>
             <input type="text" id="patientCpf" placeholder="Digite o CPF (ex: 123.456.789-00)" aria-required="true" aria-describedby="cpfError patientCpfDesc" required>
             <small id="cpfError" class="error-message" aria-live="polite">CPF inválido. (Apenas Números).</small>
             <small id="patientCpfDesc" class="sr-only">Campo obrigatório. Digite o CPF no formato 123.456.789-00.</small>
-           
+          
             <label for="patientPhone">Número do Telefone <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Formato: (11) 99999-9999. Validação automática.</span></span></label>
             <input type="tel" id="patientPhone" placeholder="Digite o número do telefone (ex: (11) 99999-9999)" aria-required="true" aria-describedby="phoneError patientPhoneDesc" required>
             <small id="phoneError" class="error-message" aria-live="polite">Telefone inválido. Use o formato (DD) 9XXXX-XXXX.</small>
@@ -1638,13 +1673,13 @@
             <label for="schedulerName">Responsável pelo Agendamento <span class="help-tooltip">?<span class="tooltip-text">Opcional: Nome de quem está agendando.</span></span></label>
             <input type="text" id="schedulerName" placeholder="Digite o nome do responsável pelo agendamento (opcional)" aria-describedby="schedulerNameDesc">
             <small id="schedulerNameDesc" class="sr-only">Campo opcional para o nome do responsável pelo agendamento.</small>
-           
+          
             <label for="locationSelect">🏢 Local do Atendimento <span aria-hidden="true" class="required">*</span></label>
             <select id="locationSelect" aria-required="true" aria-describedby="locationDesc" required>
                 <option value="">Selecione um local</option>
             </select>
             <small id="locationDesc" class="sr-only">Campo obrigatório. Escolha o local de atendimento.</small>
-           
+          
             <label for="prioritySelect">Atendimento Prioritário <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Indique se o paciente precisa de atendimento urgente.</span></span></label>
             <select id="prioritySelect" aria-required="true" aria-describedby="priorityDesc" required>
                 <option value="">Selecione</option>
@@ -1663,6 +1698,12 @@
             <textarea id="observations" placeholder="Digite observações adicionais (opcional)" aria-describedby="observationsDesc"></textarea>
             <small id="observationsDesc" class="sr-only">Campo opcional para observações adicionais.</small>
             <button class="add-discount-btn" onclick="openDiscountModal()" aria-label="Adicionar Desconto">Adicionar Desconto</button>
+            <div id="displayedDiscounts" style="display:none;">
+                <h4>Descontos Aplicados:</h4>
+                <p id="industryDiscountDisplay"></p>
+                <p id="promotionalDiscountDisplay"></p>
+                <button class="close-discount-btn" onclick="closeDiscountDisplay()">Fechar</button>
+            </div>
             <button class="schedule-btn" id="scheduleBtn" onclick="saveAppointment()" disabled aria-label="Agendar consulta (desabilitado até preencher todos os campos obrigatórios)" role="button">
                 Agendar Consulta
                 <div class="spinner" id="scheduleSpinner"></div>
@@ -1873,34 +1914,34 @@
             <h3 id="editTitle">Editar Consulta</h3>
             <label for="editPatientName">Nome do Paciente <span aria-hidden="true" class="required">*</span></label>
             <input type="text" id="editPatientName" aria-required="true" required autofocus>
-           
+          
             <label for="editPatientCpf">CPF do Paciente <span aria-hidden="true" class="required">*</span></label>
             <input type="text" id="editPatientCpf" aria-required="true" aria-describedby="editCpfError editPatientCpfDesc" required>
             <small id="editCpfError" class="error-message" aria-live="polite">CPF inválido. Verifique os dígitos.</small>
             <small id="editPatientCpfDesc" class="sr-only">Digite o CPF no formato 123.456.789-00.</small>
-           
+          
             <label for="editPatientPhone">Número do Telefone <span aria-hidden="true" class="required">*</span></label>
             <input type="tel" id="editPatientPhone" aria-required="true" aria-describedby="editPhoneError editPatientPhoneDesc" required>
             <small id="editPhoneError" class="error-message" aria-live="polite">Telefone inválido. Use o formato (DD) 9XXXX-XXXX.</small>
             <small id="editPatientPhoneDesc" class="sr-only">Digite o telefone no formato (11) 99999-9999.</small>
             <label for="editSchedulerName">Nome do Responsável pelo Agendamento</label>
             <input type="text" id="editSchedulerName" placeholder="Digite o nome do responsável pelo agendamento (opcional)">
-           
+          
             <label for="editLocationSelect">Local do Atendimento <span aria-hidden="true" class="required">*</span></label>
             <select id="editLocationSelect" aria-required="true" required></select>
-           
+          
             <label for="editAgendaTypeSelect">Tipo de Agenda <span aria-hidden="true" class="required">*</span></label>
             <select id="editAgendaTypeSelect" onchange="populateEditProfessionals()" aria-required="true" required></select>
-           
+          
             <label for="editDentistSelect">Profissional <span aria-hidden="true" class="required">*</span></label>
             <select id="editDentistSelect" onchange="populateEditTimes()" aria-required="true" required></select>
-           
+          
             <label for="editDate">Data da Consulta <span aria-hidden="true" class="required">*</span></label>
             <input type="date" id="editDate" required aria-required="true">
-           
+          
             <label for="editTime">Horário da Consulta <span aria-hidden="true" class="required">*</span></label>
             <select id="editTime" required aria-required="true"></select>
-           
+          
             <label for="editPrioritySelect">Atendimento Prioritário <span aria-hidden="true" class="required">*</span></label>
             <select id="editPrioritySelect" aria-required="true" required>
                 <option value="">Selecione</option>
@@ -1915,7 +1956,7 @@
             </select>
             <label for="editObservations">Observações</label>
             <textarea id="editObservations" placeholder="Digite observações adicionais (opcional)"></textarea>
-           
+          
             <button class="modal-btn" onclick="saveEdit()" aria-label="Salvar alterações na consulta" role="button">Salvar Alterações</button>
             <button class="modal-btn cancel-btn" onclick="closeModal('editModal')" aria-label="Cancelar edição da consulta" role="button">Cancelar</button>
         </div>
@@ -2491,13 +2532,19 @@
             // Calcular preço com desconto se aplicável
             let originalPrice = prices[apt.professional] || 0;
             let discountedPrice = originalPrice;
-            let discountInfo = '';
+            let industryDiscountLine = '';
+            let promotionalDiscountLine = '';
             if (apt.discount) {
-                let totalDiscount = 0;
-                if (apt.discount.industry) totalDiscount += apt.discount.industry;
-                if (apt.discount.promotional) totalDiscount += apt.discount.promotional;
-                discountedPrice = originalPrice * (1 - totalDiscount / 100);
-                discountInfo = ` (Desconto Total: ${totalDiscount}%)`;
+                if (apt.discount.industry) {
+                    const industryDiscount = apt.discount.industry;
+                    discountedPrice = originalPrice * (1 - industryDiscount / 100);
+                    industryDiscountLine = `Desconto Indústria: ${industryDiscount}%`;
+                }
+                if (apt.discount.promotional) {
+                    const promotionalDiscount = apt.discount.promotional;
+                    discountedPrice = discountedPrice * (1 - promotionalDiscount / 100);
+                    promotionalDiscountLine = `Desconto Promocional: ${promotionalDiscount}%`;
+                }
             }
             if (isThermal) {
                 // Usar janela de impressão com HTML/CSS otimizado para térmica, incluindo imagens e descontos
@@ -2562,20 +2609,22 @@
                       <div class="center bold line">${title}</div>
                 `;
                 if (apt.agendaType === 'Agenda de Exames') {
-                    // Conteúdo específico para Exames com desconto
+                    // Conteúdo específico para Exames com desconto separado
                     printContent += `
                       <div class="line">Responsável pelo Orçamento: ${schedulerName || ''}</div>
                       <div class="line">Paciente: ${apt.patient}</div>
                       <div class="line">Telefone do Paciente: ${apt.phone || ''}</div>
                       <div class="line">Tipo de Atendimento: ${apt.professional || ''}</div>
-                      <div class="discount-line line">Valor Original: R$ ${originalPrice.toFixed(2)}${discountInfo}</div>
-                      ${discountInfo ? `<div class="discount-line line">Valor com Desconto: R$ ${discountedPrice.toFixed(2)}</div>` : ''}
+                      <div class="discount-line line">Valor Original: R$ ${originalPrice.toFixed(2)}</div>
+                      ${industryDiscountLine ? `<div class="discount-line line">${industryDiscountLine}</div>` : ''}
+                      ${promotionalDiscountLine ? `<div class="discount-line line">${promotionalDiscountLine}</div>` : ''}
+                      <div class="discount-line line">Valor Final: R$ ${discountedPrice.toFixed(2)}</div>
                       ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
                       <div class="divider"></div>
                       <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
                     `;
                 } else {
-                    // Conteúdo para outros tipos (campos listados) com desconto
+                    // Conteúdo para outros tipos (campos listados) com desconto separado
                     printContent += `
                       <div class="line">Data: ${apt.date || ''}</div>
                       <div class="line">Horário: ${apt.time || ''}</div>
@@ -2586,8 +2635,10 @@
                       <div class="line">Profissional: ${apt.professional || ''}</div>
                       <div class="line">Tipo: ${apt.agendaType || ''}</div>
                       <div class="line">Local: ${apt.location || ''}</div>
-                      <div class="discount-line line">Valor Original: R$ ${originalPrice.toFixed(2)}${discountInfo}</div>
-                      ${discountInfo ? `<div class="discount-line line">Valor com Desconto: R$ ${discountedPrice.toFixed(2)}</div>` : ''}
+                      <div class="discount-line line">Valor Original: R$ ${originalPrice.toFixed(2)}</div>
+                      ${industryDiscountLine ? `<div class="discount-line line">${industryDiscountLine}</div>` : ''}
+                      ${promotionalDiscountLine ? `<div class="discount-line line">${promotionalDiscountLine}</div>` : ''}
+                      <div class="discount-line line">Valor Final: R$ ${discountedPrice.toFixed(2)}</div>
                       <div class="divider"></div>
                       ${apt.priority ? `<div class="line">Prioritário: ${apt.priority}</div>` : ''}
                       ${apt.firstAppointment ? `<div class="line">1º Atendimento: ${apt.firstAppointment}</div>` : ''}
@@ -2614,7 +2665,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 printWindow.print();
                 printWindow.close();
             } else {
-                // Formato normal: usar window.print com HTML/CSS adaptado para A4, incluindo as imagens de SESI e Melhoria e descontos
+                // Formato normal: usar window.print com HTML/CSS adaptado para A4, incluindo as imagens de SESI e Melhoria e descontos separados
                 let title = apt.agendaType === 'Agenda de Exames' ? 'Orçamento de Exames e Especialidades' : 'Comprovante de Agendamento';
                 const address = locationAddresses[apt.location] || 'Endereço não especificado';
                 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
@@ -2864,6 +2915,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         .maps-link:hover {
                           color: #0056b3;
                         }
+                        .discount-line {
+                          font-weight: bold;
+                          color: #dc3545;
+                        }
                         @media print {
                           body {
                             -webkit-print-color-adjust: exact;
@@ -2936,7 +2991,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           <p><i class="fas fa-phone"></i><span>Telefone do Cliente:</span> <span>${apt.phone || 'Não informado'}</span></p>
                 `;
                 if (apt.agendaType === 'Agenda de Exames') {
-                    // Tabela de exames como na imagem com desconto
+                    // Tabela de exames como na imagem com desconto separado
                     printContent += `
                           <div class="section">
                             <div class="section-title">Exames Selecionados</div>
@@ -2945,21 +3000,26 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                                 <tr>
                                   <th>Exame</th>
                                   <th>Valor Original (R$)</th>
-                                  ${discountInfo ? '<th>Valor com Desconto (R$)</th>' : ''}
+                                  <th>Desconto Indústria (%)</th>
+                                  <th>Desconto Promocional (%)</th>
+                                  <th>Valor Final (R$)</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 <tr>
                                   <td data-label="Exame">${apt.professional || 'Não informado'}</td>
-                                  <td data-label="Valor Original (R$)">${originalPrice.toFixed(2)}${discountInfo}</td>
-                                  ${discountInfo ? `<td data-label="Valor com Desconto (R$)">${discountedPrice.toFixed(2)}</td>` : ''}
+                                  <td data-label="Valor Original (R$)">${originalPrice.toFixed(2)}</td>
+                                  <td data-label="Desconto Indústria (%)">${apt.discount && apt.discount.industry ? apt.discount.industry : '0'}</td>
+                                  <td data-label="Desconto Promocional (%)">${apt.discount && apt.discount.promotional ? apt.discount.promotional : '0'}</td>
+                                  <td data-label="Valor Final (R$)">${discountedPrice.toFixed(2)}</td>
                                 </tr>
                               </tbody>
                             </table>
                           </div>
                           <div class="print-summary">
                             <p><i class="fas fa-calculator"></i><span>Valor Total Original:</span> <span>R$ ${originalPrice.toFixed(2)}</span></p>
-                            ${discountInfo ? `<p class="discount-info"><i class="fas fa-percent"></i><span>Desconto Aplicado:</span> <span>${totalDiscount}% (R$ ${(originalPrice - discountedPrice).toFixed(2)})</span></p>` : ''}
+                            ${industryDiscountLine ? `<p class="discount-line"><i class="fas fa-industry"></i><span>${industryDiscountLine}:</span> <span>R$ ${originalPrice * (apt.discount.industry / 100).toFixed(2)}</span></p>` : ''}
+                            ${promotionalDiscountLine ? `<p class="discount-line"><i class="fas fa-tag"></i><span>${promotionalDiscountLine}:</span> <span>R$ ${(originalPrice * (apt.discount.promotional / 100)).toFixed(2)}</span></p>` : ''}
                             <p class="final-price"><i class="fas fa-receipt"></i><span>Total do Pagamento:</span> <span>R$ ${discountedPrice.toFixed(2)}</span></p>
                           </div>
                           ${apt.observations ? `
@@ -2970,7 +3030,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           ` : ''}
                     `;
                 } else {
-                    // Para outros tipos, campos lineares com desconto
+                    // Para outros tipos, campos lineares com desconto separado
                     printContent += `
                           <div class="section">
                             <div class="section-title">Detalhes do Agendamento</div>
@@ -2981,8 +3041,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <p><i class="fas fa-map-marker-alt"></i><span>Local:</span> <span>${apt.location || ''}</span></p>
                             ${apt.priority ? `<p><i class="fas fa-exclamation-triangle"></i><span>Prioritário:</span> <span>${apt.priority}</span></p>` : ''}
                             ${apt.firstAppointment ? `<p><i class="fas fa-star"></i><span>1º Atendimento.:</span> <span>${apt.firstAppointment}</span></p>` : ''}
-                            <p><i class="fas fa-tag"></i><span>Valor Original:</span> <span>R$ ${originalPrice.toFixed(2)}${discountInfo}</span></p>
-                            ${discountInfo ? `<p><i class="fas fa-percent"></i><span>Valor com Desconto:</span> <span>R$ ${discountedPrice.toFixed(2)}</span></p>` : ''}
+                            <p><i class="fas fa-tag"></i><span>Valor Original:</span> <span>R$ ${originalPrice.toFixed(2)}</span></p>
+                            ${industryDiscountLine ? `<p class="discount-line"><i class="fas fa-industry"></i><span>${industryDiscountLine}:</span> <span>R$ ${(originalPrice * (apt.discount.industry / 100)).toFixed(2)}</span></p>` : ''}
+                            ${promotionalDiscountLine ? `<p class="discount-line"><i class="fas fa-tag"></i><span>${promotionalDiscountLine}:</span> <span>R$ ${(originalPrice * (apt.discount.promotional / 100)).toFixed(2)}</span></p>` : ''}
+                            <p><i class="fas fa-receipt"></i><span>Valor Final:</span> <span>R$ ${discountedPrice.toFixed(2)}</span></p>
                             ${apt.observations ? `<p><i class="fas fa-sticky-note"></i><span>Obs.:</span> <span>${sanitizeInput(apt.observations)}</span></p>` : ''}
                           </div>
                     `;
@@ -3041,7 +3103,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const sanitizedPatient = encodeURIComponent(sanitizeInput(patient));
                 const sanitizedPhone = encodeURIComponent(sanitizeInput(phone));
                 const sanitizedObs = encodeURIComponent(sanitizeInput(observations));
-               
+              
                 // Monta a URL com parâmetros adicionais para preencher o formulário
                 const fichaUrl = `https://pesenaibr-my.sharepoint.com/:w:/g/personal/socrates_silva_sistemafiepe_org_br/EezX1v19-BBDl9cKn3fKqgcB_lCc-cVTcpZi26gErPTlDw?e=5DVI2m&cpf=${encodeURIComponent(cpf || '')}&name=${sanitizedPatient}&phone=${sanitizedPhone}&obs=${sanitizedObs}`;
                 window.open(fichaUrl, '_blank');
@@ -3553,6 +3615,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('selectedDate').style.display = 'none';
             document.getElementById('blockDateBtn').style.display = 'none';
             discountObj = {}; // Limpa descontos
+            document.getElementById('displayedDiscounts').style.display = 'none'; // Esconde seção de descontos
             updateScheduleButton();
         }
         // Debounce para filtros (evita chamadas excessivas)
@@ -4127,6 +4190,9 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
                 discountObj.industry = value;
                 discountInfo += `Indústria: ${value}% `;
+                document.getElementById('industryDiscountDisplay').textContent = `Desconto Indústria: ${value}%`;
+            } else {
+                document.getElementById('industryDiscountDisplay').textContent = '';
             }
             if (promotionalChecked) {
                 const value = parseFloat(document.getElementById('promotionalDiscountValue').value);
@@ -4136,9 +4202,17 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
                 discountObj.promotional = value;
                 discountInfo += `Promocional: ${value}% `;
+                document.getElementById('promotionalDiscountDisplay').textContent = `Desconto Promocional: ${value}%`;
+            } else {
+                document.getElementById('promotionalDiscountDisplay').textContent = '';
             }
+            document.getElementById('displayedDiscounts').style.display = 'block';
             showToast(`Desconto aplicado: ${discountInfo}`, 'success');
             closeModal('discountModal');
+        }
+        function closeDiscountDisplay() {
+            document.getElementById('displayedDiscounts').style.display = 'none';
+            discountObj = {}; // Limpa os descontos ao fechar
         }
         function applyPromotion() {
             const promotionType = document.getElementById('promotionType').value;
