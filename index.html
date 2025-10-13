@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-    
+     
         :root {
             --bg-primary: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
             --bg-secondary: white;
@@ -19,7 +19,7 @@
             --error: #e74c3c;
             --warning: #ffc107;
         }
-    
+     
         [data-theme="dark"] {
             --bg-primary: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             --bg-secondary: #2d2d2d;
@@ -29,7 +29,7 @@
             --error: e74c3c;
             --warning: #ffc107;
         }
-    
+     
         body {
             font-family: 'Roboto', sans-serif;
             margin: 0;
@@ -1671,12 +1671,12 @@
             <label for="patientName">Nome do Paciente <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Digite o nome completo do paciente para facilitar a identificação.</span></span></label>
             <input type="text" id="patientName" placeholder="Digite o nome completo do paciente" aria-required="true" aria-describedby="patientNameDesc" required>
             <small id="patientNameDesc" class="sr-only">Campo obrigatório. Digite o nome completo do paciente.</small>
-        
+         
             <label for="patientCpf">CPF do Paciente <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Formato: 123.456.789-00. Validação automática.</span></span></label>
             <input type="text" id="patientCpf" placeholder="Digite o CPF (ex: 123.456.789-00)" aria-required="true" aria-describedby="cpfError patientCpfDesc" required>
             <small id="cpfError" class="error-message" aria-live="polite">CPF inválido. (Apenas Números).</small>
             <small id="patientCpfDesc" class="sr-only">Campo obrigatório. Digite o CPF no formato 123.456.789-00.</small>
-        
+         
             <label for="patientPhone">Número do Telefone <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Formato: (11) 99999-9999. Validação automática.</span></span></label>
             <input type="tel" id="patientPhone" placeholder="Digite o número do telefone (ex: (11) 99999-9999)" aria-required="true" aria-describedby="phoneError patientPhoneDesc" required>
             <small id="phoneError" class="error-message" aria-live="polite">Telefone inválido. Use o formato (DD) 9XXXX-XXXX.</small>
@@ -1684,13 +1684,13 @@
             <label for="schedulerName">Responsável pelo Agendamento <span class="help-tooltip">?<span class="tooltip-text">Opcional: Nome de quem está agendando.</span></span></label>
             <input type="text" id="schedulerName" placeholder="Digite o nome do responsável pelo agendamento (opcional)" aria-describedby="schedulerNameDesc">
             <small id="schedulerNameDesc" class="sr-only">Campo opcional para o nome do responsável pelo agendamento.</small>
-        
+         
             <label for="locationSelect">🏢 Local do Atendimento <span aria-hidden="true" class="required">*</span></label>
             <select id="locationSelect" aria-required="true" aria-describedby="locationDesc" required>
                 <option value="">Selecione um local</option>
             </select>
             <small id="locationDesc" class="sr-only">Campo obrigatório. Escolha o local de atendimento.</small>
-        
+         
             <label for="prioritySelect">Atendimento Prioritário <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Indique se o paciente precisa de atendimento urgente.</span></span></label>
             <select id="prioritySelect" aria-required="true" aria-describedby="priorityDesc" required>
                 <option value="">Selecione</option>
@@ -1925,34 +1925,34 @@
             <h3 id="editTitle">Editar Consulta</h3>
             <label for="editPatientName">Nome do Paciente <span aria-hidden="true" class="required">*</span></label>
             <input type="text" id="editPatientName" aria-required="true" required autofocus>
-        
+         
             <label for="editPatientCpf">CPF do Paciente <span aria-hidden="true" class="required">*</span></label>
             <input type="text" id="editPatientCpf" aria-required="true" aria-describedby="editCpfError editPatientCpfDesc" required>
             <small id="editCpfError" class="error-message" aria-live="polite">CPF inválido. Verifique os dígitos.</small>
             <small id="editPatientCpfDesc" class="sr-only">Digite o CPF no formato 123.456.789-00.</small>
-        
+         
             <label for="editPatientPhone">Número do Telefone <span aria-hidden="true" class="required">*</span></label>
             <input type="tel" id="editPatientPhone" aria-required="true" aria-describedby="editPhoneError editPatientPhoneDesc" required>
             <small id="editPhoneError" class="error-message" aria-live="polite">Telefone inválido. Use o formato (DD) 9XXXX-XXXX.</small>
             <small id="editPatientPhoneDesc" class="sr-only">Digite o telefone no formato (11) 99999-9999.</small>
             <label for="editSchedulerName">Nome do Responsável pelo Agendamento</label>
             <input type="text" id="editSchedulerName" placeholder="Digite o nome do responsável pelo agendamento (opcional)">
-        
+         
             <label for="editLocationSelect">Local do Atendimento <span aria-hidden="true" class="required">*</span></label>
             <select id="editLocationSelect" aria-required="true" required></select>
-        
+         
             <label for="editAgendaTypeSelect">Tipo de Agenda <span aria-hidden="true" class="required">*</span></label>
             <select id="editAgendaTypeSelect" onchange="populateEditProfessionals()" aria-required="true" required></select>
-        
+         
             <label for="editDentistSelect">Profissional <span aria-hidden="true" class="required">*</span></label>
             <select id="editDentistSelect" onchange="populateEditTimes()" aria-required="true" required></select>
-        
+         
             <label for="editDate">Data da Consulta <span aria-hidden="true" class="required">*</span></label>
             <input type="date" id="editDate" required aria-required="true">
-        
+         
             <label for="editTime">Horário da Consulta <span aria-hidden="true" class="required">*</span></label>
             <select id="editTime" required aria-required="true"></select>
-        
+         
             <label for="editPrioritySelect">Atendimento Prioritário <span aria-hidden="true" class="required">*</span></label>
             <select id="editPrioritySelect" aria-required="true" required>
                 <option value="">Selecione</option>
@@ -1967,7 +1967,7 @@
             </select>
             <label for="editObservations">Observações</label>
             <textarea id="editObservations" placeholder="Digite observações adicionais (opcional)"></textarea>
-        
+         
             <button class="modal-btn" onclick="saveEdit()" aria-label="Salvar alterações na consulta" role="button">Salvar Alterações</button>
             <button class="modal-btn cancel-btn" onclick="closeModal('editModal')" aria-label="Cancelar edição da consulta" role="button">Cancelar</button>
         </div>
@@ -3114,7 +3114,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const sanitizedPatient = encodeURIComponent(sanitizeInput(patient));
                 const sanitizedPhone = encodeURIComponent(sanitizeInput(phone));
                 const sanitizedObs = encodeURIComponent(sanitizeInput(observations));
-            
+             
                 // Monta a URL com parâmetros adicionais para preencher o formulário
                 const fichaUrl = `https://pesenaibr-my.sharepoint.com/:w:/g/personal/socrates_silva_sistemafiepe_org_br/EezX1v19-BBDl9cKn3fKqgcB_lCc-cVTcpZi26gErPTlDw?e=5DVI2m&cpf=${encodeURIComponent(cpf || '')}&name=${sanitizedPatient}&phone=${sanitizedPhone}&obs=${sanitizedObs}`;
                 window.open(fichaUrl, '_blank');
@@ -3156,6 +3156,14 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             });
             modal.style.display = 'block';
             focusTrap(modal);
+        }
+        function generateAttendanceDeclarationForAppointment(id) {
+            const apt = appointments.find(a => a.id === id);
+            if (!apt) {
+                showToast('Agendamento não encontrado.', 'error');
+                return;
+            }
+            generateAttendanceDeclaration(apt.cpf, apt.patient, apt.date);
         }
         async function generateAttendanceDeclaration(cpf, patientName, appointmentDate = null) {
             const declDate = appointmentDate ? appointmentDate : new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
@@ -4780,6 +4788,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <button class="btn-no-show" onclick="updateAttendanceStatus(${apt.id}, 'no-show')" aria-label="Marcar como não compareceu" role="button">Não Compareceu</button>
                             <button class="btn-rescheduled" onclick="updateAttendanceStatus(${apt.id}, 'rescheduled')" aria-label="Marcar como reagendado" role="button">Reagendado</button>
                             <button class="btn-pdf" onclick="preparePrint(${apt.id})" aria-label="Imprimir comprovante" role="button">Imprimir</button>
+                            <button class="btn-declaration" onclick="generateAttendanceDeclarationForAppointment(${apt.id})" aria-label="Gerar Declaração de Comparecimento" role="button">Declaração</button>
                         </div>
                         <h4><span class="patient-name" onclick="showPatientHistory('${apt.cpf}')" aria-label="Ver histórico de ${apt.patient}">${sanitizeInput(apt.patient)}</span> - ${apt.time} | ${apt.date}</h4>
                         <p>CPF: ${apt.cpf || 'Não informado'} | Telefone: ${apt.phone || 'Não informado'} | Profissional: ${sanitizeInput(apt.professional)} | Tipo: ${apt.agendaType || 'Não informado'} | Local: ${apt.location || 'Não informado'} | Prioritário: ${apt.priority || 'Não informado'} | Primeiro Atendimento: ${apt.firstAppointment || 'Não informado'}${schedulerText}</p>
@@ -4815,6 +4824,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <button class="btn-no-show" onclick="updateAttendanceStatus(${apt.id}, 'no-show')" aria-label="Marcar como não compareceu" role="button">Não Compareceu</button>
                             <button class="btn-rescheduled" onclick="updateAttendanceStatus(${apt.id}, 'rescheduled')" aria-label="Marcar como reagendado" role="button">Reagendado</button>
                             <button class="btn-pdf" onclick="preparePrint(${apt.id})" aria-label="Imprimir comprovante" role="button">Imprimir</button>
+                            <button class="btn-declaration" onclick="generateAttendanceDeclarationForAppointment(${apt.id})" aria-label="Gerar Declaração de Comparecimento" role="button">Declaração</button>
                         </div>
                         <h4><span class="patient-name" onclick="showPatientHistory('${apt.cpf}')" aria-label="Ver histórico de ${apt.patient}">${sanitizeInput(apt.patient)}</span> - ${apt.time} | ${apt.date}</h4>
                         <p>CPF: ${apt.cpf || 'Não informado'} | Telefone: ${apt.phone || 'Não informado'} | Profissional: ${sanitizeInput(apt.professional)} | Tipo: ${apt.agendaType || 'Não informado'} | Local: ${apt.location || 'Não informado'} | Prioritário: ${apt.priority || 'Não informado'} | Primeiro Atendimento: ${apt.firstAppointment || 'Não informado'}${schedulerText}</p>
@@ -4850,6 +4860,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <button class="btn-no-show" onclick="updateAttendanceStatus(${apt.id}, 'no-show')" aria-label="Marcar como não compareceu" role="button">Não Compareceu</button>
                             <button class="btn-rescheduled" onclick="updateAttendanceStatus(${apt.id}, 'rescheduled')" aria-label="Marcar como reagendado" role="button">Reagendado</button>
                             <button class="btn-pdf" onclick="preparePrint(${apt.id})" aria-label="Imprimir comprovante" role="button">Imprimir</button>
+                            <button class="btn-declaration" onclick="generateAttendanceDeclarationForAppointment(${apt.id})" aria-label="Gerar Declaração de Comparecimento" role="button">Declaração</button>
                         </div>
                         <h4><span class="patient-name" onclick="showPatientHistory('${apt.cpf}')" aria-label="Ver histórico de ${apt.patient}">${sanitizeInput(apt.patient)}</span> - ${apt.time} | ${apt.date}</h4>
                         <p>CPF: ${apt.cpf || 'Não informado'} | Telefone: ${apt.phone || 'Não informado'} | Profissional: ${sanitizeInput(apt.professional)} | Tipo: ${apt.agendaType || 'Não informado'} | Local: ${apt.location || 'Não informado'} | Prioritário: ${apt.priority || 'Não informado'} | Primeiro Atendimento: ${apt.firstAppointment || 'Não informado'}${schedulerText}</p>
