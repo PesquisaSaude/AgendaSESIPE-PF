@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-        
+       
         :root {
             --bg-primary: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
             --bg-secondary: white;
@@ -19,7 +19,7 @@
             --error: #e74c3c;
             --warning: #ffc107;
         }
-        
+       
         [data-theme="dark"] {
             --bg-primary: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
             --bg-secondary: #2d2d2d;
@@ -29,7 +29,7 @@
             --error: e74c3c;
             --warning: #ffc107;
         }
-        
+       
         body {
             font-family: 'Roboto', sans-serif;
             margin: 0;
@@ -195,7 +195,7 @@
             border: 1px solid #e9ecef;
             cursor: pointer;
             min-height: 35px;
-            display:  flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 400;
@@ -1578,7 +1578,6 @@
         <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema" role="switch" aria-checked="false">🌙</button>
         <img src="img/melhoria.jpg" alt="Melhoria Logo" class="header-logo">
     </div>
-
     <div class="container">
         <div class="section">
             <h3>📅 Selecione uma Data</h3>
@@ -1599,7 +1598,6 @@
                 <button class="block-btn" id="blockDateBtn" onclick="blockSelectedDate()" disabled style="display:none;" aria-label="Bloquear data selecionada" role="button">🔒 Bloquear Data</button>
             </div>
         </div>
-
         <div class="section">
             <h3>🕒 Horários Disponíveis</h3>
             <div class="agenda-type-select">
@@ -1622,33 +1620,31 @@
                 <!-- Hours will be populated by JS -->
             </div>
         </div>
-
         <div class="section">
             <h3>👤 Dados da Consulta</h3>
             <label for="patientName">Nome do Paciente <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Digite o nome completo do paciente para facilitar a identificação.</span></span></label>
             <input type="text" id="patientName" placeholder="Digite o nome completo do paciente" aria-required="true" aria-describedby="patientNameDesc" required>
             <small id="patientNameDesc" class="sr-only">Campo obrigatório. Digite o nome completo do paciente.</small>
-            
+           
             <label for="patientCpf">CPF do Paciente <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Formato: 123.456.789-00. Validação automática.</span></span></label>
             <input type="text" id="patientCpf" placeholder="Digite o CPF (ex: 123.456.789-00)" aria-required="true" aria-describedby="cpfError patientCpfDesc" required>
             <small id="cpfError" class="error-message" aria-live="polite">CPF inválido. (Apenas Números).</small>
             <small id="patientCpfDesc" class="sr-only">Campo obrigatório. Digite o CPF no formato 123.456.789-00.</small>
-            
+           
             <label for="patientPhone">Número do Telefone <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Formato: (11) 99999-9999. Validação automática.</span></span></label>
             <input type="tel" id="patientPhone" placeholder="Digite o número do telefone (ex: (11) 99999-9999)" aria-required="true" aria-describedby="phoneError patientPhoneDesc" required>
             <small id="phoneError" class="error-message" aria-live="polite">Telefone inválido. Use o formato (DD) 9XXXX-XXXX.</small>
             <small id="patientPhoneDesc" class="sr-only">Campo obrigatório. Digite o telefone no formato (11) 99999-9999.</small>
-
             <label for="schedulerName">Responsável pelo Agendamento <span class="help-tooltip">?<span class="tooltip-text">Opcional: Nome de quem está agendando.</span></span></label>
             <input type="text" id="schedulerName" placeholder="Digite o nome do responsável pelo agendamento (opcional)" aria-describedby="schedulerNameDesc">
             <small id="schedulerNameDesc" class="sr-only">Campo opcional para o nome do responsável pelo agendamento.</small>
-            
+           
             <label for="locationSelect">🏢 Local do Atendimento <span aria-hidden="true" class="required">*</span></label>
             <select id="locationSelect" aria-required="true" aria-describedby="locationDesc" required>
                 <option value="">Selecione um local</option>
             </select>
             <small id="locationDesc" class="sr-only">Campo obrigatório. Escolha o local de atendimento.</small>
-            
+           
             <label for="prioritySelect">Atendimento Prioritário <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Indique se o paciente precisa de atendimento urgente.</span></span></label>
             <select id="prioritySelect" aria-required="true" aria-describedby="priorityDesc" required>
                 <option value="">Selecione</option>
@@ -1656,7 +1652,6 @@
                 <option value="Não">Não</option>
             </select>
             <small id="priorityDesc" class="sr-only">Indique se o atendimento é prioritário.</small>
-
             <label for="firstAppointmentSelect">Primeiro Atendimento <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Marque se é a primeira consulta do paciente.</span></span></label>
             <select id="firstAppointmentSelect" aria-required="true" aria-describedby="firstAppointmentDesc" required>
                 <option value="">Selecione</option>
@@ -1664,20 +1659,16 @@
                 <option value="Não">Não</option>
             </select>
             <small id="firstAppointmentDesc" class="sr-only">Indique se é o primeiro atendimento.</small>
-
             <label for="observations">Observações <span class="help-tooltip">?<span class="tooltip-text">Adicione detalhes importantes sobre o paciente ou consulta.</span></span></label>
             <textarea id="observations" placeholder="Digite observações adicionais (opcional)" aria-describedby="observationsDesc"></textarea>
             <small id="observationsDesc" class="sr-only">Campo opcional para observações adicionais.</small>
-
             <button class="add-discount-btn" onclick="openDiscountModal()" aria-label="Adicionar Desconto">Adicionar Desconto</button>
-
             <button class="schedule-btn" id="scheduleBtn" onclick="saveAppointment()" disabled aria-label="Agendar consulta (desabilitado até preencher todos os campos obrigatórios)" role="button">
                 Agendar Consulta
                 <div class="spinner" id="scheduleSpinner"></div>
             </button>
         </div>
     </div>
-
     <div class="scheduled-section">
         <h3>📋 Consultas Agendadas</h3>
         <button class="toggle-scheduled-btn" id="toggleScheduledBtn" onclick="toggleScheduled()" aria-label="Mostrar ou ocultar lista de consultas agendadas" role="button">Mostrar Consultas Agendadas</button>
@@ -1765,7 +1756,6 @@
             </div>
         </div>
     </div>
-
     <div class="scheduled-section" id="blockedSection">
         <h3>🔒 Gerenciar Datas Bloqueadas</h3>
         <button class="toggle-scheduled-btn" id="toggleBlockedBtn" onclick="toggleBlocked()" aria-label="Mostrar ou ocultar lista de datas bloqueadas" role="button">Mostrar Datas Bloqueadas</button>
@@ -1779,7 +1769,6 @@
             </div>
         </div>
     </div>
-
     <div class="scheduled-section">
         <h3>📊 Relatórios de Agendamentos</h3>
         <button class="toggle-scheduled-btn" id="toggleReportBtn" onclick="toggleReport()" aria-label="Mostrar ou ocultar seção de relatórios" role="button">Mostrar Relatórios</button>
@@ -1849,10 +1838,8 @@
             </div>
         </div>
     </div>
-
     <!-- Toast Notification -->
     <div id="toast" class="toast" role="alert" aria-live="polite">Consulta agendada com sucesso!</div>
-
     <!-- Block Modal -->
     <div id="blockModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="blockTitle">
         <div class="modal-content">
@@ -1869,7 +1856,6 @@
             <button class="modal-btn cancel-btn" onclick="closeModal('blockModal')" aria-label="Cancelar bloqueio da data" role="button">Cancelar</button>
         </div>
     </div>
-
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
         <div class="modal-content">
@@ -1880,7 +1866,6 @@
             <button class="modal-btn cancel-btn" onclick="closeModal('deleteModal')" aria-label="Cancelar exclusão da consulta" role="button">Cancelar</button>
         </div>
     </div>
-
     <!-- Edit Modal -->
     <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
         <div class="modal-content">
@@ -1888,57 +1873,53 @@
             <h3 id="editTitle">Editar Consulta</h3>
             <label for="editPatientName">Nome do Paciente <span aria-hidden="true" class="required">*</span></label>
             <input type="text" id="editPatientName" aria-required="true" required autofocus>
-            
+           
             <label for="editPatientCpf">CPF do Paciente <span aria-hidden="true" class="required">*</span></label>
             <input type="text" id="editPatientCpf" aria-required="true" aria-describedby="editCpfError editPatientCpfDesc" required>
             <small id="editCpfError" class="error-message" aria-live="polite">CPF inválido. Verifique os dígitos.</small>
             <small id="editPatientCpfDesc" class="sr-only">Digite o CPF no formato 123.456.789-00.</small>
-            
+           
             <label for="editPatientPhone">Número do Telefone <span aria-hidden="true" class="required">*</span></label>
             <input type="tel" id="editPatientPhone" aria-required="true" aria-describedby="editPhoneError editPatientPhoneDesc" required>
             <small id="editPhoneError" class="error-message" aria-live="polite">Telefone inválido. Use o formato (DD) 9XXXX-XXXX.</small>
             <small id="editPatientPhoneDesc" class="sr-only">Digite o telefone no formato (11) 99999-9999.</small>
-
             <label for="editSchedulerName">Nome do Responsável pelo Agendamento</label>
             <input type="text" id="editSchedulerName" placeholder="Digite o nome do responsável pelo agendamento (opcional)">
-            
+           
             <label for="editLocationSelect">Local do Atendimento <span aria-hidden="true" class="required">*</span></label>
             <select id="editLocationSelect" aria-required="true" required></select>
-            
+           
             <label for="editAgendaTypeSelect">Tipo de Agenda <span aria-hidden="true" class="required">*</span></label>
             <select id="editAgendaTypeSelect" onchange="populateEditProfessionals()" aria-required="true" required></select>
-            
+           
             <label for="editDentistSelect">Profissional <span aria-hidden="true" class="required">*</span></label>
             <select id="editDentistSelect" onchange="populateEditTimes()" aria-required="true" required></select>
-            
+           
             <label for="editDate">Data da Consulta <span aria-hidden="true" class="required">*</span></label>
             <input type="date" id="editDate" required aria-required="true">
-            
+           
             <label for="editTime">Horário da Consulta <span aria-hidden="true" class="required">*</span></label>
             <select id="editTime" required aria-required="true"></select>
-            
+           
             <label for="editPrioritySelect">Atendimento Prioritário <span aria-hidden="true" class="required">*</span></label>
             <select id="editPrioritySelect" aria-required="true" required>
                 <option value="">Selecione</option>
                 <option value="Sim">Sim</option>
                 <option value="Não">Não</option>
             </select>
-
             <label for="editFirstAppointmentSelect">Primeiro Atendimento <span aria-hidden="true" class="required">*</span></label>
             <select id="editFirstAppointmentSelect" aria-required="true" required>
                 <option value="">Selecione</option>
                 <option value="Sim">Sim</option>
                 <option value="Não">Não</option>
             </select>
-
             <label for="editObservations">Observações</label>
             <textarea id="editObservations" placeholder="Digite observações adicionais (opcional)"></textarea>
-            
+           
             <button class="modal-btn" onclick="saveEdit()" aria-label="Salvar alterações na consulta" role="button">Salvar Alterações</button>
             <button class="modal-btn cancel-btn" onclick="closeModal('editModal')" aria-label="Cancelar edição da consulta" role="button">Cancelar</button>
         </div>
     </div>
-
     <!-- Print Confirmation Modal -->
     <div id="printConfirmModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="printConfirmTitle">
         <div class="modal-content">
@@ -1949,7 +1930,6 @@
             <button class="modal-btn cancel-btn" onclick="closeModal('printConfirmModal')" aria-label="Não imprimir" role="button">Não</button>
         </div>
     </div>
-
     <!-- Print Type Modal -->
     <div id="printTypeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="printTypeTitle">
         <div class="modal-content">
@@ -1963,7 +1943,6 @@
             <button class="modal-btn cancel-btn" onclick="closeModal('printTypeModal')" aria-label="Cancelar impressão" role="button">Cancelar</button>
         </div>
     </div>
-
     <!-- Patient History Modal -->
     <div id="patientHistoryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
         <div class="modal-content">
@@ -1975,7 +1954,6 @@
             <button class="modal-btn cancel-btn" onclick="closeModal('patientHistoryModal')" aria-label="Fechar histórico" role="button">Fechar</button>
         </div>
     </div>
-
     <!-- Discount Modal -->
     <div id="discountModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="discountTitle">
         <div class="modal-content">
@@ -2035,7 +2013,6 @@
             <button class="apply-promo-btn" onclick="applyPromotion()">⭐ Aplicar Promoção</button>
         </div>
     </div>
-
     <script>
         let currentDate = new Date(2025, 9, 6); // Updated to October 06, 2025
         let selectedDay = null;
@@ -2059,47 +2036,42 @@
         let coloredLogoBase64 = ''; // Para imagem colorida em declarações
         let discountObj = {}; // Objeto global para armazenar descontos durante o agendamento
         let currentServicePrice = 0; // Preço atual do serviço para cálculos de desconto
-
         // Objeto de preços para serviços (exemplo de valores - ajuste conforme necessário)
         const prices = {
-            // Odontológica
-            'Ana Paula': 150.00,
-            'Carlson': 150.00,
-            'Cinara': 200.00,
-            'Edson': 200.00,
-            'Dr. João Santos': 150.00,
+            // Combos para Especialidades Médicas
+            'Combo Otorrino': 184.00,
+            'Combo Nutricional': 239.00,
+            'Combo Gineco': 157.00,
+            'Combo Coração': 339.00,
             // Especialidades Médicas
-            'Clínica Geral': 120.00,
-            'Cardiologia': 180.00,
-            'Oftalmologia': 160.00,
-            'Otorrinolaringologia': 180.00,
-            'Ginecologia': 200.00,
-            'Dermatologia': 150.00,
-            'Psicologia': 180.00,
-            'Nutrição': 140.00,
-            // Exames (exemplo fixo baseado no código original)
-            'Ultrassonografia Abdômen Superior': 72.00,
-            'Ultrassonografia Abdômen Total': 72.00,
-            'Ultrassonografia Axila': 72.00,
-            'Ultrassonografia Bolsa Escrotal': 72.00,
-            'Ultrassonografia Mamária': 72.00,
-            'Ultrassonografia Obstétrica': 72.00,
-            'Ultrassonografia Parede Abdominal': 72.00,
-            'Ultrassonografia Partes Moles (Couro Cabeludo)': 72.00,
-            'Ultrassonografia Partes Moles (Membros Superiores e Inferiores)': 72.00,
-            'Ultrassonografia Partes Moles (Região Cervical)': 72.00,
-            'Ultrassonografia Partes Moles (Região Dorsal)': 72.00,
-            'Ultrassonografia Partes Moles (Região Inframandibular)': 72.00,
-            'Ultrassonografia Partes Moles (Região Lombar)': 72.00,
-            'Ultrassonografia Partes Moles (Tórax)': 72.00,
-            'Ultrassonografia Próstata': 72.00,
-            'Ultrassonografia Região Inguinal': 72.00,
-            'Ultrassonografia Renal': 72.00,
-            'Ultrassonografia Tireóide': 72.00,
-            'Ultrassonografia Transretal': 72.00,
-            'Ultrassonografia Transvaginal': 72.00
+            'Cardiologista': 139.00,
+            'Clínico Geral': 119.00,
+            'Ginecologista': 119.00,
+            'Otorrino': 119.00,
+            'Oftalmologista': 119.00,
+            'Psicologia': 107.00,
+            'Nutricionista': 107.00,
+            // Exames
+            'Ultrassonografia Abdômen Superior': 122.00,
+            'Ultrassonografia Abdômen Total': 202.00,
+            'Ultrassonografia Axila': 134.00,
+            'Ultrassonografia Bolsa Escrotal': 160.00,
+            'Ultrassonografia Mamária': 138.00,
+            'Ultrassonografia Obstétrica': 141.00,
+            'Ultrassonografia Parede Abdominal': 127.00,
+            'Ultrassonografia Partes Moles (Couro Cabeludo)': 127.00,
+            'Ultrassonografia Partes Moles (Membros Superiores e Inferiores)': 127.00,
+            'Ultrassonografia Partes Moles (Região Cervical)': 127.00,
+            'Ultrassonografia Partes Moles (Região Dorsal)': 127.00,
+            'Ultrassonografia Partes Moles (Região Inframandibular)': 127.00,
+            'Ultrassonografia Partes Moles (Região Lombar)': 127.00,
+            'Ultrassonografia Partes Moles (Tórax)': 127.00,
+            'Ultrassonografia Pós-ita': 126.00,
+            'Ultrassonografia Região Inguinal': 126.00,
+            'Ultrassonografia Tireóide': 126.00,
+            'Ultrassonografia Transretal': 126.00,
+            'Ultrassonografia Transvaginal': 126.00
         };
-
         // Função para carregar imagem como base64 (melhorada com retry e fallback)
         function getImageBase64(src, retries = 3) {
             return new Promise((resolve, reject) => {
@@ -2131,49 +2103,47 @@
                 loadImage(1);
             });
         }
-
         const holidays = [
             // 2025
-            new Date(2025, 0, 1),   // Confraternização Universal
-            new Date(2025, 2, 3),   // Carnaval (Segunda-feira)
-            new Date(2025, 2, 4),   // Carnaval (Terça-feira)
-            new Date(2025, 3, 18),  // Paixão de Cristo
-            new Date(2025, 3, 21),  // Tiradentes
-            new Date(2025, 4, 1),   // Dia do Trabalho
-            new Date(2025, 5, 19),  // Corpus Christi
-            new Date(2025, 8, 7),   // Independência do Brasil
-            new Date(2025, 9, 12),  // Nossa Sra. a Aparecida - Padroeira do Brasil
-            new Date(2025, 10, 2),  // Finados
+            new Date(2025, 0, 1), // Confraternização Universal
+            new Date(2025, 2, 3), // Carnaval (Segunda-feira)
+            new Date(2025, 2, 4), // Carnaval (Terça-feira)
+            new Date(2025, 3, 18), // Paixão de Cristo
+            new Date(2025, 3, 21), // Tiradentes
+            new Date(2025, 4, 1), // Dia do Trabalho
+            new Date(2025, 5, 19), // Corpus Christi
+            new Date(2025, 8, 7), // Independência do Brasil
+            new Date(2025, 9, 12), // Nossa Sra. a Aparecida - Padroeira do Brasil
+            new Date(2025, 10, 2), // Finados
             new Date(2025, 10, 15), // Proclamação da República
             new Date(2025, 11, 25), // Natal
             // 2026
-            new Date(2026, 0, 1),   // Confraternização Universal
-            new Date(2026, 1, 16),  // Carnaval (Segunda-feira)
-            new Date(2026, 1, 17),  // Carnaval (Terça-feira)
-            new Date(2026, 3, 3),   // Paixão de Cristo
-            new Date(2026, 3, 21),  // Tiradentes
-            new Date(2026, 4, 1),   // Dia do Trabalho
-            new Date(2026, 5, 4),   // Corpus Christi
-            new Date(2026, 8, 7),   // Independência do Brasil
-            new Date(2026, 9, 12),  // Nossa Sra. a Aparecida - Padroeira do Brasil
-            new Date(2026, 10, 2),  // Finados
+            new Date(2026, 0, 1), // Confraternização Universal
+            new Date(2026, 1, 16), // Carnaval (Segunda-feira)
+            new Date(2026, 1, 17), // Carnaval (Terça-feira)
+            new Date(2026, 3, 3), // Paixão de Cristo
+            new Date(2026, 3, 21), // Tiradentes
+            new Date(2026, 4, 1), // Dia do Trabalho
+            new Date(2026, 5, 4), // Corpus Christi
+            new Date(2026, 8, 7), // Independência do Brasil
+            new Date(2026, 9, 12), // Nossa Sra. a Aparecida - Padroeira do Brasil
+            new Date(2026, 10, 2), // Finados
             new Date(2026, 10, 15), // Proclamação da República
             new Date(2026, 11, 25), // Natal
             // 2027
-            new Date(2027, 0, 1),   // Confraternização Universal
-            new Date(2027, 1, 8),   // Carnaval (Segunda-feira)
-            new Date(2027, 1, 9),   // Carnaval (Terça-feira)
-            new Date(2027, 2, 26),  // Paixão de Cristo
-            new Date(2027, 3, 21),  // Tiradentes
-            new Date(2027, 4, 1),   // Dia do Trabalho
-            new Date(2027, 4, 27),  // Corpus Christi
-            new Date(2027, 8, 7),   // Independência do Brasil
-            new Date(2027, 9, 12),  // Nossa Sra. a Aparecida - Padroeira do Brasil
-            new Date(2027, 10, 2),  // Finados
+            new Date(2027, 0, 1), // Confraternização Universal
+            new Date(2027, 1, 8), // Carnaval (Segunda-feira)
+            new Date(2027, 1, 9), // Carnaval (Terça-feira)
+            new Date(2027, 2, 26), // Paixão de Cristo
+            new Date(2027, 3, 21), // Tiradentes
+            new Date(2027, 4, 1), // Dia do Trabalho
+            new Date(2027, 4, 27), // Corpus Christi
+            new Date(2027, 8, 7), // Independência do Brasil
+            new Date(2027, 9, 12), // Nossa Sra. a Aparecida - Padroeira do Brasil
+            new Date(2027, 10, 2), // Finados
             new Date(2027, 10, 15), // Proclamação da República
-            new Date(2027, 11, 25)  // Natal
+            new Date(2027, 11, 25) // Natal
         ];
-
         const holidayNames = {
             '2025-01-01': 'Confraternização Universal',
             '2025-03-03': 'Carnaval (Segunda-feira)',
@@ -2212,18 +2182,15 @@
             '2027-11-15': 'Proclamação da República',
             '2027-12-25': 'Natal'
         };
-
         function getHolidayName(date) {
             const key = date.toISOString().split('T')[0];
             return holidayNames[key] || 'Feriado Nacional';
         }
-
         const agendaTypes = [
             'Agenda Odontológica',
             'Agenda Especialidades Médicas',
             'Agenda de Exames'
         ];
-
         const dentists = [
             'Ana Paula',
             'Carlson',
@@ -2231,18 +2198,19 @@
             'Edson',
             'Dr. João Santos'
         ];
-
         const medicalSpecialists = [
-            'Clínica Geral',
-            'Cardiologia',
-            'Oftalmologia',
-            'Otorrinolaringologia',
-            'Ginecologia',
-            'Dermatologia',
+            'Combo Otorrino',
+            'Combo Nutricional',
+            'Combo Gineco',
+            'Combo Coração',
+            'Cardiologista',
+            'Clínico Geral',
+            'Ginecologista',
+            'Otorrino',
+            'Oftalmologista',
             'Psicologia',
-            'Nutrição'
+            'Nutricionista'
         ];
-
         const examSpecialists = [
             'Ultrassonografia Abdômen Superior',
             'Ultrassonografia Abdômen Total',
@@ -2258,24 +2226,20 @@
             'Ultrassonografia Partes Moles (Região Inframandibular)',
             'Ultrassonografia Partes Moles (Região Lombar)',
             'Ultrassonografia Partes Moles (Tórax)',
-            'Ultrassonografia Próstata',
+            'Ultrassonografia Pós-ita',
             'Ultrassonografia Região Inguinal',
-            'Ultrassonografia Renal',
             'Ultrassonografia Tireóide',
             'Ultrassonografia Transretal',
             'Ultrassonografia Transvaginal'
         ];
-
         const locations = [
             'SESI Saúde - Santo Amaro',
             'Posto Avançado - SESI Paulista'
         ];
-
         const locationAddresses = {
             'SESI Saúde - Santo Amaro': 'Rua Frei Cassimiro, 88 - Santo Amaro, Recife - PE, 50100-260',
             'Posto Avançado - SESI Paulista': 'Tv. São Pedro, 2800 - Artur Lundgren I, Paulista - PE, 53417-040'
         };
-
         const professionalDurations = {
             // Dental
             'Ana Paula': 20,
@@ -2284,16 +2248,14 @@
             'Edson': 50,
             'Dr. João Santos': 20,
             // Medical
-            'Clínica Geral': 30,
-            'Cardiologia': 20,
-            'Oftalmologia': 25,
-            'Otorrinolaringologia': 20,
-            'Ginecologia': 40,
-            'Dermatologia': 30,
+            'Clínico Geral': 30,
+            'Cardiologista': 20,
+            'Oftalmologista': 25,
+            'Otorrino': 20,
+            'Ginecologista': 40,
             'Psicologia': 60,
-            'Nutrição': 50
+            'Nutricionista': 50
         };
-
         function generateSlots(startHour, endHour, intervalMin) {
             const slots = [];
             let current = startHour * 60;
@@ -2306,7 +2268,6 @@
             }
             return slots;
         }
-
         function getHoursForAgendaType(agendaType) {
             if (agendaType === 'Agenda Odontológica') {
                 return generateSlots(7, 18, 20);
@@ -2317,12 +2278,10 @@
             }
             return [];
         }
-
         function getHoursForProfessional(agendaType, professional) {
             let startHour = 7;
             let endHour = 18;
             let interval = 20;
-
             if (agendaType === 'Agenda Odontológica') {
                 interval = professionalDurations[professional] || 20;
             } else if (agendaType === 'Agenda Especialidades Médicas') {
@@ -2332,10 +2291,8 @@
                 endHour = 17;
                 interval = 20;
             }
-
             return generateSlots(startHour, endHour, interval);
         }
-
         function getStatusText(status) {
             switch (status) {
                 case 'attended': return 'Compareceu';
@@ -2344,7 +2301,6 @@
                 default: return 'Pendente';
             }
         }
-
         function getStatusClass(status) {
             switch (status) {
                 case 'attended': return 'attended';
@@ -2353,7 +2309,6 @@
                 default: return 'pending';
             }
         }
-
         function updateAppointmentDatesSet() {
             appointmentDatesSet.clear();
             appointments.forEach(apt => {
@@ -2361,11 +2316,9 @@
                 appointmentDatesSet.add(new Date(yr, mon - 1, day).toDateString());
             });
         }
-
         function isHoliday(date) {
             return holidays.some(holiday => holiday.toDateString() === date.toDateString());
         }
-
         function isBlocked(dateStr, agendaType = null) {
             if (!agendaType) {
                 // Se não especificar tipo, verifica se há bloqueio para qualquer tipo
@@ -2374,14 +2327,12 @@
             // Verifica bloqueio específico para o tipo de agenda
             return blockedDates.some(b => b.date === dateStr && b.agendaType === agendaType);
         }
-
         // Função para sanitizar inputs (básica contra XSS)
         function sanitizeInput(input) {
             const div = document.createElement('div');
             div.textContent = input;
             return div.innerHTML;
         }
-
         function formatCPF(input) {
             let value = input.value.replace(/\D/g, "");
             value = value.replace(/(\d{3})(\d)/, "$1.$2");
@@ -2389,7 +2340,6 @@
             value = value.replace(/(\d{3})(\d{1,2})/, "$1-$2");
             input.value = value;
         }
-
         function formatFilterCPF(input) {
             let value = input.value.replace(/\D/g, "");
             value = value.replace(/(\d{3})(\d)/, "$1.$2");
@@ -2397,7 +2347,6 @@
             value = value.replace(/(\d{3})(\d{1,2})/, "$1-$2");
             input.value = value;
         }
-
         function validateCPF(input) {
             const cpf = input.value.replace(/\D/g, '');
             const errorEl = document.getElementById('cpfError');
@@ -2413,7 +2362,6 @@
             }
             updateScheduleButton();
         }
-
         function isValidCPF(cpf) {
             if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
             let sum = 0;
@@ -2431,7 +2379,6 @@
             let digit2 = remainder >= 10 ? 0 : remainder;
             return parseInt(cpf[10]) === digit2;
         }
-
         function formatPhone(input) {
             let value = input.value.replace(/\D/g, "");
             if (value.length >= 11) {
@@ -2443,7 +2390,6 @@
             }
             input.value = value;
         }
-
         function validatePhone(input) {
             const phone = input.value.replace(/\D/g, '');
             const errorEl = document.getElementById('phoneError');
@@ -2459,7 +2405,6 @@
             }
             updateScheduleButton();
         }
-
         function validateEditCPF(input) {
             const cpf = input.value.replace(/\D/g, '');
             const errorEl = document.getElementById('editCpfError');
@@ -2474,7 +2419,6 @@
                 input.setAttribute('aria-invalid', 'true');
             }
         }
-
         function validateEditPhone(input) {
             const phone = input.value.replace(/\D/g, '');
             const errorEl = document.getElementById('editPhoneError');
@@ -2489,7 +2433,6 @@
                 input.setAttribute('aria-invalid', 'true');
             }
         }
-
         function getProfessionals(agendaType) {
             if (agendaType === 'Agenda Odontológica') {
                 return dentists;
@@ -2500,7 +2443,6 @@
             }
             return [];
         }
-
         function populateProfessionals(agendaType, selectId) {
             const select = document.getElementById(selectId);
             select.innerHTML = '<option value="">Selecione um profissional</option>';
@@ -2512,12 +2454,10 @@
                 select.appendChild(option);
             });
         }
-
         function populateEditProfessionals() {
             const agendaType = document.getElementById('editAgendaTypeSelect').value;
             populateProfessionals(agendaType, 'editDentistSelect');
         }
-
         function populateEditTimes() {
             const agendaTypeSelect = document.getElementById('editAgendaTypeSelect');
             const dentistSelect = document.getElementById('editDentistSelect');
@@ -2540,18 +2480,14 @@
                 timeSelect.appendChild(opt);
             });
         }
-
         async function generatePDF(appointmentId, format) {
             const apt = appointments.find(a => a.id === appointmentId);
             if (!apt) return;
-
             const isThermal = format === 'thermal';
             const generatedDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
             const schedulerName = apt.scheduler ? sanitizeInput(apt.scheduler) : 'Não informado'; // Show 'Não informado' if empty
-
             // Determinar CNPJ baseado na localização (Paulista usa /0025-82, outros /0002-52)
             const cnpj = apt.location && apt.location.includes('Paulista') ? '03.910.210/0025-82' : '03.910.210/0002-52';
-
             // Calcular preço com desconto se aplicável
             let originalPrice = prices[apt.professional] || 0;
             let discountedPrice = originalPrice;
@@ -2563,7 +2499,6 @@
                 discountedPrice = originalPrice * (1 - totalDiscount / 100);
                 discountInfo = ` (Desconto Total: ${totalDiscount}%)`;
             }
-
             if (isThermal) {
                 // Usar janela de impressão com HTML/CSS otimizado para térmica, incluindo imagens e descontos
                 let title = apt.agendaType === 'Agenda de Exames' ? 'ORÇAMENTO DE EXAMES' : 'COMPROVANTE DE AGENDAMENTO';
@@ -2574,34 +2509,34 @@
                       <title>${title}</title>
                       <style>
                         @page {
-                          margin: 0;  /* Remove margens da página para maximizar o uso do papel térmico */
+                          margin: 0; /* Remove margens da página para maximizar o uso do papel térmico */
                         }
                         body {
-                          font-family: monospace;  /* Fonte monospace para alinhamento fixo e legibilidade em impressoras térmicas */
-                          font-size: 10pt;         /* Tamanho de fonte compacto (10pt) para caber em 80mm de largura */
-                          margin: 0;               /* Sem margens laterais na body */
-                          padding: 0 5mm 5mm 0;    /* Padding mínimo: 0 no topo/esquerda, 5mm na direita e fundo para evitar corte */
-                          width: 80mm;             /* Largura fixa de 80mm, padrão para rolos térmicos (ex: Epson TM-T20) */
-                          line-height: 1.2;        /* Espaçamento de linha apertado para economia de papel */
-                          color: #000;             /* Cor preta pura para compatibilidade com impressão térmica */
-                          background: #fff;        /* Fundo branco, mas irrelevante em térmica (impressão monocromática) */
-                          text-align: left;        /* Alinhamento à esquerda para layout linear */
+                          font-family: monospace; /* Fonte monospace para alinhamento fixo e legibilidade em impressoras térmicas */
+                          font-size: 10pt; /* Tamanho de fonte compacto (10pt) para caber em 80mm de largura */
+                          margin: 0; /* Sem margens laterais na body */
+                          padding: 0 5mm 5mm 0; /* Padding mínimo: 0 no topo/esquerda, 5mm na direita e fundo para evitar corte */
+                          width: 80mm; /* Largura fixa de 80mm, padrão para rolos térmicos (ex: Epson TM-T20) */
+                          line-height: 1.2; /* Espaçamento de linha apertado para economia de papel */
+                          color: #000; /* Cor preta pura para compatibilidade com impressão térmica */
+                          background: #fff; /* Fundo branco, mas irrelevante em térmica (impressão monocromática) */
+                          text-align: left; /* Alinhamento à esquerda para layout linear */
                         }
-                        .line { margin-bottom: 0.3em; }  /* Espaçamento entre linhas de texto */
-                        .divider { 
-                          border-top: 1px dashed #000;  /* Linhas divisórias tracejadas para separar seções */
-                          margin: 0.5em 0; 
+                        .line { margin-bottom: 0.3em; } /* Espaçamento entre linhas de texto */
+                        .divider {
+                          border-top: 1px dashed #000; /* Linhas divisórias tracejadas para separar seções */
+                          margin: 0.5em 0;
                         }
                         .center { text-align: center; } /* Centralização para cabeçalhos */
-                        .bold { font-weight: bold; }    /* Negrito para destaques */
+                        .bold { font-weight: bold; } /* Negrito para destaques */
                         .warning {
                           margin: 0.5em 0;
-                          font-size: 9pt;              /* Fonte ligeiramente menor para avisos */
+                          font-size: 9pt; /* Fonte ligeiramente menor para avisos */
                           text-align: center;
                         }
-                        .warning-title { 
-                          font-weight: bold; 
-                          text-align: center; 
+                        .warning-title {
+                          font-weight: bold;
+                          text-align: center;
                         }
                         .thermal-logo {
                           display: block;
@@ -2626,7 +2561,6 @@
                       <div class="center line">CNPJ: ${cnpj}</div>
                       <div class="center bold line">${title}</div>
                 `;
-
                 if (apt.agendaType === 'Agenda de Exames') {
                     // Conteúdo específico para Exames com desconto
                     printContent += `
@@ -2661,7 +2595,6 @@
                       <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
                     `;
                 }
-
                 // Aviso comum
                 printContent += `
                       <div class="line">Gerado em: ${generatedDate}</div>
@@ -2675,7 +2608,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     </body>
                     </html>
                 `;
-
                 const printWindow = window.open('', '_blank', 'width=300,height=600');
                 printWindow.document.write(printContent);
                 printWindow.document.close();
@@ -2933,13 +2865,13 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           color: #0056b3;
                         }
                         @media print {
-                          body { 
-                            -webkit-print-color-adjust: exact; 
-                            print-color-adjust: exact; 
+                          body {
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
                             font-size: 11pt; /* Garante tamanho em impressão */
                           }
-                          .print-table { 
-                            border-collapse: collapse; 
+                          .print-table {
+                            border-collapse: collapse;
                             box-shadow: none; /* Remove sombra em print para simplicidade */
                           }
                           .print-container {
@@ -3003,7 +2935,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           <p><i class="fas fa-user-md"></i><span>Cliente:</span> <span>${apt.patient || 'Não informado'}</span></p>
                           <p><i class="fas fa-phone"></i><span>Telefone do Cliente:</span> <span>${apt.phone || 'Não informado'}</span></p>
                 `;
-
                 if (apt.agendaType === 'Agenda de Exames') {
                     // Tabela de exames como na imagem com desconto
                     printContent += `
@@ -3056,7 +2987,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           </div>
                     `;
                 }
-
                 // Aviso como na imagem
                 printContent += `
                         </div>
@@ -3072,35 +3002,29 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     </body>
                     </html>
                 `;
-
                 const printWindow = window.open('', '_blank', 'width=800,height=600');
                 printWindow.document.write(printContent);
                 printWindow.document.close();
                 printWindow.print();
                 printWindow.close();
             }
-
             showToast(`Comprovante ${isThermal ? 'térmica' : 'normal'} gerado com sucesso!`, 'success');
         }
-
         function showPrintTypeModal() {
             closeModal('printConfirmModal');
             document.getElementById('printTypeModal').style.display = 'block';
             // Auto-focus no primeiro radio
             document.querySelector('input[name="printType"]').focus();
         }
-
         function generatePrintPDF() {
             const printType = document.querySelector('input[name="printType"]:checked').value;
             generatePDF(currentPrintId, printType);
             closeModal('printTypeModal');
         }
-
         function preparePrint(id) {
             currentPrintId = id;
             document.getElementById('printConfirmModal').style.display = 'block';
         }
-
         function toggleTheme() {
             const body = document.body;
             const currentTheme = body.getAttribute('data-theme');
@@ -3111,20 +3035,18 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             toggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
             toggleBtn.setAttribute('aria-checked', newTheme === 'dark' ? 'true' : 'false');
         }
-
         function confirmOpenFicha(cpf, patient = '', phone = '', observations = '') {
             if (confirm('Deseja abrir o arquivo da ficha clínica?')) {
                 // Sanitiza os valores para URL (evita injeção de código)
                 const sanitizedPatient = encodeURIComponent(sanitizeInput(patient));
                 const sanitizedPhone = encodeURIComponent(sanitizeInput(phone));
                 const sanitizedObs = encodeURIComponent(sanitizeInput(observations));
-                
+               
                 // Monta a URL com parâmetros adicionais para preencher o formulário
                 const fichaUrl = `https://pesenaibr-my.sharepoint.com/:w:/g/personal/socrates_silva_sistemafiepe_org_br/EezX1v19-BBDl9cKn3fKqgcB_lCc-cVTcpZi26gErPTlDw?e=5DVI2m&cpf=${encodeURIComponent(cpf || '')}&name=${sanitizedPatient}&phone=${sanitizedPhone}&obs=${sanitizedObs}`;
                 window.open(fichaUrl, '_blank');
             }
         }
-
         function showPatientHistory(cpf) {
             currentPatientCpf = cpf; // Armazena globalmente para uso no botão
             const patientAppointments = appointments.filter(apt => apt.cpf === cpf);
@@ -3132,24 +3054,19 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 showToast('Nenhum histórico encontrado para este paciente.', 'error');
                 return;
             }
-
             // Ordenar por data descendente
             patientAppointments.sort((a, b) => {
                 const dateA = new Date(a.date.split('/').reverse().join('-'));
                 const dateB = new Date(b.date.split('/').reverse().join('-'));
                 return dateB - dateA;
             });
-
             currentPatientName = patientAppointments[0].patient; // Armazena globalmente
-
             const modal = document.getElementById('patientHistoryModal');
             const title = document.getElementById('historyTitle');
             const info = document.getElementById('historyPatientInfo');
             const list = document.getElementById('historyList');
-
             title.textContent = `Histórico de ${currentPatientName}`;
             info.textContent = `CPF: ${cpf} | Total de Atendimentos: ${patientAppointments.length}`;
-
             list.innerHTML = '';
             patientAppointments.forEach(apt => {
                 const item = document.createElement('div');
@@ -3163,11 +3080,9 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 `;
                 list.appendChild(item);
             });
-
             modal.style.display = 'block';
             focusTrap(modal);
         }
-
         async function generateAttendanceDeclaration(cpf, patientName) {
             const generatedDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
             const printContent = `
@@ -3289,16 +3204,13 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 </body>
                 </html>
             `;
-
             const printWindow = window.open('', '_blank', 'width=800,height=600');
             printWindow.document.write(printContent);
             printWindow.document.close();
             printWindow.print();
             printWindow.close();
-
             showToast('Declaração de Comparecimento gerada e aberta para impressão!', 'success');
         }
-
         function generateCalendar(agendaType = currentAgendaType) {
             const calendar = document.getElementById('calendar');
             const year = currentDate.getFullYear();
@@ -3308,7 +3220,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const lastDay = new Date(year, month + 1, 0);
             const startDate = new Date(firstDay);
             startDate.setDate(startDate.getDate() - firstDay.getDay());
-
             calendar.innerHTML = `
                 <div class="day-header">dom</div>
                 <div class="day-header">seg</div>
@@ -3318,7 +3229,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 <div class="day-header">sex</div>
                 <div class="day-header">sáb</div>
             `;
-
             for (let i = 0; i < 42; i++) {
                 const date = new Date(startDate);
                 date.setDate(startDate.getDate() + i);
@@ -3337,7 +3247,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     const isBlockedDay = agendaType ? isBlocked(dateStr, agendaType) : false;
                     const blockReason = agendaType ? blockedDates.find(b => b.date === dateStr && b.agendaType === agendaType)?.reason : null;
                     const isUnavailableBase = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || date < today || isBlockedDay;
-
                     if (isUnavailableBase) {
                         dayElement.classList.add('unavailable');
                         if (isHolidayDay) {
@@ -3370,10 +3279,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
                 calendar.appendChild(dayElement);
             }
-
             document.getElementById('monthDisplay').textContent = firstDay.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
         }
-
         function selectDay(date) {
             if (isHoliday(date)) {
                 showToast(`Não é possível selecionar feriados: ${getHolidayName(date)}`, 'error');
@@ -3396,7 +3303,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             updateScheduleButton();
             populateHours(date);
         }
-
         function blockSelectedDate() {
             if (!selectedDay) {
                 showToast('Selecione uma data primeiro.', 'error');
@@ -3434,7 +3340,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('blockModal').style.display = 'block';
             document.getElementById('blockAgendaType').focus();
         }
-
         function confirmBlock() {
             const agendaType = document.getElementById('blockAgendaType').value.trim();
             const reason = document.getElementById('blockReason').value.trim();
@@ -3458,7 +3363,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             generateCalendar(currentAgendaType);
             clearSelections();
         }
-
         function removeBlock(index) {
             if (confirm('Tem certeza que deseja remover este bloqueio?')) {
                 blockedDates.splice(index, 1);
@@ -3470,7 +3374,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 showToast('Bloqueio removido com sucesso! ✅');
             }
         }
-
         function toggleBlocked() {
             const grid = document.getElementById('blockedGrid');
             const btn = document.getElementById('toggleBlockedBtn');
@@ -3487,7 +3390,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 isBlockedSectionOpen = false;
             }
         }
-
         function displayBlocked() {
             const list = document.getElementById('blockedList');
             const summary = document.getElementById('blockedSummary');
@@ -3540,7 +3442,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 setTimeout(() => card.classList.add('show'), index * 100);
             });
         }
-
         function populateHours(selectedDate) {
             const hoursGrid = document.getElementById('hoursGrid');
             hoursGrid.innerHTML = '';
@@ -3613,28 +3514,24 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 hoursGrid.appendChild(slot);
             });
         }
-
         function selectHour(hour) {
             selectedHour = hour;
             document.querySelectorAll('.hour-slot:not(.booked)').forEach(s => s.classList.remove('selected'));
             event.target.classList.add('selected');
             updateScheduleButton();
         }
-
         function prevMonth() {
             currentDate.setMonth(currentDate.getMonth() - 1);
             generateCalendar(currentAgendaType);
             document.getElementById('selectedDate').style.display = 'none';
             clearSelections();
         }
-
         function nextMonth() {
             currentDate.setMonth(currentDate.getMonth() + 1);
             generateCalendar(currentAgendaType);
             document.getElementById('selectedDate').style.display = 'none';
             clearSelections();
         }
-
         function clearSelections() {
             selectedDay = null;
             selectedHour = null;
@@ -3658,13 +3555,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             discountObj = {}; // Limpa descontos
             updateScheduleButton();
         }
-
         // Debounce para filtros (evita chamadas excessivas)
         function debouncedFilterAppointments() {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(filterAppointments, 300);
         }
-
         function clearOdontologiaFilters() {
             document.getElementById('odontologiaStartDate').value = '';
             document.getElementById('odontologiaEndDate').value = '';
@@ -3673,7 +3568,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('odontologiaSearch').value = '';
             filterAppointments();
         }
-
         function clearMedicasFilters() {
             document.getElementById('medicasStartDate').value = '';
             document.getElementById('medicasEndDate').value = '';
@@ -3682,7 +3576,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('medicasSearch').value = '';
             filterAppointments();
         }
-
         function clearExamesFilters() {
             document.getElementById('examesStartDate').value = '';
             document.getElementById('examesEndDate').value = '';
@@ -3691,7 +3584,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('examesSearch').value = '';
             filterAppointments();
         }
-
         function toggleScheduled() {
             const grid = document.getElementById('scheduledGrid');
             const btn = document.getElementById('toggleScheduledBtn');
@@ -3706,7 +3598,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 btn.textContent = 'Mostrar Consultas Agendadas';
             }
         }
-
         function toggleReport() {
             const content = document.getElementById('reportContent');
             const btn = document.getElementById('toggleReportBtn');
@@ -3718,18 +3609,15 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 btn.textContent = 'Mostrar Relatórios';
             }
         }
-
         function generateReport() {
             const btn = document.querySelector('.report-btn');
             const spinner = document.getElementById('reportSpinner');
             btn.classList.add('loading');
             spinner.style.display = 'block';
-
             setTimeout(() => {
                 const agendaTypeFilter = document.getElementById('reportAgendaType').value;
                 const startDate = document.getElementById('reportStartDate').value;
                 const endDate = document.getElementById('reportEndDate').value;
-
                 filteredAppointments = appointments.filter(apt => {
                     if (agendaTypeFilter && apt.agendaType !== agendaTypeFilter) return false;
                     if (startDate) {
@@ -3744,7 +3632,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     }
                     return true;
                 });
-
                 // Ordenar por data e depois por horário
                 filteredAppointments.sort((a, b) => {
                     const dateA = new Date(a.date.split('/').reverse().join('-'));
@@ -3756,7 +3643,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     const timeB = b.time.split(':').reduce((acc, val, idx) => acc + parseInt(val) * (idx === 0 ? 60 : 1), 0);
                     return timeA - timeB;
                 });
-
                 const tableBody = document.getElementById('reportTableBody');
                 tableBody.innerHTML = '';
                 filteredAppointments.forEach((apt, index) => {
@@ -3777,13 +3663,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     row.insertCell(10).innerHTML = `<span class="status ${statusClass}">${getStatusText(apt.status)}</span>`;
                     row.insertCell(11).textContent = sanitizeInput(apt.observations || '');
                 });
-
                 // Summary Stats
                 const total = filteredAppointments.length;
                 const odontologica = filteredAppointments.filter(apt => apt.agendaType === 'Agenda Odontológica').length;
                 const medicas = filteredAppointments.filter(apt => apt.agendaType === 'Agenda Especialidades Médicas').length;
                 const exames = filteredAppointments.filter(apt => apt.agendaType === 'Agenda de Exames').length;
-
                 const summary = document.getElementById('summaryStats');
                 summary.innerHTML = `
                     <div class="summary-item">
@@ -3803,7 +3687,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         <p>${exames}</p>
                     </div>
                 `;
-
                 // Generate Bar Chart for Type Distribution
                 const ctx1 = document.getElementById('reportChart').getContext('2d');
                 if (reportChart) {
@@ -3880,7 +3763,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         }
                     }
                 });
-
                 // Display percentages below bar chart
                 const barPercentages = document.getElementById('barPercentages');
                 barPercentages.innerHTML = `
@@ -3888,13 +3770,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     <p>Especialidades Médicas: ${barTotal > 0 ? ((medicas / barTotal) * 100).toFixed(1) : 0}%</p>
                     <p>Exames: ${barTotal > 0 ? ((exames / barTotal) * 100).toFixed(1) : 0}%</p>
                 `;
-
                 // Generate Bar Chart for Detailed Attendance
                 const attended = filteredAppointments.filter(apt => apt.status === 'attended').length;
                 const noShow = filteredAppointments.filter(apt => apt.status === 'no-show').length;
                 const rescheduled = filteredAppointments.filter(apt => apt.status === 'rescheduled').length;
                 const pending = filteredAppointments.length - attended - noShow - rescheduled;
-
                 const ctx2 = document.getElementById('attendanceChart').getContext('2d');
                 if (attendanceChart) {
                     attendanceChart.destroy();
@@ -3972,7 +3852,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         }
                     }
                 });
-
                 // Display percentages below attendance bar chart
                 const barAttendancePercentages = document.getElementById('barAttendancePercentages');
                 barAttendancePercentages.innerHTML = `
@@ -3981,7 +3860,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     <p>Pendente: ${attendanceTotal > 0 ? ((pending / attendanceTotal) * 100).toFixed(1) : 0}%</p>
                     <p>Reagendado: ${attendanceTotal > 0 ? ((rescheduled / attendanceTotal) * 100).toFixed(1) : 0}%</p>
                 `;
-
                 // Generate Bar Chart for Productivity per Professional (Top 5)
                 const profCounts = {};
                 filteredAppointments.forEach(apt => {
@@ -3991,7 +3869,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const profLabels = profEntries.map(entry => entry[0]);
                 const profData = profEntries.map(entry => entry[1]);
                 const profTotal = Object.values(profCounts).reduce((sum, count) => sum + count, 0);
-
                 const ctx3 = document.getElementById('productivityChart').getContext('2d');
                 if (productivityChart) {
                     productivityChart.destroy();
@@ -4058,25 +3935,20 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         }
                     }
                 });
-
                 // Display percentages below productivity chart
                 const productivityPercentages = document.getElementById('productivityPercentages');
                 productivityPercentages.innerHTML = profEntries.map(entry => `<p>${entry[0]}: ${((entry[1] / profTotal) * 100).toFixed(1)}%</p>`).join('');
-
                 document.getElementById('reportTableContainer').style.display = 'block';
                 document.getElementById('exportBtn').style.display = 'inline-block';
-
                 btn.classList.remove('loading');
                 spinner.style.display = 'none';
             }, 500);
         }
-
         function exportToExcel() {
             if (filteredAppointments.length === 0) {
                 showToast('Nenhum relatório para exportar.', 'error');
                 return;
             }
-
             const headers = ['Paciente', 'CPF', 'Telefone', 'Data', 'Horário', 'Profissional', 'Tipo', 'Local', 'Prioritário', 'Primeiro Atendimento', 'Status', 'Observações'];
             const data = [
                 headers,
@@ -4095,9 +3967,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     apt.observations || ''
                 ])
             ];
-
             const ws = XLSX.utils.aoa_to_sheet(data);
-
             // Estilo para cabeçalhos: negrito, fundo azul, texto branco
             for(let col=0; col<headers.length; col++){
                 const cell_address = XLSX.utils.encode_cell({r:0, c:col});
@@ -4108,7 +3978,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     alignment: { horizontal: "center", vertical: "center" }
                 };
             }
-
             // Linhas alternadas: cinza claro e branco
             for(let row=1; row<data.length; row++){
                 const rowColor = row % 2 === 0 ? "F8F9FA" : "FFFFFF";
@@ -4121,7 +3990,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     };
                 }
             }
-
             // Coluna Status (índice 10): cor baseada no status
             for(let row=1; row<data.length; row++){
                 const status = data[row][10];
@@ -4130,7 +3998,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 else if(status === 'Não Compareceu') statusColor = "721C24"; // red text
                 else if(status === 'Reagendado') statusColor = "856404"; // yellow text
                 else statusColor = "383D41"; // gray for pending
-
                 const cell_address = XLSX.utils.encode_cell({r:row, c:10});
                 if(!ws[cell_address]) continue;
                 ws[cell_address].s = {
@@ -4139,13 +4006,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     alignment: { horizontal: "center", vertical: "center" }
                 };
             }
-
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Relatório de Agendamentos');
             XLSX.writeFile(wb, `relatorio_agendamentos_${new Date().toISOString().split('T')[0]}.xlsx`);
             showToast('Relatório exportado para Excel com cores! ✅');
         }
-
         // Toast notification expandido
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
@@ -4154,7 +4019,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             toast.className = `toast show ${type}`;
             setTimeout(() => toast.className = 'toast', 3000);
         }
-
         // Função para atualizar status de comparecimento
         function updateAttendanceStatus(id, status) {
             const appointment = appointments.find(apt => apt.id === id);
@@ -4169,7 +4033,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
             }
         }
-
         // Função para gerenciar tecla Esc nos modais
         function handleEscapeKey(e) {
             if (e.key === 'Escape') {
@@ -4177,13 +4040,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 openModals.forEach(modal => closeModal(modal.id));
             }
         }
-
         // Função para trap de foco nos modais
         function focusTrap(modal) {
             const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
             const firstFocusable = focusableElements[0];
             const lastFocusable = focusableElements[focusableElements.length - 1];
-
             modal.addEventListener('keydown', (e) => {
                 if (e.key === 'Tab') {
                     if (e.shiftKey) {
@@ -4200,7 +4061,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
             });
         }
-
         // Discount Modal Functions
         function openDiscountModal() {
             const agendaType = document.getElementById('agendaTypeSelect').value;
@@ -4209,13 +4069,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 showToast('Selecione o tipo de agenda e o profissional para adicionar desconto.', 'error');
                 return;
             }
-
             currentServicePrice = prices[professional] || 0;
             document.getElementById('serviceNameDisplay').textContent = `${professional} (${agendaType})`;
             document.getElementById('currentPriceDisplay').textContent = `R$ ${currentServicePrice.toFixed(2)}`;
             document.getElementById('serviceInfo').style.display = 'block';
             calculateDiscount(); // Inicializa exibição de desconto
-
             document.getElementById('discountModal').style.display = 'block';
             focusTrap(document.getElementById('discountModal'));
             document.getElementById('industryDiscount').checked = false;
@@ -4229,13 +4087,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('otherPromotion').value = '';
             document.getElementById('discountedInfo').style.display = 'none';
         }
-
         function toggleDiscountInput(inputGroupId, isChecked) {
             const inputGroup = document.getElementById(inputGroupId);
             inputGroup.style.display = isChecked ? 'flex' : 'none';
             calculateDiscount();
         }
-
         function calculateDiscount() {
             const industryChecked = document.getElementById('industryDiscount').checked;
             const promotionalChecked = document.getElementById('promotionalDiscount').checked;
@@ -4254,7 +4110,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 document.getElementById('discountedInfo').style.display = 'none';
             }
         }
-
         function applyDiscount() {
             const industryChecked = document.getElementById('industryDiscount').checked;
             const promotionalChecked = document.getElementById('promotionalDiscount').checked;
@@ -4285,7 +4140,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             showToast(`Desconto aplicado: ${discountInfo}`, 'success');
             closeModal('discountModal');
         }
-
         function applyPromotion() {
             const promotionType = document.getElementById('promotionType').value;
             const startDate = document.getElementById('startDate').value;
@@ -4315,12 +4169,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             showToast(`Promoção "${promotionName}" aplicada de ${startDate} a ${endDate}.`, 'success');
             closeModal('discountModal');
         }
-
         // Populate selects
         window.onload = async function() {
             // Aviso sobre localStorage (melhoria de segurança)
             console.warn('Aviso: Dados salvos em localStorage. Para produção, migre para Firebase ou Supabase para melhor segurança e persistência.');
-
             // Pré-carregar logo como base64 para impressões (com retry)
             try {
                 logoBase64 = await getImageBase64('img/sesibranco.png');
@@ -4331,7 +4183,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 console.error('Falha ao carregar logo para impressões:', e);
                 logoBase64 = '';
             }
-
             // Carregar logo colorido para declarações (assumindo arquivo 'img/sesisaude.png' - ajuste o nome se necessário)
             try {
                 coloredLogoBase64 = await getImageBase64('img/sesisaude.png');
@@ -4342,16 +4193,13 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 console.error('Falha ao carregar logo colorido para declarações:', e);
                 coloredLogoBase64 = '';
             }
-
             updateAppointmentDatesSet();
-
             // Carregar tema salvo
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
             const toggleBtn = document.querySelector('.theme-toggle');
             toggleBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
             toggleBtn.setAttribute('aria-checked', savedTheme === 'dark' ? 'true' : 'false');
-
             // Agenda Types
             const agendaTypeSelect = document.getElementById('agendaTypeSelect');
             agendaTypeSelect.innerHTML = '<option value="">Selecione</option>';
@@ -4361,7 +4209,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = type;
                 agendaTypeSelect.appendChild(option);
             });
-
             // Edit Agenda Types
             const editAgendaTypeSelect = document.getElementById('editAgendaTypeSelect');
             editAgendaTypeSelect.innerHTML = '<option value="">Selecione</option>';
@@ -4371,7 +4218,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = type;
                 editAgendaTypeSelect.appendChild(option);
             });
-
             // Report Agenda Types
             const reportAgendaTypeSelect = document.getElementById('reportAgendaType');
             reportAgendaTypeSelect.innerHTML = '<option value="">Todos os Tipos</option>';
@@ -4381,7 +4227,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = type;
                 reportAgendaTypeSelect.appendChild(option);
             });
-
             // Locations
             const locationSelect = document.getElementById('locationSelect');
             locationSelect.innerHTML = '<option value="">Selecione um local</option>';
@@ -4391,7 +4236,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = loc;
                 locationSelect.appendChild(option);
             });
-
             // Edit Locations
             const editLocationSelect = document.getElementById('editLocationSelect');
             editLocationSelect.innerHTML = '<option value="">Selecione um local</option>';
@@ -4401,7 +4245,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = loc;
                 editLocationSelect.appendChild(option);
             });
-
             // Odontologia Professionals
             const odontologiaProfessional = document.getElementById('odontologiaProfessional');
             odontologiaProfessional.innerHTML = '<option value="">Todos</option>';
@@ -4411,7 +4254,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = prof;
                 odontologiaProfessional.appendChild(option);
             });
-
             // Medicas Professionals
             const medicasProfessional = document.getElementById('medicasProfessional');
             medicasProfessional.innerHTML = '<option value="">Todos</option>';
@@ -4421,7 +4263,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = prof;
                 medicasProfessional.appendChild(option);
             });
-
             // Exames Professionals
             const examesProfessional = document.getElementById('examesProfessional');
             examesProfessional.innerHTML = '<option value="">Todos</option>';
@@ -4431,7 +4272,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = prof;
                 examesProfessional.appendChild(option);
             });
-
             document.getElementById('agendaTypeSelect').onchange = function() {
                 currentAgendaType = this.value;
                 const agendaType = this.value;
@@ -4443,45 +4283,34 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
                 updateScheduleButton();
             };
-
             document.getElementById('dentistSelect').onchange = function() {
                 if (selectedDay) {
                     populateHours(selectedDay);
                 }
                 updateScheduleButton();
             };
-
             document.getElementById('locationSelect').onchange = function() {
                 updateScheduleButton();
             };
-
             document.getElementById('prioritySelect').onchange = function() {
                 updateScheduleButton();
             };
-
             document.getElementById('firstAppointmentSelect').onchange = function() {
                 updateScheduleButton();
             };
-
             document.getElementById('patientName').oninput = updateScheduleButton;
             document.getElementById('patientCpf').oninput = function() { formatCPF(this); validateCPF(this); };
             document.getElementById('patientPhone').oninput = function() { formatPhone(this); validatePhone(this); };
             document.getElementById('schedulerName').oninput = updateScheduleButton; // Novo campo não afeta botão
-
             const editCpfInput = document.getElementById('editPatientCpf');
             editCpfInput.oninput = function() { formatCPF(this); validateEditCPF(this); };
-
             const editPhoneInput = document.getElementById('editPatientPhone');
             editPhoneInput.oninput = function() { formatPhone(this); validateEditPhone(this); };
-
             generateCalendar(currentAgendaType);
-
             // Auto-focus no campo de nome do paciente
             document.getElementById('patientName').focus();
-
             // Listener para tecla Esc
             document.addEventListener('keydown', handleEscapeKey);
-
             // Event listener para o select de promoção (mostrar/esconder "Outra promoção")
             document.getElementById('promotionType').onchange = function() {
                 const otherInput = document.getElementById('otherPromotion');
@@ -4492,7 +4321,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     otherInput.value = '';
                 }
             };
-
             // Inicializar seção de datas bloqueadas se houver bloqueios
             const blockedGrid = document.getElementById('blockedGrid');
             const toggleBlockedBtn = document.getElementById('toggleBlockedBtn');
@@ -4504,7 +4332,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 displayBlocked();
             }
         };
-
         function updateScheduleButton() {
             const patientName = document.getElementById('patientName').value.trim();
             const patientCpf = document.getElementById('patientCpf').value.trim();
@@ -4522,13 +4349,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             btn.setAttribute('aria-disabled', isDisabled ? 'true' : 'false');
             btn.setAttribute('aria-label', isDisabled ? 'Agendar consulta (desabilitado até preencher todos os campos obrigatórios)' : 'Agendar consulta');
         }
-
         function saveAppointment() {
             const btn = document.getElementById('scheduleBtn');
             const spinner = document.getElementById('scheduleSpinner');
             btn.classList.add('loading');
             spinner.style.display = 'block';
-
             setTimeout(() => {
                 const patientName = sanitizeInput(document.getElementById('patientName').value.trim());
                 const patientCpf = document.getElementById('patientCpf').value.trim();
@@ -4543,14 +4368,12 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const priority = document.getElementById('prioritySelect').value;
                 const firstAppointment = document.getElementById('firstAppointmentSelect').value;
                 const dateStr = selectedDay.toLocaleDateString('pt-BR');
-
                 if (isHoliday(selectedDay)) {
                     showToast(`Não é possível agendar em feriados: ${getHolidayName(selectedDay)}.`, 'error');
                     btn.classList.remove('loading');
                     spinner.style.display = 'none';
                     return;
                 }
-
                 if (isBlocked(dateStr, agendaType)) {
                     const reason = blockedDates.find(b => b.date === dateStr && b.agendaType === agendaType)?.reason;
                     showToast(`Não é possível agendar em data bloqueada para ${agendaType}: ${reason}.`, 'error');
@@ -4558,26 +4381,23 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     spinner.style.display = 'none';
                     return;
                 }
-
                 if (!isValidCPF(cpfClean)) {
                     showToast('CPF inválido.', 'error');
                     btn.classList.remove('loading');
                     spinner.style.display = 'none';
                     return;
                 }
-
                 if (phoneClean.length < 10 || phoneClean.length > 11) {
                     showToast('Telefone inválido.', 'error');
                     btn.classList.remove('loading');
                     spinner.style.display = 'none';
                     return;
                 }
-
                 // Check for duplicate
-                const existing = appointments.find(apt => 
+                const existing = appointments.find(apt =>
                     apt.agendaType === agendaType &&
-                    apt.date === dateStr && 
-                    apt.time === selectedHour && 
+                    apt.date === dateStr &&
+                    apt.time === selectedHour &&
                     apt.professional === professional
                 );
                 if (existing) {
@@ -4586,7 +4406,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     spinner.style.display = 'none';
                     return;
                 }
-
                 // Create new appointment com desconto
                 const appointment = {
                     id: Date.now(),
@@ -4618,13 +4437,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
                 btn.classList.remove('loading');
                 spinner.style.display = 'none';
-
                 // Mostrar pop-up de impressão após agendamento
                 document.getElementById('printConfirmModal').style.display = 'block';
                 focusTrap(document.getElementById('printConfirmModal'));
             }, 1000);
         }
-
         function editAppointment(id) {
             const appointment = appointments.find(apt => apt.id === id);
             if (appointment) {
@@ -4653,7 +4470,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 focusTrap(document.getElementById('editModal'));
             }
         }
-
         function saveEdit() {
             const patientName = sanitizeInput(document.getElementById('editPatientName').value.trim());
             const patientCpf = document.getElementById('editPatientCpf').value.trim();
@@ -4669,40 +4485,34 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const firstAppointment = document.getElementById('editFirstAppointmentSelect').value;
             const newDateInput = document.getElementById('editDate').value;
             const newTime = document.getElementById('editTime').value;
-
             if (!patientName || !isValidCPF(cpfClean) || (phoneClean.length < 10 || phoneClean.length > 11) || !location || !agendaType || !professional || !newDateInput || !newTime || !priority || !firstAppointment) {
                 showToast('Preencha todos os campos obrigatórios e verifique o CPF e telefone.', 'error');
                 return;
             }
-
             const [y, m, d] = newDateInput.split('-');
             const newDateStr = `${d}/${m}/${y}`;
             const newDateObj = new Date(y, m - 1, d);
-
             if (isHoliday(newDateObj)) {
                 showToast(`Não é possível agendar em feriados: ${getHolidayName(newDateObj)}.`, 'error');
                 return;
             }
-
             if (isBlocked(newDateStr, agendaType)) {
                 const reason = blockedDates.find(b => b.date === newDateStr && b.agendaType === agendaType)?.reason;
                 showToast(`Não é possível agendar em data bloqueada para ${agendaType}: ${reason}.`, 'error');
                 return;
             }
-
             // Check for conflict
-            const existing = appointments.find(apt => 
+            const existing = appointments.find(apt =>
                 apt.id !== editingId &&
                 apt.agendaType === agendaType &&
-                apt.date === newDateStr && 
-                apt.time === newTime && 
+                apt.date === newDateStr &&
+                apt.time === newTime &&
                 apt.professional === professional
             );
             if (existing) {
                 showToast('Conflito: Já existe um agendamento neste horário para este profissional.', 'error');
                 return;
             }
-
             const appointment = appointments.find(apt => apt.id === editingId);
             if (appointment) {
                 const oldDateStr = appointment.date;
@@ -4732,13 +4542,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 displayAppointments();
             }
         }
-
         function deleteAppointment(id) {
             deleteId = id;
             document.getElementById('deleteModal').style.display = 'block';
             focusTrap(document.getElementById('deleteModal'));
         }
-
         function confirmDelete() {
             if (deleteId) {
                 const appointmentToDelete = appointments.find(apt => apt.id === deleteId);
@@ -4754,7 +4562,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
             }
         }
-
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.style.display = 'none';
@@ -4764,7 +4571,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 triggeringButton.focus();
             }
         }
-
         // Close modals when clicking outside
         window.onclick = function(event) {
             const deleteModal = document.getElementById('deleteModal');
@@ -4796,16 +4602,13 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 closeModal('discountModal');
             }
         }
-
         function filterAppointments() {
             displayAppointments();
         }
-
         function displayAppointments() {
             const odontologiaList = document.getElementById('odontologiaList');
             const medicasList = document.getElementById('medicasList');
             const examesList = document.getElementById('examesList');
-
             const odontologiaStart = document.getElementById('odontologiaStartDate').value;
             const odontologiaEnd = document.getElementById('odontologiaEndDate').value;
             const odontologiaProf = document.getElementById('odontologiaProfessional').value;
@@ -4821,7 +4624,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const examesProf = document.getElementById('examesProfessional').value;
             const examesCpf = document.getElementById('examesCpf').value.replace(/\D/g, '');
             const examesSearch = document.getElementById('examesSearch').value.toLowerCase().trim();
-
             let odontologiaAppts = appointments.filter(apt => apt.agendaType === 'Agenda Odontológica');
             odontologiaAppts = odontologiaAppts.filter(apt => {
                 const aptDate = new Date(apt.date.split('/').reverse().join('-'));
@@ -4838,7 +4640,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 if (odontologiaSearch && !apt.patient.toLowerCase().includes(odontologiaSearch)) return false;
                 return true;
             });
-
             let medicasAppts = appointments.filter(apt => apt.agendaType === 'Agenda Especialidades Médicas');
             medicasAppts = medicasAppts.filter(apt => {
                 const aptDate = new Date(apt.date.split('/').reverse().join('-'));
@@ -4855,7 +4656,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 if (medicasSearch && !apt.patient.toLowerCase().includes(medicasSearch)) return false;
                 return true;
             });
-
             let examesAppts = appointments.filter(apt => apt.agendaType === 'Agenda de Exames');
             examesAppts = examesAppts.filter(apt => {
                 const aptDate = new Date(apt.date.split('/').reverse().join('-'));
@@ -4872,7 +4672,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 if (examesSearch && !apt.patient.toLowerCase().includes(examesSearch)) return false;
                 return true;
             });
-
             if (odontologiaAppts.length === 0) {
                 odontologiaList.innerHTML = '<p class="empty-message">Nenhum agendamento odontológico.</p>';
             } else {
@@ -4908,7 +4707,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     odontologiaList.appendChild(card);
                 });
             }
-
             if (medicasAppts.length === 0) {
                 medicasList.innerHTML = '<p class="empty-message">Nenhum agendamento de especialidades médicas.</p>';
             } else {
@@ -4944,7 +4742,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     medicasList.appendChild(card);
                 });
             }
-
             if (examesAppts.length === 0) {
                 examesList.innerHTML = '<p class="empty-message">Nenhum agendamento de exames.</p>';
             } else {
@@ -4982,5 +4779,5 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             }
         }
     </script>
-</body> 
+</body>
 </html>
