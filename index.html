@@ -1613,6 +1613,24 @@
             background: #5a6268;
             transform: scale(1.02);
         }
+        .exam-price-btn {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(23, 162, 184, 0.2);
+            width: auto;
+            margin: 10px 0;
+        }
+        .exam-price-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(23, 162, 184, 0.3);
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -1625,6 +1643,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema" role="switch" aria-checked="false">🌙</button>
         <img src="img/melhoria.jpg" alt="Melhoria Logo" class="header-logo">
     </div>
+    <div class="system-title">Sistema de Agendamento Médico - SESI Saúde</div>
     <div class="container">
         <div class="section">
             <h3>📅 Selecione uma Data</h3>
@@ -1672,12 +1691,10 @@
             <label for="patientName">Nome do Paciente <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Digite o nome completo do paciente para facilitar a identificação.</span></span></label>
             <input type="text" id="patientName" placeholder="Digite o nome completo do paciente" aria-required="true" aria-describedby="patientNameDesc" required>
             <small id="patientNameDesc" class="sr-only">Campo obrigatório. Digite o nome completo do paciente.</small>
-  
             <label for="patientCpf">CPF do Paciente <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Formato: 123.456.789-00. Validação automática.</span></span></label>
             <input type="text" id="patientCpf" placeholder="Digite o CPF (ex: 123.456.789-00)" aria-required="true" aria-describedby="cpfError patientCpfDesc" required>
             <small id="cpfError" class="error-message" aria-live="polite">CPF inválido. (Apenas Números).</small>
             <small id="patientCpfDesc" class="sr-only">Campo obrigatório. Digite o CPF no formato 123.456.789-00.</small>
-  
             <label for="patientPhone">Número do Telefone <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Formato: (11) 99999-9999. Validação automática.</span></span></label>
             <input type="tel" id="patientPhone" placeholder="Digite o número do telefone (ex: (11) 99999-9999)" aria-required="true" aria-describedby="phoneError patientPhoneDesc" required>
             <small id="phoneError" class="error-message" aria-live="polite">Telefone inválido. Use o formato (DD) 9XXXX-XXXX.</small>
@@ -1685,13 +1702,11 @@
             <label for="schedulerName">Responsável pelo Agendamento <span class="help-tooltip">?<span class="tooltip-text">Opcional: Nome de quem está agendando.</span></span></label>
             <input type="text" id="schedulerName" placeholder="Digite o nome do responsável pelo agendamento" aria-describedby="schedulerNameDesc">
             <small id="schedulerNameDesc" class="sr-only">Campo opcional para o nome do responsável pelo agendamento.</small>
-  
             <label for="locationSelect">🏢 Local do Atendimento <span aria-hidden="true" class="required">*</span></label>
             <select id="locationSelect" aria-required="true" aria-describedby="locationDesc" required>
                 <option value="">Selecione um local</option>
             </select>
             <small id="locationDesc" class="sr-only">Campo obrigatório. Escolha o local de atendimento.</small>
-  
             <label for="prioritySelect">Atendimento Prioritário <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Indique se o paciente precisa de atendimento urgente.</span></span></label>
             <select id="prioritySelect" aria-required="true" aria-describedby="priorityDesc" required>
                 <option value="">Selecione</option>
@@ -1891,6 +1906,10 @@
             </div>
         </div>
     </div>
+    <div class="scheduled-section">
+        <h3>💰 Consulta Preço de Exames</h3>
+        <button class="exam-price-btn" onclick="window.open('https://consultapreco.pe.sesi.org.br/', '_blank')" aria-label="Abrir consulta de preço de exames" role="button">Consulta Preço de Exames</button>
+    </div>
     <!-- Toast Notification -->
     <div id="toast" class="toast" role="alert" aria-live="polite">Consulta agendada com sucesso!</div>
     <!-- Block Modal -->
@@ -1926,34 +1945,26 @@
             <h3 id="editTitle">Editar Consulta</h3>
             <label for="editPatientName">Nome do Paciente <span aria-hidden="true" class="required">*</span></label>
             <input type="text" id="editPatientName" aria-required="true" required autofocus>
-  
             <label for="editPatientCpf">CPF do Paciente <span aria-hidden="true" class="required">*</span></label>
             <input type="text" id="editPatientCpf" aria-required="true" aria-describedby="editCpfError editPatientCpfDesc" required>
             <small id="editCpfError" class="error-message" aria-live="polite">CPF inválido. Verifique os dígitos.</small>
             <small id="editPatientCpfDesc" class="sr-only">Digite o CPF no formato 123.456.789-00.</small>
-  
             <label for="editPatientPhone">Número do Telefone <span aria-hidden="true" class="required">*</span></label>
             <input type="tel" id="editPatientPhone" aria-required="true" aria-describedby="editPhoneError editPatientPhoneDesc" required>
             <small id="editPhoneError" class="error-message" aria-live="polite">Telefone inválido. Use o formato (DD) 9XXXX-XXXX.</small>
             <small id="editPatientPhoneDesc" class="sr-only">Digite o telefone no formato (11) 99999-9999.</small>
             <label for="editSchedulerName">Nome do Responsável pelo Agendamento</label>
             <input type="text" id="editSchedulerName" placeholder="Digite o nome do responsável pelo agendamento">
-  
             <label for="editLocationSelect">Local do Atendimento <span aria-hidden="true" class="required">*</span></label>
             <select id="editLocationSelect" aria-required="true" required></select>
-  
             <label for="editAgendaTypeSelect">Tipo de Agenda <span aria-hidden="true" class="required">*</span></label>
             <select id="editAgendaTypeSelect" onchange="populateEditProfessionals()" aria-required="true" required></select>
-  
             <label for="editDentistSelect">Profissional <span aria-hidden="true" class="required">*</span></label>
             <select id="editDentistSelect" onchange="populateEditTimes()" aria-required="true" required></select>
-  
             <label for="editDate">Data da Consulta <span aria-hidden="true" class="required">*</span></label>
             <input type="date" id="editDate" required aria-required="true">
-  
             <label for="editTime">Horário da Consulta <span aria-hidden="true" class="required">*</span></label>
             <select id="editTime" required aria-required="true"></select>
-  
             <label for="editPrioritySelect">Atendimento Prioritário <span aria-hidden="true" class="required">*</span></label>
             <select id="editPrioritySelect" aria-required="true" required>
                 <option value="">Selecione</option>
@@ -1968,7 +1979,6 @@
             </select>
             <label for="editObservations">Observações</label>
             <textarea id="editObservations" placeholder="Digite observações adicionais (opcional)"></textarea>
-  
             <button class="modal-btn" onclick="saveEdit()" aria-label="Salvar alterações na consulta" role="button">Salvar Alterações</button>
             <button class="modal-btn cancel-btn" onclick="closeModal('editModal')" aria-label="Cancelar edição da consulta" role="button">Cancelar</button>
         </div>
@@ -2545,6 +2555,7 @@
             let discountedPrice = originalPrice;
             let industryDiscountLine = '';
             let promotionalDiscountLine = '';
+            let promotionalPeriodLine = '';
             if (apt.discount) {
                 if (apt.discount.industry) {
                     const industryDiscount = apt.discount.industry;
@@ -2555,6 +2566,13 @@
                     const promotionalDiscount = apt.discount.promotional;
                     discountedPrice = discountedPrice * (1 - promotionalDiscount / 100);
                     promotionalDiscountLine = `Desconto Promocional: ${promotionalDiscount}%`;
+                }
+                // Verificar se há período promocional e adicionar linha quando aplicável
+                if (apt.discount.promotion && (apt.agendaType === 'Agenda de Exames' || apt.agendaType === 'Agenda Especialidades Médicas')) {
+                    const { start, end } = apt.discount.promotion;
+                    if (start && end) {
+                        promotionalPeriodLine = `Período Promocional: de ${new Date(start).toLocaleDateString('pt-BR')} a ${new Date(end).toLocaleDateString('pt-BR')}`;
+                    }
                 }
             }
             if (isThermal) {
@@ -2629,6 +2647,7 @@
                       <div class="discount-line line">Valor Original: R$ ${originalPrice.toFixed(2)}</div>
                       ${industryDiscountLine ? `<div class="discount-line line">${industryDiscountLine}</div>` : ''}
                       ${promotionalDiscountLine ? `<div class="discount-line line">${promotionalDiscountLine}</div>` : ''}
+                      ${promotionalPeriodLine ? `<div class="discount-line line">${promotionalPeriodLine}</div>` : ''}
                       <div class="discount-line line">Valor Final: R$ ${discountedPrice.toFixed(2)}</div>
                       ${apt.observations ? `<div class="line">Obs.: ${apt.observations}</div>` : ''}
                       <div class="divider"></div>
@@ -2667,6 +2686,7 @@
                       <div class="discount-line line">Valor Original: R$ ${originalPrice.toFixed(2)}</div>
                       ${industryDiscountLine ? `<div class="discount-line line">${industryDiscountLine}</div>` : ''}
                       ${promotionalDiscountLine ? `<div class="discount-line line">${promotionalDiscountLine}</div>` : ''}
+                      ${promotionalPeriodLine ? `<div class="discount-line line">${promotionalPeriodLine}</div>` : ''}
                       <div class="discount-line line">Valor Final: R$ ${discountedPrice.toFixed(2)}</div>
                       <div class="divider"></div>
                       ${apt.priority ? `<div class="line">Prioritário: ${apt.priority}</div>` : ''}
@@ -3049,6 +3069,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <p><i class="fas fa-calculator"></i><span>Valor Total Original:</span> <span>R$ ${originalPrice.toFixed(2)}</span></p>
                             ${industryDiscountLine ? `<p class="discount-line"><i class="fas fa-industry"></i><span>${industryDiscountLine}:</span> <span>R$ ${originalPrice * (apt.discount.industry / 100).toFixed(2)}</span></p>` : ''}
                             ${promotionalDiscountLine ? `<p class="discount-line"><i class="fas fa-tag"></i><span>${promotionalDiscountLine}:</span> <span>R$ ${(originalPrice * (apt.discount.promotional / 100)).toFixed(2)}</span></p>` : ''}
+                            ${promotionalPeriodLine ? `<p class="discount-line"><i class="fas fa-calendar-alt"></i><span>${promotionalPeriodLine}:</span></p>` : ''}
                             <p class="final-price"><i class="fas fa-receipt"></i><span>Total do Pagamento:</span> <span>R$ ${discountedPrice.toFixed(2)}</span></p>
                           </div>
                           ${apt.observations ? `
@@ -3088,6 +3109,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             <p><i class="fas fa-tag"></i><span>Valor Original:</span> <span>R$ ${originalPrice.toFixed(2)}</span></p>
                             ${industryDiscountLine ? `<p class="discount-line"><i class="fas fa-industry"></i><span>${industryDiscountLine}:</span> <span>R$ ${(originalPrice * (apt.discount.industry / 100)).toFixed(2)}</span></p>` : ''}
                             ${promotionalDiscountLine ? `<p class="discount-line"><i class="fas fa-tag"></i><span>${promotionalDiscountLine}:</span> <span>R$ ${(originalPrice * (apt.discount.promotional / 100)).toFixed(2)}</span></p>` : ''}
+                            ${promotionalPeriodLine ? `<p class="discount-line"><i class="fas fa-calendar-alt"></i><span>${promotionalPeriodLine}:</span></p>` : ''}
                             <p><i class="fas fa-receipt"></i><span>Valor Final:</span> <span>R$ ${discountedPrice.toFixed(2)}</span></p>
                             ${apt.observations ? `<p><i class="fas fa-sticky-note"></i><span>Obs.:</span> <span>${sanitizeInput(apt.observations)}</span></p>` : ''}
                           </div>
@@ -3147,7 +3169,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const sanitizedPatient = encodeURIComponent(sanitizeInput(patient));
                 const sanitizedPhone = encodeURIComponent(sanitizeInput(phone));
                 const sanitizedObs = encodeURIComponent(sanitizeInput(observations));
-      
+    
                 // Monta a URL com parâmetros adicionais para preencher o formulário
                 const fichaUrl = `https://pesenaibr-my.sharepoint.com/:w:/g/personal/socrates_silva_sistemafiepe_org_br/EezX1v19-BBDl9cKn3fKqgcB_lCc-cVTcpZi26gErPTlDw?e=5DVI2m&cpf=${encodeURIComponent(cpf || '')}&name=${sanitizedPatient}&phone=${sanitizedPhone}&obs=${sanitizedObs}`;
                 window.open(fichaUrl, '_blank');
