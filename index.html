@@ -1643,7 +1643,7 @@
         <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema" role="switch" aria-checked="false">🌙</button>
         <img src="img/melhoria.jpg" alt="Melhoria Logo" class="header-logo">
     </div>
-    <div class="system-title">Sistema de Agendamento Médico - SESI Saúde</div>
+    <div class="system-title">Sistema de Agendamento PF - SESI Saúde</div>
     <div class="container">
         <div class="section">
             <h3>📅 Selecione uma Data</h3>
@@ -2567,11 +2567,11 @@
                     discountedPrice = discountedPrice * (1 - promotionalDiscount / 100);
                     promotionalDiscountLine = `Desconto Promocional: ${promotionalDiscount}%`;
                 }
-                // Verificar se há período promocional e adicionar linha quando aplicável
+                // Verificar se há período promocional e adicionar linha quando aplicável, incluindo o nome da promoção
                 if (apt.discount.promotion && (apt.agendaType === 'Agenda de Exames' || apt.agendaType === 'Agenda Especialidades Médicas')) {
-                    const { start, end } = apt.discount.promotion;
-                    if (start && end) {
-                        promotionalPeriodLine = `Período Promocional: de ${new Date(start).toLocaleDateString('pt-BR')} a ${new Date(end).toLocaleDateString('pt-BR')}`;
+                    const { name, start, end } = apt.discount.promotion;
+                    if (name && start && end) {
+                        promotionalPeriodLine = `${name}: de ${new Date(start).toLocaleDateString('pt-BR')} a ${new Date(end).toLocaleDateString('pt-BR')}`;
                     }
                 }
             }
@@ -3169,7 +3169,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const sanitizedPatient = encodeURIComponent(sanitizeInput(patient));
                 const sanitizedPhone = encodeURIComponent(sanitizeInput(phone));
                 const sanitizedObs = encodeURIComponent(sanitizeInput(observations));
-   
+  
                 // Monta a URL com parâmetros adicionais para preencher o formulário
                 const fichaUrl = `https://pesenaibr-my.sharepoint.com/:w:/g/personal/socrates_silva_sistemafiepe_org_br/EezX1v19-BBDl9cKn3fKqgcB_lCc-cVTcpZi26gErPTlDw?e=5DVI2m&cpf=${encodeURIComponent(cpf || '')}&name=${sanitizedPatient}&phone=${sanitizedPhone}&obs=${sanitizedObs}`;
                 window.open(fichaUrl, '_blank');
@@ -4278,6 +4278,29 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 discountObj.promotional = value;
                 discountInfo += `Promocional: ${value}% `;
                 document.getElementById('promotionalDiscountDisplay').textContent = `Desconto Promocional: ${value}%`;
+                
+                // Capturar detalhes da promoção se o desconto promocional estiver ativado
+                const promotionType = document.getElementById('promotionType').value;
+                if (promotionType) {
+                    let promotionName = promotionType;
+                    if (promotionType === 'Outros') {
+                        promotionName = document.getElementById('otherPromotion').value.trim();
+                        if (!promotionName) {
+                            showToast('Informe o nome da promoção para "Outros".', 'error');
+                            return;
+                        }
+                    }
+                    const startDate = document.getElementById('startDate').value;
+                    const endDate = document.getElementById('endDate').value;
+                    if (!startDate || !endDate) {
+                        showToast('Preencha as datas de início e término da promoção.', 'error');
+                        return;
+                    }
+                    if (!discountObj.promotion) discountObj.promotion = {};
+                    discountObj.promotion.name = promotionName;
+                    discountObj.promotion.start = startDate;
+                    discountObj.promotion.end = endDate;
+                }
             } else {
                 document.getElementById('promotionalDiscountDisplay').textContent = '';
             }
