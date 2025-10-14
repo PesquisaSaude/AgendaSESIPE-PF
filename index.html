@@ -3169,7 +3169,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const sanitizedPatient = encodeURIComponent(sanitizeInput(patient));
                 const sanitizedPhone = encodeURIComponent(sanitizeInput(phone));
                 const sanitizedObs = encodeURIComponent(sanitizeInput(observations));
-    
+   
                 // Monta a URL com parâmetros adicionais para preencher o formulário
                 const fichaUrl = `https://pesenaibr-my.sharepoint.com/:w:/g/personal/socrates_silva_sistemafiepe_org_br/EezX1v19-BBDl9cKn3fKqgcB_lCc-cVTcpZi26gErPTlDw?e=5DVI2m&cpf=${encodeURIComponent(cpf || '')}&name=${sanitizedPatient}&phone=${sanitizedPhone}&obs=${sanitizedObs}`;
                 window.open(fichaUrl, '_blank');
