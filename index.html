@@ -1827,6 +1827,7 @@
     <div class="scheduled-section" id="blockedSection">
         <h3>🔒 Gerenciar Datas Bloqueadas</h3>
         <button class="toggle-scheduled-btn" id="toggleBlockedBtn" onclick="toggleBlocked()" aria-label="Mostrar ou ocultar lista de datas bloqueadas" role="button">Mostrar Datas Bloqueadas</button>
+        <button class="block-btn" id="blockProfessionalBtn" onclick="blockSelectedProfessional()" aria-label="Bloquear profissional" role="button">🔒 Bloquear Profissional</button>
         <div class="scheduled-grid" id="blockedGrid" style="display: none;">
             <div class="scheduled-column">
                 <h4>Bloqueios Ativos</h4>
@@ -1926,6 +1927,25 @@
             <textarea id="blockReason" placeholder="Digite o motivo do bloqueio..." aria-required="true" required></textarea>
             <button class="modal-btn" onclick="confirmBlock()" aria-label="Confirmar bloqueio da data" role="button">Bloquear Data</button>
             <button class="modal-btn cancel-btn" onclick="closeModal('blockModal')" aria-label="Cancelar bloqueio da data" role="button">Cancelar</button>
+        </div>
+    </div>
+    <!-- Block Professional Modal -->
+    <div id="blockProfessionalModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="blockProfessionalTitle">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('blockProfessionalModal')" aria-label="Fechar modal de bloqueio de profissional">&times;</span>
+            <h3 id="blockProfessionalTitle">Bloquear Profissional</h3>
+            <label for="blockProfessionalAgendaType">Tipo de Agenda <span aria-hidden="true" class="required">*</span></label>
+            <select id="blockProfessionalAgendaType" onchange="populateBlockProfessionalSelect()" aria-required="true" required>
+                <option value="">Selecione o tipo de agenda</option>
+            </select>
+            <label for="blockProfessionalSelect">Profissional <span aria-hidden="true" class="required">*</span></label>
+            <select id="blockProfessionalSelect" aria-required="true" required>
+                <option value="">Selecione o profissional</option>
+            </select>
+            <label for="blockProfessionalReason">Motivo do Bloqueio <span aria-hidden="true" class="required">*</span></label>
+            <textarea id="blockProfessionalReason" placeholder="Digite o motivo do bloqueio..." aria-required="true" required></textarea>
+            <button class="modal-btn" onclick="confirmBlockProfessional()" aria-label="Confirmar bloqueio do profissional" role="button">Bloquear Profissional</button>
+            <button class="modal-btn cancel-btn" onclick="closeModal('blockProfessionalModal')" aria-label="Cancelar bloqueio do profissional" role="button">Cancelar</button>
         </div>
     </div>
     <!-- Delete Confirmation Modal -->
@@ -2080,6 +2100,7 @@
         let selectedHour = null;
         let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
         let blockedDates = JSON.parse(localStorage.getItem('blockedDates')) || [];
+        let blockedProfessionals = JSON.parse(localStorage.getItem('blockedProfessionals')) || [];
         let appointmentDatesSet = new Set();
         let editingId = null;
         let deleteId = null;
@@ -2389,6 +2410,9 @@
             // Verifica bloqueio específico para o tipo de agenda
             return blockedDates.some(b => b.date === dateStr && b.agendaType === agendaType);
         }
+        function isProfessionalBlocked(professional, agendaType) {
+            return blockedProfessionals.some(bp => bp.professional === professional && bp.agendaType === agendaType);
+        }
         // Função para sanitizar inputs (básica contra XSS)
         function sanitizeInput(input) {
             const div = document.createElement('div');
@@ -2497,11 +2521,11 @@
         }
         function getProfessionals(agendaType) {
             if (agendaType === 'Agenda Odontológica') {
-                return dentists;
+                return dentists.filter(prof => !isProfessionalBlocked(prof, agendaType));
             } else if (agendaType === 'Agenda Especialidades Médicas') {
-                return medicalSpecialists;
+                return medicalSpecialists.filter(prof => !isProfessionalBlocked(prof, agendaType));
             } else if (agendaType === 'Agenda de Exames') {
-                return examSpecialists;
+                return examSpecialists.filter(prof => !isProfessionalBlocked(prof, agendaType));
             }
             return [];
         }
@@ -2509,6 +2533,18 @@
             const select = document.getElementById(selectId);
             select.innerHTML = '<option value="">Selecione um profissional</option>';
             const professionals = getProfessionals(agendaType);
+            professionals.forEach(prof => {
+                const option = document.createElement('option');
+                option.value = prof;
+                option.textContent = prof;
+                select.appendChild(option);
+            });
+        }
+        function populateBlockProfessionalSelect() {
+            const agendaType = document.getElementById('blockProfessionalAgendaType').value;
+            const select = document.getElementById('blockProfessionalSelect');
+            select.innerHTML = '<option value="">Selecione o profissional</option>';
+            const professionals = getProfessionals(agendaType); // Use the same filter to avoid blocking already blocked ones
             professionals.forEach(prof => {
                 const option = document.createElement('option');
                 option.value = prof;
@@ -3169,7 +3205,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const sanitizedPatient = encodeURIComponent(sanitizeInput(patient));
                 const sanitizedPhone = encodeURIComponent(sanitizeInput(phone));
                 const sanitizedObs = encodeURIComponent(sanitizeInput(observations));
-  
+ 
                 // Monta a URL com parâmetros adicionais para preencher o formulário
                 const fichaUrl = `https://pesenaibr-my.sharepoint.com/:w:/g/personal/socrates_silva_sistemafiepe_org_br/EezX1v19-BBDl9cKn3fKqgcB_lCc-cVTcpZi26gErPTlDw?e=5DVI2m&cpf=${encodeURIComponent(cpf || '')}&name=${sanitizedPatient}&phone=${sanitizedPhone}&obs=${sanitizedObs}`;
                 window.open(fichaUrl, '_blank');
@@ -3477,6 +3513,21 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('blockModal').style.display = 'block';
             document.getElementById('blockAgendaType').focus();
         }
+        function blockSelectedProfessional() {
+            // Popula o select de agendaType no modal de profissional
+            const blockProfessionalAgendaTypeSelect = document.getElementById('blockProfessionalAgendaType');
+            blockProfessionalAgendaTypeSelect.innerHTML = '<option value="">Selecione o tipo de agenda</option>';
+            agendaTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                blockProfessionalAgendaTypeSelect.appendChild(option);
+            });
+            document.getElementById('blockProfessionalSelect').innerHTML = '<option value="">Selecione o profissional</option>';
+            document.getElementById('blockProfessionalReason').value = '';
+            document.getElementById('blockProfessionalModal').style.display = 'block';
+            document.getElementById('blockProfessionalAgendaType').focus();
+        }
         function confirmBlock() {
             const agendaType = document.getElementById('blockAgendaType').value.trim();
             const reason = document.getElementById('blockReason').value.trim();
@@ -3500,6 +3551,40 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             generateCalendar(currentAgendaType);
             clearSelections();
         }
+        function confirmBlockProfessional() {
+            const agendaType = document.getElementById('blockProfessionalAgendaType').value.trim();
+            const professional = document.getElementById('blockProfessionalSelect').value.trim();
+            const reason = document.getElementById('blockProfessionalReason').value.trim();
+            if (!agendaType) {
+                showToast('Selecione o tipo de agenda para o bloqueio.', 'error');
+                return;
+            }
+            if (!professional) {
+                showToast('Selecione o profissional para o bloqueio.', 'error');
+                return;
+            }
+            if (!reason) {
+                showToast('Informe o motivo do bloqueio.', 'error');
+                return;
+            }
+            // Verifica se já está bloqueado
+            if (isProfessionalBlocked(professional, agendaType)) {
+                showToast(`Este profissional já está bloqueado para ${agendaType}.`, 'error');
+                return;
+            }
+            blockedProfessionals.push({ professional: professional, agendaType: agendaType, reason: sanitizeInput(reason) });
+            localStorage.setItem('blockedProfessionals', JSON.stringify(blockedProfessionals));
+            // Recarrega a lista de blockedProfessionals do localStorage para garantir sincronia
+            blockedProfessionals = JSON.parse(localStorage.getItem('blockedProfessionals')) || [];
+            closeModal('blockProfessionalModal');
+            showToast(`Profissional ${professional} bloqueado com sucesso para ${agendaType}! 🔒`);
+            // Atualiza selects de profissionais em todos os lugares
+            populateProfessionals(currentAgendaType, 'dentistSelect');
+            // Atualiza listas de agendamentos se aberta
+            if (document.getElementById('scheduledGrid').style.display !== 'none') {
+                displayAppointments();
+            }
+        }
         function removeBlock(index) {
             if (confirm('Tem certeza que deseja remover este bloqueio?')) {
                 blockedDates.splice(index, 1);
@@ -3509,6 +3594,18 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 displayBlocked();
                 generateCalendar(currentAgendaType);
                 showToast('Bloqueio removido com sucesso! ✅');
+            }
+        }
+        function removeProfessionalBlock(index) {
+            if (confirm('Tem certeza que deseja remover este bloqueio de profissional?')) {
+                blockedProfessionals.splice(index, 1);
+                localStorage.setItem('blockedProfessionals', JSON.stringify(blockedProfessionals));
+                // Recarrega para garantir sincronia
+                blockedProfessionals = JSON.parse(localStorage.getItem('blockedProfessionals')) || [];
+                displayBlocked();
+                // Atualiza selects
+                populateProfessionals(currentAgendaType, 'dentistSelect');
+                showToast('Bloqueio de profissional removido com sucesso! ✅');
             }
         }
         function toggleBlocked() {
@@ -3531,37 +3628,54 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const list = document.getElementById('blockedList');
             const summary = document.getElementById('blockedSummary');
             list.innerHTML = '';
-            // Ordenar por data descendente
+            // Ordenar por data descendente para datas
             blockedDates.sort((a, b) => {
                 const dateA = new Date(a.date.split('/').reverse().join('-'));
                 const dateB = new Date(b.date.split('/').reverse().join('-'));
                 return dateB - dateA;
             });
-            if (blockedDates.length === 0) {
-                list.innerHTML = '<p class="empty-message">Nenhuma data bloqueada.</p>';
+            // Ordenar por agendaType e profissional para profissionais
+            blockedProfessionals.sort((a, b) => a.agendaType.localeCompare(b.agendaType) || a.professional.localeCompare(b.professional));
+            if (blockedDates.length === 0 && blockedProfessionals.length === 0) {
+                list.innerHTML = '<p class="empty-message">Nenhuma data ou profissional bloqueado.</p>';
                 summary.style.display = 'none';
                 return;
             }
-            // Resumo por tipo
-            const countOdonto = blockedDates.filter(b => b.agendaType === 'Agenda Odontológica').length;
-            const countMedicas = blockedDates.filter(b => b.agendaType === 'Agenda Especialidades Médicas').length;
-            const countExames = blockedDates.filter(b => b.agendaType === 'Agenda de Exames').length;
+            // Resumo por tipo (agora inclui profissionais)
+            const countOdontoDates = blockedDates.filter(b => b.agendaType === 'Agenda Odontológica').length;
+            const countMedicasDates = blockedDates.filter(b => b.agendaType === 'Agenda Especialidades Médicas').length;
+            const countExamesDates = blockedDates.filter(b => b.agendaType === 'Agenda de Exames').length;
+            const countOdontoProfs = blockedProfessionals.filter(b => b.agendaType === 'Agenda Odontológica').length;
+            const countMedicasProfs = blockedProfessionals.filter(b => b.agendaType === 'Agenda Especialidades Médicas').length;
+            const countExamesProfs = blockedProfessionals.filter(b => b.agendaType === 'Agenda de Exames').length;
             summary.style.display = 'flex';
             summary.innerHTML = `
                 <div class="blocked-summary-item">
-                    <h4>🦷 Odontológica</h4>
-                    <p>${countOdonto}</p>
+                    <h4>🦷 Odontológica (Datas)</h4>
+                    <p>${countOdontoDates}</p>
                 </div>
                 <div class="blocked-summary-item">
-                    <h4>🏥 Médicas</h4>
-                    <p>${countMedicas}</p>
+                    <h4>🏥 Médicas (Datas)</h4>
+                    <p>${countMedicasDates}</p>
                 </div>
                 <div class="blocked-summary-item">
-                    <h4>🔬 Exames</h4>
-                    <p>${countExames}</p>
+                    <h4>🔬 Exames (Datas)</h4>
+                    <p>${countExamesDates}</p>
+                </div>
+                <div class="blocked-summary-item">
+                    <h4>🦷 Odontológica (Profs)</h4>
+                    <p>${countOdontoProfs}</p>
+                </div>
+                <div class="blocked-summary-item">
+                    <h4>🏥 Médicas (Profs)</h4>
+                    <p>${countMedicasProfs}</p>
+                </div>
+                <div class="blocked-summary-item">
+                    <h4>🔬 Exames (Profs)</h4>
+                    <p>${countExamesProfs}</p>
                 </div>
             `;
-            // Lista de bloqueios
+            // Lista de bloqueios de datas
             blockedDates.forEach((block, index) => {
                 const card = document.createElement('div');
                 card.className = 'block-card';
@@ -3572,11 +3686,29 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     <div class="block-actions">
                         <button class="btn-delete" onclick="removeBlock(${index})" aria-label="Remover bloqueio desta data" role="button">Remover</button>
                     </div>
-                    <h4>🔒 ${block.date} - ${block.agendaType}</h4>
+                    <h4>🔒 ${block.date} - ${block.agendaType} (Data)</h4>
                     <p>Motivo: ${sanitizeInput(block.reason)}</p>
                 `;
                 list.appendChild(card);
                 setTimeout(() => card.classList.add('show'), index * 100);
+            });
+            // Lista de bloqueios de profissionais
+            blockedProfessionals.forEach((block, index) => {
+                const cardIndex = blockedDates.length + index; // Offset para índices únicos
+                const card = document.createElement('div');
+                card.className = 'block-card';
+                card.setAttribute('role', 'listitem');
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('aria-label', `Bloqueio de ${block.professional} para ${block.agendaType}: ${block.reason}`);
+                card.innerHTML = `
+                    <div class="block-actions">
+                        <button class="btn-delete" onclick="removeProfessionalBlock(${index})" aria-label="Remover bloqueio deste profissional" role="button">Remover</button>
+                    </div>
+                    <h4>🔒 ${block.professional} - ${block.agendaType} (Profissional)</h4>
+                    <p>Motivo: ${sanitizeInput(block.reason)}</p>
+                `;
+                list.appendChild(card);
+                setTimeout(() => card.classList.add('show'), cardIndex * 100);
             });
         }
         function populateHours(selectedDate) {
@@ -4278,7 +4410,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 discountObj.promotional = value;
                 discountInfo += `Promocional: ${value}% `;
                 document.getElementById('promotionalDiscountDisplay').textContent = `Desconto Promocional: ${value}%`;
-                
+               
                 // Capturar detalhes da promoção se o desconto promocional estiver ativado
                 const promotionType = document.getElementById('promotionType').value;
                 if (promotionType) {
@@ -4496,7 +4628,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             // Inicializar seção de datas bloqueadas se houver bloqueios
             const blockedGrid = document.getElementById('blockedGrid');
             const toggleBlockedBtn = document.getElementById('toggleBlockedBtn');
-            if (blockedDates.length > 0) {
+            if (blockedDates.length > 0 || blockedProfessionals.length > 0) {
                 blockedGrid.style.display = 'grid';
                 blockedGrid.classList.add('show');
                 toggleBlockedBtn.textContent = 'Ocultar Datas Bloqueadas';
@@ -4549,6 +4681,13 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 if (isBlocked(dateStr, agendaType)) {
                     const reason = blockedDates.find(b => b.date === dateStr && b.agendaType === agendaType)?.reason;
                     showToast(`Não é possível agendar em data bloqueada para ${agendaType}: ${reason}.`, 'error');
+                    btn.classList.remove('loading');
+                    spinner.style.display = 'none';
+                    return;
+                }
+                if (isProfessionalBlocked(professional, agendaType)) {
+                    const reason = blockedProfessionals.find(bp => bp.professional === professional && bp.agendaType === agendaType)?.reason;
+                    showToast(`Não é possível agendar com profissional bloqueado para ${agendaType}: ${reason}.`, 'error');
                     btn.classList.remove('loading');
                     spinner.style.display = 'none';
                     return;
@@ -4673,6 +4812,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 showToast(`Não é possível agendar em data bloqueada para ${agendaType}: ${reason}.`, 'error');
                 return;
             }
+            if (isProfessionalBlocked(professional, agendaType)) {
+                const reason = blockedProfessionals.find(bp => bp.professional === professional && bp.agendaType === agendaType)?.reason;
+                showToast(`Não é possível agendar com profissional bloqueado para ${agendaType}: ${reason}.`, 'error');
+                return;
+            }
             // Check for conflict
             const existing = appointments.find(apt =>
                 apt.id !== editingId &&
@@ -4748,6 +4892,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const deleteModal = document.getElementById('deleteModal');
             const editModal = document.getElementById('editModal');
             const blockModal = document.getElementById('blockModal');
+            const blockProfessionalModal = document.getElementById('blockProfessionalModal');
             const printConfirmModal = document.getElementById('printConfirmModal');
             const printTypeModal = document.getElementById('printTypeModal');
             const patientHistoryModal = document.getElementById('patientHistoryModal');
@@ -4760,6 +4905,9 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             }
             if (event.target === blockModal) {
                 closeModal('blockModal');
+            }
+            if (event.target === blockProfessionalModal) {
+                closeModal('blockProfessionalModal');
             }
             if (event.target === printConfirmModal) {
                 closeModal('printConfirmModal');
