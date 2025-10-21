@@ -1648,7 +1648,7 @@
             Agendamento Pessoa Física - SESI Saúde
         </div>
         <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema" role="switch" aria-checked="false">🌙</button>
-        <img src="img/melhoria.jpg" alt="Melhoria Logo" class="header-logo">
+        <img src="img/melhoria.jpg" alt="Melhoria Logo" class="header-logo" id="melhoriaLogo">
     </div>
     <div class="system-title">Sistema de Agendamento PF - SESI Saúde</div>
     <div class="container">
@@ -4416,7 +4416,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 discountObj.promotional = value;
                 discountInfo += `Promocional: ${value}% `;
                 document.getElementById('promotionalDiscountDisplay').textContent = `Desconto Promocional: ${value}%`;
-              
+             
                 // Capturar detalhes da promoção se o desconto promocional estiver ativado
                 const promotionType = document.getElementById('promotionType').value;
                 if (promotionType) {
