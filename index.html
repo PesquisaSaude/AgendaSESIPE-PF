@@ -447,6 +447,13 @@
             transform: none;
             opacity: 0.7;
         }
+        #blockDateContainer {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
         .dentist-select {
             margin-top: 12px;
             padding-top: 10px;
@@ -1660,8 +1667,9 @@
             <div class="selected-date" id="selectedDate" style="display: none;" role="alert">
                 Data selecionada: <span id="selectedDateText"></span>
             </div>
-            <div id="blockDateContainer" style="margin-top: 10px;">
+            <div id="blockDateContainer">
                 <button class="block-btn" id="blockDateBtn" onclick="blockSelectedDate()" disabled style="display:none;" aria-label="Bloquear data selecionada" role="button">🔒 Bloquear Data</button>
+                <button class="block-btn" id="blockProfessionalBtn" onclick="blockSelectedProfessional()" aria-label="Bloquear profissional" role="button">🔒 Bloquear Profissional</button>
             </div>
         </div>
         <div class="section">
@@ -1827,7 +1835,6 @@
     <div class="scheduled-section" id="blockedSection">
         <h3>🔒 Gerenciar Datas Bloqueadas</h3>
         <button class="toggle-scheduled-btn" id="toggleBlockedBtn" onclick="toggleBlocked()" aria-label="Mostrar ou ocultar lista de datas bloqueadas" role="button">Mostrar Datas Bloqueadas</button>
-        <button class="block-btn" id="blockProfessionalBtn" onclick="blockSelectedProfessional()" aria-label="Bloquear profissional" role="button">🔒 Bloquear Profissional</button>
         <div class="scheduled-grid" id="blockedGrid" style="display: none;">
             <div class="scheduled-column">
                 <h4>Bloqueios Ativos</h4>
@@ -3205,7 +3212,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const sanitizedPatient = encodeURIComponent(sanitizeInput(patient));
                 const sanitizedPhone = encodeURIComponent(sanitizeInput(phone));
                 const sanitizedObs = encodeURIComponent(sanitizeInput(observations));
- 
                 // Monta a URL com parâmetros adicionais para preencher o formulário
                 const fichaUrl = `https://pesenaibr-my.sharepoint.com/:w:/g/personal/socrates_silva_sistemafiepe_org_br/EezX1v19-BBDl9cKn3fKqgcB_lCc-cVTcpZi26gErPTlDw?e=5DVI2m&cpf=${encodeURIComponent(cpf || '')}&name=${sanitizedPatient}&phone=${sanitizedPhone}&obs=${sanitizedObs}`;
                 window.open(fichaUrl, '_blank');
@@ -4410,7 +4416,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 discountObj.promotional = value;
                 discountInfo += `Promocional: ${value}% `;
                 document.getElementById('promotionalDiscountDisplay').textContent = `Desconto Promocional: ${value}%`;
-               
+              
                 // Capturar detalhes da promoção se o desconto promocional estiver ativado
                 const promotionType = document.getElementById('promotionType').value;
                 if (promotionType) {
