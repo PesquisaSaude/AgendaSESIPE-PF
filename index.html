@@ -57,6 +57,9 @@
             width: auto;
             transition: transform 0.3s ease;
         }
+        #melhoriaLogo {
+            height: 120px;
+        }
         .header-logo:hover {
             transform: scale(1.05);
         }
@@ -4416,7 +4419,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 discountObj.promotional = value;
                 discountInfo += `Promocional: ${value}% `;
                 document.getElementById('promotionalDiscountDisplay').textContent = `Desconto Promocional: ${value}%`;
-             
+            
                 // Capturar detalhes da promoção se o desconto promocional estiver ativado
                 const promotionType = document.getElementById('promotionType').value;
                 if (promotionType) {
@@ -5116,5 +5119,3 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
     </script>
 </body>
 </html>
-
-
