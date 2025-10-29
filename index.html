@@ -3267,6 +3267,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         }
         async function generateAttendanceDeclaration(cpf, patientName) {
             const declDate = new Date().toLocaleDateString('pt-BR');
+            const declTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             const printContent = `
                 <html>
                 <head>
@@ -3370,7 +3371,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                       <p>Eu, <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, declaro para os devidos fins que compareci ao atendimento no SESI Saúde na data de <strong>${declDate}</strong>.</p>
                       <p>O atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.</p>
                       <p>Esta declaração serve como comprovação de presença e comparecimento ao local e horário designados.</p>
-                      <p>Local e Data: Recife/PE, ${new Date().toLocaleDateString('pt-BR')}.</p>
+                      <p>Local e Data: Recife/PE, ${declDate} às ${declTime}.</p>
                     </div>
                     <div class="signature-section">
                       <div class="signature-box">
