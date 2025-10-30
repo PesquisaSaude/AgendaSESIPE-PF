@@ -1641,6 +1641,61 @@
             transform: translateY(-2px) scale(1.02);
             box-shadow: 0 6px 20px rgba(23, 162, 184, 0.3);
         }
+        /* Agenda Management Styles */
+        .agenda-mgmt-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        .agenda-mgmt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .agenda-mgmt-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .agenda-mgmt-item h4 {
+            margin: 0 0 10px 0;
+            color: #007bff;
+        }
+        .agenda-mgmt-item input {
+            margin-bottom: 10px;
+        }
+        .save-agenda-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .save-agenda-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        .agenda-mgmt-toggle {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        .agenda-mgmt-toggle:hover {
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -1651,6 +1706,7 @@
             Agendamento Pessoa Física - SESI Saúde
         </div>
         <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema" role="switch" aria-checked="false">🌙</button>
+        <button class="agenda-mgmt-toggle" onclick="toggleAgendaMgmt()" aria-label="Gerenciar agenda" role="button">📋 Gestão de Agenda</button>
         <img src="img/melhoriatodobranco.png" alt="Melhoria Logo" class="header-logo" id="melhoriaLogo">
     </div>
     <div class="system-title">Sistema de Agendamento PF - SESI Saúde</div>
@@ -1660,10 +1716,10 @@
             <label for="patientName">Nome do Paciente <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Digite o nome completo do paciente para facilitar a identificação.</span></span></label>
             <input type="text" id="patientName" placeholder="Digite o nome completo do paciente" aria-required="true" aria-describedby="patientNameDesc" required>
             <small id="patientNameDesc" class="sr-only">Campo obrigatório. Digite o nome completo do paciente.</small>
-            <label for="patientCpf">CPF do Paciente <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Formato: 123.456.789-00. Validação automática.</span></span></label>
-            <input type="text" id="patientCpf" placeholder="Digite o CPF (ex: 123.456.789-00)" aria-required="true" aria-describedby="cpfError patientCpfDesc" required>
+            <label for="patientCpf">CPF do Paciente <span class="help-tooltip">?<span class="tooltip-text">Formato: 123.456.789-00. Validação automática.</span></span></label>
+            <input type="text" id="patientCpf" placeholder="Digite o CPF (ex: 123.456.789-00)" aria-describedby="cpfError patientCpfDesc">
             <small id="cpfError" class="error-message" aria-live="polite">CPF inválido. (Apenas Números).</small>
-            <small id="patientCpfDesc" class="sr-only">Campo obrigatório. Digite o CPF no formato 123.456.789-00.</small>
+            <small id="patientCpfDesc" class="sr-only">Campo opcional. Digite o CPF no formato 123.456.789-00.</small>
             <label for="patientPhone">Número do Telefone <span aria-hidden="true" class="required">*</span> <span class="help-tooltip">?<span class="tooltip-text">Formato: (11) 99999-9999. Validação automática.</span></span></label>
             <input type="tel" id="patientPhone" placeholder="Digite o número do telefone (ex: (11) 99999-9999)" aria-required="true" aria-describedby="phoneError patientPhoneDesc" required>
             <small id="phoneError" class="error-message" aria-live="polite">Telefone inválido. Use o formato (DD) 9XXXX-XXXX.</small>
@@ -1746,6 +1802,13 @@
             <div class="hours-grid" id="hoursGrid" role="grid" aria-label="Horários disponíveis">
                 <!-- Hours will be populated by JS -->
             </div>
+        </div>
+    </div>
+    <div class="agenda-mgmt-section" id="agendaMgmtSection" style="display: none;">
+        <h3>📋 Gestão de Agenda</h3>
+        <button class="toggle-scheduled-btn" onclick="toggleAgendaMgmt()" aria-label="Fechar gestão de agenda" role="button">Fechar</button>
+        <div class="agenda-mgmt-grid" id="agendaMgmtGrid">
+            <!-- Populated by JS -->
         </div>
     </div>
     <div class="scheduled-section">
@@ -1952,6 +2015,10 @@
             <select id="blockProfessionalSelect" aria-required="true" required>
                 <option value="">Selecione o profissional</option>
             </select>
+            <label for="blockProfessionalStartDate">Data de Início do Bloqueio <span aria-hidden="true" class="required">*</span></label>
+            <input type="date" id="blockProfessionalStartDate" aria-required="true" required>
+            <label for="blockProfessionalEndDate">Data de Fim do Bloqueio <span aria-hidden="true" class="required">*</span></label>
+            <input type="date" id="blockProfessionalEndDate" aria-required="true" required>
             <label for="blockProfessionalReason">Motivo do Bloqueio <span aria-hidden="true" class="required">*</span></label>
             <textarea id="blockProfessionalReason" placeholder="Digite o motivo do bloqueio..." aria-required="true" required></textarea>
             <button class="modal-btn" onclick="confirmBlockProfessional()" aria-label="Confirmar bloqueio do profissional" role="button">Bloquear Profissional</button>
@@ -1975,8 +2042,8 @@
             <h3 id="editTitle">Editar Consulta</h3>
             <label for="editPatientName">Nome do Paciente <span aria-hidden="true" class="required">*</span></label>
             <input type="text" id="editPatientName" aria-required="true" required autofocus>
-            <label for="editPatientCpf">CPF do Paciente <span aria-hidden="true" class="required">*</span></label>
-            <input type="text" id="editPatientCpf" aria-required="true" aria-describedby="editCpfError editPatientCpfDesc" required>
+            <label for="editPatientCpf">CPF do Paciente</label>
+            <input type="text" id="editPatientCpf" aria-describedby="editCpfError editPatientCpfDesc">
             <small id="editCpfError" class="error-message" aria-live="polite">CPF inválido. Verifique os dígitos.</small>
             <small id="editPatientCpfDesc" class="sr-only">Digite o CPF no formato 123.456.789-00.</small>
             <label for="editPatientPhone">Número do Telefone <span aria-hidden="true" class="required">*</span></label>
@@ -2111,6 +2178,11 @@
         let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
         let blockedDates = JSON.parse(localStorage.getItem('blockedDates')) || [];
         let blockedProfessionals = JSON.parse(localStorage.getItem('blockedProfessionals')) || [];
+        let agendaSchedules = JSON.parse(localStorage.getItem('agendaSchedules')) || {
+            'Agenda Odontológica': { startHour: 7, endHour: 18, interval: 20 },
+            'Agenda Especialidades Médicas': { startHour: 7, endHour: 17, interval: 30 },
+            'Agenda de Exames': { startHour: 7, endHour: 17, interval: 20 }
+        };
         let appointmentDatesSet = new Set();
         let editingId = null;
         let deleteId = null;
@@ -2362,28 +2434,13 @@
             return slots;
         }
         function getHoursForAgendaType(agendaType) {
-            if (agendaType === 'Agenda Odontológica') {
-                return generateSlots(7, 18, 20);
-            } else if (agendaType === 'Agenda Especialidades Médicas') {
-                return generateSlots(7, 17, 30);
-            } else if (agendaType === 'Agenda de Exames') {
-                return generateSlots(7, 17, 20);
-            }
-            return [];
+            const schedule = agendaSchedules[agendaType] || { startHour: 7, endHour: 17, interval: 30 };
+            return generateSlots(schedule.startHour, schedule.endHour, schedule.interval);
         }
         function getHoursForProfessional(agendaType, professional) {
-            let startHour = 7;
-            let endHour = 18;
-            let interval = 20;
-            if (agendaType === 'Agenda Odontológica') {
-                interval = professionalDurations[professional] || 20;
-            } else if (agendaType === 'Agenda Especialidades Médicas') {
-                endHour = 17;
-                interval = professionalDurations[professional] || 30;
-            } else if (agendaType === 'Agenda de Exames') {
-                endHour = 17;
-                interval = 20;
-            }
+            let startHour = agendaSchedules[agendaType]?.startHour || 7;
+            let endHour = agendaSchedules[agendaType]?.endHour || 18;
+            let interval = professionalDurations[professional] || (agendaSchedules[agendaType]?.interval || 20);
             return generateSlots(startHour, endHour, interval);
         }
         function getStatusText(status) {
@@ -2421,7 +2478,15 @@
             return blockedDates.some(b => b.date === dateStr && b.agendaType === agendaType);
         }
         function isProfessionalBlocked(professional, agendaType) {
-            return blockedProfessionals.some(bp => bp.professional === professional && bp.agendaType === agendaType);
+            const today = new Date().toISOString().split('T')[0];
+            return blockedProfessionals.some(bp => {
+                if (bp.professional === professional && bp.agendaType === agendaType) {
+                    // Verifica se hoje está dentro do período de bloqueio
+                    if (!bp.startDate || !bp.endDate) return true; // Bloqueio indefinido
+                    return today >= bp.startDate && today <= bp.endDate;
+                }
+                return false;
+            });
         }
         // Função para sanitizar inputs (básica contra XSS)
         function sanitizeInput(input) {
@@ -3535,6 +3600,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             });
             document.getElementById('blockProfessionalSelect').innerHTML = '<option value="">Selecione o profissional</option>';
             document.getElementById('blockProfessionalReason').value = '';
+            document.getElementById('blockProfessionalStartDate').value = '';
+            document.getElementById('blockProfessionalEndDate').value = '';
             document.getElementById('blockProfessionalModal').style.display = 'block';
             document.getElementById('blockProfessionalAgendaType').focus();
         }
@@ -3564,6 +3631,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         function confirmBlockProfessional() {
             const agendaType = document.getElementById('blockProfessionalAgendaType').value.trim();
             const professional = document.getElementById('blockProfessionalSelect').value.trim();
+            const startDate = document.getElementById('blockProfessionalStartDate').value;
+            const endDate = document.getElementById('blockProfessionalEndDate').value;
             const reason = document.getElementById('blockProfessionalReason').value.trim();
             if (!agendaType) {
                 showToast('Selecione o tipo de agenda para o bloqueio.', 'error');
@@ -3571,6 +3640,14 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             }
             if (!professional) {
                 showToast('Selecione o profissional para o bloqueio.', 'error');
+                return;
+            }
+            if (!startDate || !endDate) {
+                showToast('Informe as datas de início e fim do bloqueio.', 'error');
+                return;
+            }
+            if (new Date(startDate) > new Date(endDate)) {
+                showToast('A data de início não pode ser posterior à data de fim.', 'error');
                 return;
             }
             if (!reason) {
@@ -3582,12 +3659,12 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 showToast(`Este profissional já está bloqueado para ${agendaType}.`, 'error');
                 return;
             }
-            blockedProfessionals.push({ professional: professional, agendaType: agendaType, reason: sanitizeInput(reason) });
+            blockedProfessionals.push({ professional: professional, agendaType: agendaType, startDate, endDate, reason: sanitizeInput(reason) });
             localStorage.setItem('blockedProfessionals', JSON.stringify(blockedProfessionals));
             // Recarrega a lista de blockedProfessionals do localStorage para garantir sincronia
             blockedProfessionals = JSON.parse(localStorage.getItem('blockedProfessionals')) || [];
             closeModal('blockProfessionalModal');
-            showToast(`Profissional ${professional} bloqueado com sucesso para ${agendaType}! 🔒`);
+            showToast(`Profissional ${professional} bloqueado com sucesso para ${agendaType} de ${startDate} a ${endDate}! 🔒`);
             // Atualiza selects de profissionais em todos os lugares
             populateProfessionals(currentAgendaType, 'dentistSelect');
             // Atualiza listas de agendamentos se aberta
@@ -3715,6 +3792,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         <button class="btn-delete" onclick="removeProfessionalBlock(${index})" aria-label="Remover bloqueio deste profissional" role="button">Remover</button>
                     </div>
                     <h4>🔒 ${block.professional} - ${block.agendaType} (Profissional)</h4>
+                    <p>Período: ${block.startDate} a ${block.endDate}</p>
                     <p>Motivo: ${sanitizeInput(block.reason)}</p>
                 `;
                 list.appendChild(card);
@@ -3887,6 +3965,54 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             } else {
                 content.style.display = 'none';
                 btn.textContent = 'Mostrar Relatórios';
+            }
+        }
+        function toggleAgendaMgmt() {
+            const section = document.getElementById('agendaMgmtSection');
+            const btn = document.querySelector('.agenda-mgmt-toggle');
+            if (section.style.display === 'none' || section.style.display === '') {
+                section.style.display = 'block';
+                btn.textContent = '📋 Fechar Gestão';
+                displayAgendaMgmt();
+            } else {
+                section.style.display = 'none';
+                btn.textContent = '📋 Gestão de Agenda';
+            }
+        }
+        function displayAgendaMgmt() {
+            const grid = document.getElementById('agendaMgmtGrid');
+            grid.innerHTML = '';
+            agendaTypes.forEach(type => {
+                const item = document.createElement('div');
+                item.className = 'agenda-mgmt-item';
+                const schedule = agendaSchedules[type] || { startHour: 7, endHour: 17, interval: 30 };
+                item.innerHTML = `
+                    <h4>${type}</h4>
+                    <label>Hora Início:</label>
+                    <input type="number" id="startHour_${type.replace(/\s/g, '')}" value="${schedule.startHour}" min="0" max="23">
+                    <label>Hora Fim:</label>
+                    <input type="number" id="endHour_${type.replace(/\s/g, '')}" value="${schedule.endHour}" min="0" max="23">
+                    <label>Intervalo (min):</label>
+                    <input type="number" id="interval_${type.replace(/\s/g, '')}" value="${schedule.interval}" min="5" max="120">
+                    <button class="save-agenda-btn" onclick="saveAgendaSchedule('${type}')">Salvar</button>
+                `;
+                grid.appendChild(item);
+            });
+        }
+        function saveAgendaSchedule(type) {
+            const startHour = parseInt(document.getElementById(`startHour_${type.replace(/\s/g, '')}`).value);
+            const endHour = parseInt(document.getElementById(`endHour_${type.replace(/\s/g, '')}`).value);
+            const interval = parseInt(document.getElementById(`interval_${type.replace(/\s/g, '')}`).value);
+            if (startHour >= endHour) {
+                showToast('Hora de início deve ser menor que hora de fim.', 'error');
+                return;
+            }
+            agendaSchedules[type] = { startHour, endHour, interval };
+            localStorage.setItem('agendaSchedules', JSON.stringify(agendaSchedules));
+            showToast(`Agenda para ${type} salva!`, 'success');
+            // Atualiza horários se necessário
+            if (currentAgendaType === type && selectedDay) {
+                populateHours(selectedDay);
             }
         }
         function generateReport() {
@@ -4649,7 +4775,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         function updateScheduleButton() {
             const patientName = document.getElementById('patientName').value.trim();
             const patientCpf = document.getElementById('patientCpf').value.trim();
-            const cpfValid = patientCpf && isValidCPF(patientCpf.replace(/\D/g, ''));
+            const cpfValid = patientCpf ? isValidCPF(patientCpf.replace(/\D/g, '')) : true; // Opcional, sempre válido se vazio
             const patientPhone = document.getElementById('patientPhone').value.trim();
             const phoneValid = patientPhone && (patientPhone.replace(/\D/g, '').length >= 10 && patientPhone.replace(/\D/g, '').length <= 11);
             const agendaType = document.getElementById('agendaTypeSelect').value;
@@ -4702,7 +4828,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     spinner.style.display = 'none';
                     return;
                 }
-                if (!isValidCPF(cpfClean)) {
+                if (patientCpf && !isValidCPF(cpfClean)) {
                     showToast('CPF inválido.', 'error');
                     btn.classList.remove('loading');
                     spinner.style.display = 'none';
@@ -4806,7 +4932,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const firstAppointment = document.getElementById('editFirstAppointmentSelect').value;
             const newDateInput = document.getElementById('editDate').value;
             const newTime = document.getElementById('editTime').value;
-            if (!patientName || !isValidCPF(cpfClean) || (phoneClean.length < 10 || phoneClean.length > 11) || !location || !agendaType || !professional || !newDateInput || !newTime || !priority || !firstAppointment) {
+            if (!patientName || (patientCpf && !isValidCPF(cpfClean)) || (phoneClean.length < 10 || phoneClean.length > 11) || !location || !agendaType || !professional || !newDateInput || !newTime || !priority || !firstAppointment) {
                 showToast('Preencha todos os campos obrigatórios e verifique o CPF e telefone.', 'error');
                 return;
             }
