@@ -3643,7 +3643,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             }
             selectedDay = date;
             document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
-            event.target.classList.add('selected');
+            event?.target?.classList.add('selected'); // Adiciona a classe apenas se event.target existir (evita erro em chamadas diretas)
             document.getElementById('selectedDate').style.display = 'block';
             document.getElementById('selectedDateText').textContent = `${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })} de ${date.getFullYear()}`;
             document.getElementById('blockDateBtn').style.display = 'block';
@@ -3669,7 +3669,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         if (!isUnavailable) {
                             selectDay(testDate);
                             day.focus(); // Para acessibilidade: foco no dia selecionado
-                            day.dispatchEvent(new MouseEvent('click', { bubbles: true })); // Simula clique para classe 'selected'
+                            // Adiciona a classe 'selected' manualmente, já que selectDay pode não ter event.target
+                            day.classList.add('selected');
                             return;
                         }
                     }
