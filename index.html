@@ -3629,7 +3629,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             }
             document.getElementById('monthDisplay').textContent = firstDay.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
         }
-        function selectDay(date) {
+        function selectDay(date, dayElement = null) {
             if (isHoliday(date)) {
                 showToast(`Não é possível selecionar feriados: ${getHolidayName(date)}`, 'error');
                 return;
@@ -3642,8 +3642,24 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 return;
             }
             selectedDay = date;
-            document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
-            event?.target?.classList.add('selected'); // Adiciona a classe apenas se event.target existir (evita erro em chamadas diretas)
+            // Adiciona classe selected ao elemento fornecido ou ao clicado
+            if (dayElement) {
+                dayElement.classList.add('selected');
+            } else {
+                document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
+                // Se chamado via autoSelectToday, encontrar o elemento e adicionar
+                const days = document.querySelectorAll('.day');
+                for (let d of days) {
+                    const dayNum = parseInt(d.textContent);
+                    if (!isNaN(dayNum)) {
+                        const testDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNum);
+                        if (testDate.toDateString() === date.toDateString()) {
+                            d.classList.add('selected');
+                            break;
+                        }
+                    }
+                }
+            }
             document.getElementById('selectedDate').style.display = 'block';
             document.getElementById('selectedDateText').textContent = `${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })} de ${date.getFullYear()}`;
             document.getElementById('blockDateBtn').style.display = 'block';
@@ -3667,10 +3683,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         const isBlockedDay = selectedAgendaType ? isBlocked(dateStr, selectedAgendaType) : false;
                         const isUnavailable = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || testDate < today || isBlockedDay;
                         if (!isUnavailable) {
-                            selectDay(testDate);
+                            selectDay(testDate, day);
                             day.focus(); // Para acessibilidade: foco no dia selecionado
-                            // Adiciona a classe 'selected' manualmente, já que selectDay pode não ter event.target
-                            day.classList.add('selected');
                             return;
                         }
                     }
@@ -4907,6 +4921,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = prof;
                 examesProfessional.appendChild(option);
             });
+            // Configurar eventos
             document.getElementById('agendaTypeSelect').onchange = function() {
                 currentAgendaType = this.value;
                 const agendaType = this.value;
@@ -4941,8 +4956,18 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             editCpfInput.oninput = function() { formatCPF(this); validateEditCPF(this); };
             const editPhoneInput = document.getElementById('editPatientPhone');
             editPhoneInput.oninput = function() { formatPhone(this); validateEditPhone(this); };
+            // Inicializar calendário com tipo padrão
+            const defaultAgendaType = 'Agenda Especialidades Médicas';
+            agendaTypeSelect.value = defaultAgendaType;
+            currentAgendaType = defaultAgendaType;
+            populateProfessionals(defaultAgendaType, 'dentistSelect');
+            // Selecionar profissional padrão (primeiro disponível)
+            const defaultProfessionals = getProfessionals(defaultAgendaType);
+            if (defaultProfessionals.length > 0) {
+                document.getElementById('dentistSelect').value = defaultProfessionals[0];
+            }
             generateCalendar(currentAgendaType);
-            // Auto-selecionar o dia atual (hoje) se possível
+            // Auto-selecionar o dia atual (hoje) se possível, agora com tipo e profissional padrão
             autoSelectToday();
             // Auto-focus no campo de nome do paciente
             document.getElementById('patientName').focus();
