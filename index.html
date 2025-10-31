@@ -249,6 +249,11 @@
             color: #999;
             cursor: not-allowed;
         }
+        .day.today {
+            background: #ffc107 !important;
+            color: #000 !important;
+            font-weight: bold;
+        }
         .day.has-appointment::after {
             content: '•';
             position: absolute;
@@ -1725,14 +1730,16 @@
             background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
             color: #000;
             border: none;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
         }
         .agenda-mgmt-toggle:hover {
-            transform: translateY(-1px);
+            transform: translateY(-1px) scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
         }
     </style>
 </head>
@@ -1825,9 +1832,9 @@
             </div>
             <div id="blockDateContainer">
                 <button class="block-btn" id="blockDateBtn" onclick="blockSelectedDate()" disabled style="display:none;" aria-label="Bloquear data selecionada" role="button">🔒 Bloquear Data</button>
+                <button class="agenda-mgmt-toggle" onclick="toggleAgendaMgmt()" aria-label="Gerenciar agenda" role="button">📋 Gestão de Agenda</button>
                 <button class="block-btn" id="blockProfessionalBtn" onclick="blockSelectedProfessional()" aria-label="Bloquear profissional" role="button">🔒 Bloquear Profissional</button>
             </div>
-            <button class="agenda-mgmt-toggle" onclick="toggleAgendaMgmt()" aria-label="Gerenciar agenda" role="button">📋 Gestão de Agenda</button>
         </div>
         <div class="section">
             <h3>Selecione um Horário</h3>
@@ -2222,7 +2229,7 @@
         </div>
     </div>
     <script>
-        let currentDate = new Date(2025, 9, 6); // Updated to October 06, 2025
+        let currentDate = new Date(2025, 9, 31); // Updated to October 31, 2025
         let selectedDay = null;
         let selectedHour = null;
         let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
@@ -3613,6 +3620,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         dayElement.onclick = () => selectDay(date);
                         dayElement.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') selectDay(date); };
                         if (date.toDateString() === today.toDateString()) {
+                            dayElement.classList.add('today');
                             dayElement.style.background = '#ffc107';
                             dayElement.style.color = '#000';
                             dayElement.setAttribute('aria-label', `Hoje: ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
@@ -3628,6 +3636,12 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 calendar.appendChild(dayElement);
             }
             document.getElementById('monthDisplay').textContent = firstDay.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+            // Auto-select today's cell if visible in the current month
+            const todayCell = document.querySelector('.day.today');
+            if (todayCell && selectedDay === null) {
+                selectDay(today);
+            }
         }
         function selectDay(date) {
             if (isHoliday(date)) {
