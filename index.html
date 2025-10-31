@@ -2901,8 +2901,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const printWindow = window.open('', '_blank', 'width=300,height=600');
                 printWindow.document.write(printContent);
                 printWindow.document.close();
-                printWindow.print();
-                printWindow.close();
+                // Adicionar delay para garantir carregamento antes de imprimir
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
             } else {
                 // Formato normal: usar window.print com HTML/CSS adaptado para A4, incluindo as imagens de SESI e Melhoria e descontos separados
                 let title = apt.agendaType === 'Agenda de Exames' ? 'Orçamento de Exames e Especialidades' : 'Comprovante de Agendamento';
@@ -3207,7 +3210,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         }
                       </style>
                     </head>
-                    <body onload="window.print()">
+                    <body onload="setTimeout(() => window.print(), 1000)">
                       <div class="print-container">
                         <div class="print-header">
                           <div class="header-container">
@@ -3323,8 +3326,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const printWindow = window.open('', '_blank', 'width=800,height=600');
                 printWindow.document.write(printContent);
                 printWindow.document.close();
-                printWindow.print();
-                printWindow.close();
+                // Adicionar delay para garantir carregamento antes de imprimir
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 1000);
             }
             showToast(`Comprovante ${isThermal ? 'térmica' : 'normal'} gerado com sucesso!`, 'success');
         }
@@ -3340,8 +3346,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             closeModal('printTypeModal');
             // Se foi um agendamento recém-criado, recarregar a página após impressão para resetar tudo
             if (justScheduled) {
-                justScheduled = false;
-                window.location.reload();
+                setTimeout(() => {
+                    justScheduled = false;
+                    window.location.reload();
+                }, 2000); // Delay maior para permitir que o usuário feche a janela de impressão
             }
         }
         function preparePrint(id) {
@@ -3530,7 +3538,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     }
                   </style>
                 </head>
-                <body onload="window.print()">
+                <body onload="setTimeout(() => window.print(), 1000)">
                   <div class="print-container">
                     <div class="print-header">
                       <div style="display: flex; align-items: center; justify-content: center; width: 100%; gap: 20px;">
@@ -3565,8 +3573,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const printWindow = window.open('', '_blank', 'width=800,height=600');
             printWindow.document.write(printContent);
             printWindow.document.close();
-            printWindow.print();
-            printWindow.close();
+            // Adicionar delay para garantir carregamento antes de imprimir
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 1000);
             showToast('Declaração de Comparecimento gerada e aberta para impressão!', 'success');
         }
         function generateCalendar(agendaType = currentAgendaType) {
@@ -4071,6 +4082,18 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             discountObj = {}; // Limpa descontos
             document.getElementById('displayedDiscounts').style.display = 'none'; // Esconde seção de descontos
             updateScheduleButton();
+            // Resetar para valores padrão para novo agendamento
+            const defaultAgendaType = 'Agenda Especialidades Médicas';
+            document.getElementById('agendaTypeSelect').value = defaultAgendaType;
+            currentAgendaType = defaultAgendaType;
+            populateProfessionals(defaultAgendaType, 'dentistSelect');
+            const defaultProfessionals = getProfessionals(defaultAgendaType);
+            if (defaultProfessionals.length > 0) {
+                document.getElementById('dentistSelect').value = defaultProfessionals[0];
+            }
+            generateCalendar(currentAgendaType);
+            autoSelectToday();
+            document.getElementById('patientName').focus();
         }
         // Debounce para filtros (evita chamadas excessivas)
         function debouncedFilterAppointments() {
@@ -4301,6 +4324,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 currentPrintId = appointment.id; // Para impressão posterior
                 updateAppointmentDatesSet();
                 showToast('Consulta agendada com sucesso! ✅');
+                // Chama clearSelections para resetar imediatamente para novo agendamento
                 clearSelections();
                 generateCalendar(currentAgendaType);
                 if (document.getElementById('scheduledGrid').style.display !== 'none') {
@@ -4445,8 +4469,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             modal.style.display = 'none';
             // Se for o modal de confirmação de impressão e um agendamento foi recém-criado, recarregar a página
             if (modalId === 'printConfirmModal' && justScheduled) {
-                justScheduled = false;
-                window.location.reload();
+                setTimeout(() => {
+                    justScheduled = false;
+                    window.location.reload();
+                }, 1000); // Delay para permitir que o usuário feche o modal
             }
             // Retorna foco ao botão que abriu o modal, se possível
             const triggeringButton = document.activeElement;
