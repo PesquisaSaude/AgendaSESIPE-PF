@@ -1734,6 +1734,23 @@
         .agenda-mgmt-toggle:hover {
             transform: translateY(-1px);
         }
+        /* Button Row for Scheduled Column */
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .button-row .block-btn {
+            margin-top: 0;
+            flex: 0 0 auto;
+        }
+        .button-row .agenda-mgmt-toggle {
+            margin: 0;
+            flex: 1;
+            text-align: center;
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -1823,11 +1840,10 @@
             <div class="selected-date" id="selectedDate" style="display: none;" role="alert">
                 Data selecionada: <span id="selectedDateText"></span>
             </div>
-            <div id="blockDateContainer">
-                <button class="block-btn" id="blockDateBtn" onclick="blockSelectedDate()" disabled style="display:none;" aria-label="Bloquear data selecionada" role="button">🔒 Bloquear Data</button>
+            <div id="blockDateContainer" style="display: none;">
+                <button class="block-btn" id="blockDateBtn" onclick="blockSelectedDate()" disabled aria-label="Bloquear data selecionada" role="button">🔒 Bloquear Data</button>
                 <button class="block-btn" id="blockProfessionalBtn" onclick="blockSelectedProfessional()" aria-label="Bloquear profissional" role="button">🔒 Bloquear Profissional</button>
             </div>
-            <button class="agenda-mgmt-toggle" onclick="toggleAgendaMgmt()" aria-label="Gerenciar agenda" role="button">📋 Gestão de Agenda</button>
         </div>
         <div class="section">
             <h3>Selecione um Horário</h3>
@@ -1881,6 +1897,11 @@
             </div>
             <div class="scheduled-column">
                 <h4>🏥 Especialidades Médicas</h4>
+                <div class="button-row">
+                    <button class="block-btn" id="blockDateBtn" onclick="blockSelectedDate()" disabled style="display:none;" aria-label="Bloquear data selecionada" role="button">🔒 Bloquear Data</button>
+                    <button class="agenda-mgmt-toggle" onclick="toggleAgendaMgmt()" aria-label="Gerenciar agenda" role="button">📋 Gestão de Agenda</button>
+                    <button class="block-btn" id="blockProfessionalBtn" onclick="blockSelectedProfessional()" aria-label="Bloquear profissional" role="button">🔒 Bloquear Profissional</button>
+                </div>
                 <div class="date-filters">
                     <label for="medicasStartDate">Data Inicial:</label>
                     <input type="date" id="medicasStartDate" onchange="debouncedFilterAppointments()" aria-label="Data inicial médica">
