@@ -249,11 +249,6 @@
             color: #999;
             cursor: not-allowed;
         }
-        .day.today {
-            background: #ffc107 !important;
-            color: #000 !important;
-            font-weight: bold;
-        }
         .day.has-appointment::after {
             content: '•';
             position: absolute;
@@ -1730,16 +1725,14 @@
             background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
             color: #000;
             border: none;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
         }
         .agenda-mgmt-toggle:hover {
-            transform: translateY(-1px) scale(1.05);
-            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -1832,9 +1825,9 @@
             </div>
             <div id="blockDateContainer">
                 <button class="block-btn" id="blockDateBtn" onclick="blockSelectedDate()" disabled style="display:none;" aria-label="Bloquear data selecionada" role="button">🔒 Bloquear Data</button>
-                <button class="agenda-mgmt-toggle" onclick="toggleAgendaMgmt()" aria-label="Gerenciar agenda" role="button">📋 Gestão de Agenda</button>
                 <button class="block-btn" id="blockProfessionalBtn" onclick="blockSelectedProfessional()" aria-label="Bloquear profissional" role="button">🔒 Bloquear Profissional</button>
             </div>
+            <button class="agenda-mgmt-toggle" onclick="toggleAgendaMgmt()" aria-label="Gerenciar agenda" role="button">📋 Gestão de Agenda</button>
         </div>
         <div class="section">
             <h3>Selecione um Horário</h3>
@@ -2229,7 +2222,7 @@
         </div>
     </div>
     <script>
-        let currentDate = new Date(2025, 9, 31); // Updated to October 31, 2025
+        let currentDate = new Date(); // Alterado para usar a data atual (ex: 31/10/2025)
         let selectedDay = null;
         let selectedHour = null;
         let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
@@ -3620,7 +3613,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         dayElement.onclick = () => selectDay(date);
                         dayElement.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') selectDay(date); };
                         if (date.toDateString() === today.toDateString()) {
-                            dayElement.classList.add('today');
                             dayElement.style.background = '#ffc107';
                             dayElement.style.color = '#000';
                             dayElement.setAttribute('aria-label', `Hoje: ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
@@ -3636,12 +3628,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 calendar.appendChild(dayElement);
             }
             document.getElementById('monthDisplay').textContent = firstDay.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-
-            // Auto-select today's cell if visible in the current month
-            const todayCell = document.querySelector('.day.today');
-            if (todayCell && selectedDay === null) {
-                selectDay(today);
-            }
         }
         function selectDay(date) {
             if (isHoliday(date)) {
@@ -3664,6 +3650,33 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('blockDateBtn').disabled = false;
             updateScheduleButton();
             populateHours(date);
+        }
+        function autoSelectToday() {
+            const today = new Date();
+            const days = document.querySelectorAll('.day');
+            for (let day of days) {
+                const dayNum = parseInt(day.textContent);
+                if (!isNaN(dayNum)) {
+                    const testDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNum);
+                    if (testDate.toDateString() === today.toDateString() && testDate.getMonth() === currentDate.getMonth()) {
+                        // Verifica se o dia não é indisponível (fim de semana, feriado, passado ou bloqueado)
+                        const dayOfWeek = testDate.getDay();
+                        const dateStr = testDate.toLocaleDateString('pt-BR');
+                        const isHolidayDay = isHoliday(testDate);
+                        const selectedAgendaType = document.getElementById('agendaTypeSelect').value;
+                        const isBlockedDay = selectedAgendaType ? isBlocked(dateStr, selectedAgendaType) : false;
+                        const isUnavailable = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || testDate < today || isBlockedDay;
+                        if (!isUnavailable) {
+                            selectDay(testDate);
+                            day.focus(); // Para acessibilidade: foco no dia selecionado
+                            day.dispatchEvent(new MouseEvent('click', { bubbles: true })); // Simula clique para classe 'selected'
+                            return;
+                        }
+                    }
+                }
+            }
+            // Se hoje não for selecionável (ex: fim de semana), não seleciona nada
+            console.log('Hoje não é selecionável (fim de semana, feriado ou bloqueado).');
         }
         function blockSelectedDate() {
             if (!selectedDay) {
@@ -4928,6 +4941,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const editPhoneInput = document.getElementById('editPatientPhone');
             editPhoneInput.oninput = function() { formatPhone(this); validateEditPhone(this); };
             generateCalendar(currentAgendaType);
+            // Auto-selecionar o dia atual (hoje) se possível
+            autoSelectToday();
             // Auto-focus no campo de nome do paciente
             document.getElementById('patientName').focus();
             // Listener para tecla Esc
