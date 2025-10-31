@@ -2220,17 +2220,17 @@
             <button class="apply-discount-btn" onclick="applyDiscount()">Aplicar Desconto</button>
         </div>
     </div>
-    <!-- Declaration Date Modal -->
-    <div id="declarationDateModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="declarationDateTitle">
+    <!-- Declaration Time Modal -->
+    <div id="declarationTimeModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="declarationTimeTitle">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('declarationDateModal')" aria-label="Fechar modal de data de declaração">&times;</span>
-            <h3 id="declarationDateTitle">Adicionar Data de Entrada</h3>
+            <span class="close" onclick="closeModal('declarationTimeModal')" aria-label="Fechar modal de horário de declaração">&times;</span>
+            <h3 id="declarationTimeTitle">Adicionar Horário de Entrada</h3>
             <p id="declarationPatientInfo"></p>
-            <label for="entryDate">Data de Entrada do Trabalhador <span aria-hidden="true" class="required">*</span></label>
-            <input type="date" id="entryDate" required aria-required="true" aria-describedby="entryDateDesc">
-            <small id="entryDateDesc" class="sr-only">Selecione a data de entrada do trabalhador para incluir na declaração.</small>
-            <button class="modal-btn" onclick="confirmDeclarationDate()" aria-label="Gerar declaração" role="button">Gerar Declaração</button>
-            <button class="modal-btn cancel-btn" onclick="closeModal('declarationDateModal')" aria-label="Cancelar" role="button">Cancelar</button>
+            <label for="entryTime">Horário de Entrada do Trabalhador <span aria-hidden="true" class="required">*</span></label>
+            <input type="time" id="entryTime" required aria-required="true" aria-describedby="entryTimeDesc">
+            <small id="entryTimeDesc" class="sr-only">Selecione o horário de entrada do trabalhador para incluir na declaração.</small>
+            <button class="modal-btn" onclick="confirmDeclarationTime()" aria-label="Gerar declaração" role="button">Gerar Declaração</button>
+            <button class="modal-btn cancel-btn" onclick="closeModal('declarationTimeModal')" aria-label="Cancelar" role="button">Cancelar</button>
         </div>
     </div>
     <script>
@@ -3416,20 +3416,20 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 return;
             }
             document.getElementById('declarationPatientInfo').innerHTML = `<strong>Paciente:</strong> ${sanitizeInput(apt.patient)}<br><strong>CPF:</strong> ${apt.cpf || 'Não informado'}<br><strong>Data do Atendimento:</strong> ${apt.date}`;
-            document.getElementById('entryDate').value = ''; // Limpa o campo
-            document.getElementById('declarationDateModal').style.display = 'block';
-            document.getElementById('entryDate').focus();
-            focusTrap(document.getElementById('declarationDateModal'));
+            document.getElementById('entryTime').value = ''; // Limpa o campo
+            document.getElementById('declarationTimeModal').style.display = 'block';
+            document.getElementById('entryTime').focus();
+            focusTrap(document.getElementById('declarationTimeModal'));
         }
-        function openDeclarationDateModal() {
-            document.getElementById('declarationDateModal').style.display = 'block';
-            document.getElementById('entryDate').focus();
-            focusTrap(document.getElementById('declarationDateModal'));
+        function openDeclarationTimeModal() {
+            document.getElementById('declarationTimeModal').style.display = 'block';
+            document.getElementById('entryTime').focus();
+            focusTrap(document.getElementById('declarationTimeModal'));
         }
-        function confirmDeclarationDate() {
-            const entryDate = document.getElementById('entryDate').value;
-            if (!entryDate) {
-                showToast('Informe a data de entrada do trabalhador.', 'error');
+        function confirmDeclarationTime() {
+            const entryTime = document.getElementById('entryTime').value;
+            if (!entryTime) {
+                showToast('Informe o horário de entrada do trabalhador.', 'error');
                 return;
             }
             const apt = appointments.find(a => a.id === currentDeclarationId);
@@ -3437,14 +3437,14 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 showToast('Agendamento não encontrado.', 'error');
                 return;
             }
-            generateAttendanceDeclaration(apt.cpf, apt.patient, entryDate);
-            closeModal('declarationDateModal');
+            generateAttendanceDeclaration(apt.cpf, apt.patient, entryTime);
+            closeModal('declarationTimeModal');
             currentDeclarationId = null;
         }
-        async function generateAttendanceDeclaration(cpf, patientName, entryDate) {
+        async function generateAttendanceDeclaration(cpf, patientName, entryTime) {
             const declDate = new Date().toLocaleDateString('pt-BR');
             const declTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-            const entryDateFormatted = new Date(entryDate).toLocaleDateString('pt-BR');
+            const entryTimeFormatted = new Date(`2000-01-01T${entryTime}`).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             const printContent = `
                 <html>
                 <head>
@@ -3545,7 +3545,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                       </div>
                     </div>
                     <div class="declaration-body">
-                      <p>Eu, <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, declaro para os devidos fins que compareci ao atendimento no SESI Saúde na data de entrada <strong>${entryDateFormatted}</strong>, tendo o atendimento realizado na data de <strong>${declDate}</strong>.</p>
+                      <p>Eu, <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, declaro para os devidos fins que compareci ao atendimento no SESI Saúde no horário de entrada <strong>${entryTimeFormatted}</strong>, tendo o atendimento realizado na data de <strong>${declDate}</strong>.</p>
                       <p>O atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.</p>
                       <p>Esta declaração serve como comprovação de presença e comparecimento ao local e horário designados.</p>
                       <p>Local e Data: Recife/PE, ${declDate} às ${declTime}.</p>
@@ -4411,7 +4411,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const printTypeModal = document.getElementById('printTypeModal');
             const patientHistoryModal = document.getElementById('patientHistoryModal');
             const discountModal = document.getElementById('discountModal');
-            const declarationDateModal = document.getElementById('declarationDateModal');
+            const declarationTimeModal = document.getElementById('declarationTimeModal');
             if (event.target === deleteModal) {
                 closeModal('deleteModal');
             }
@@ -4436,8 +4436,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             if (event.target === discountModal) {
                 closeModal('discountModal');
             }
-            if (event.target === declarationDateModal) {
-                closeModal('declarationDateModal');
+            if (event.target === declarationTimeModal) {
+                closeModal('declarationTimeModal');
             }
         }
         function filterAppointments() {
