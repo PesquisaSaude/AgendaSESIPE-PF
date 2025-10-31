@@ -1827,6 +1827,11 @@
                 </select>
                 <small id="dentistDesc" class="sr-only">Selecione o profissional para verificar horários disponíveis.</small>
             </div>
+            <div class="button-row" id="sectionButtons" style="display: none;">
+                <button class="block-btn" id="blockDateBtn" onclick="blockSelectedDate()" disabled aria-label="Bloquear data selecionada" role="button">🔒 Bloquear Data</button>
+                <button class="agenda-mgmt-toggle" onclick="toggleAgendaMgmt()" aria-label="Gerenciar agenda" role="button">📋 Gestão de Agenda</button>
+                <button class="block-btn" id="blockProfessionalBtn" onclick="blockSelectedProfessional()" aria-label="Bloquear profissional" role="button">🔒 Bloquear Profissional</button>
+            </div>
             <div class="calendar-header">
                 <div class="month-nav">
                     <button onclick="prevMonth()" aria-label="Mês anterior" role="button">‹</button>
@@ -1839,10 +1844,6 @@
             </div>
             <div class="selected-date" id="selectedDate" style="display: none;" role="alert">
                 Data selecionada: <span id="selectedDateText"></span>
-            </div>
-            <div id="blockDateContainer" style="display: none;">
-                <button class="block-btn" id="blockDateBtn" onclick="blockSelectedDate()" disabled aria-label="Bloquear data selecionada" role="button">🔒 Bloquear Data</button>
-                <button class="block-btn" id="blockProfessionalBtn" onclick="blockSelectedProfessional()" aria-label="Bloquear profissional" role="button">🔒 Bloquear Profissional</button>
             </div>
         </div>
         <div class="section">
@@ -1897,11 +1898,6 @@
             </div>
             <div class="scheduled-column">
                 <h4>🏥 Especialidades Médicas</h4>
-                <div class="button-row">
-                    <button class="block-btn" id="blockDateBtn" onclick="blockSelectedDate()" disabled style="display:none;" aria-label="Bloquear data selecionada" role="button">🔒 Bloquear Data</button>
-                    <button class="agenda-mgmt-toggle" onclick="toggleAgendaMgmt()" aria-label="Gerenciar agenda" role="button">📋 Gestão de Agenda</button>
-                    <button class="block-btn" id="blockProfessionalBtn" onclick="blockSelectedProfessional()" aria-label="Bloquear profissional" role="button">🔒 Bloquear Profissional</button>
-                </div>
                 <div class="date-filters">
                     <label for="medicasStartDate">Data Inicial:</label>
                     <input type="date" id="medicasStartDate" onchange="debouncedFilterAppointments()" aria-label="Data inicial médica">
@@ -3704,7 +3700,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             }
             document.getElementById('selectedDate').style.display = 'block';
             document.getElementById('selectedDateText').textContent = `${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })} de ${date.getFullYear()}`;
-            document.getElementById('blockDateBtn').style.display = 'block';
+            // Mostra os botões da seção quando uma data é selecionada
+            document.getElementById('sectionButtons').style.display = 'flex';
             document.getElementById('blockDateBtn').disabled = false;
             updateScheduleButton();
             populateHours(date);
@@ -4083,7 +4080,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
             document.getElementById('hoursGrid').innerHTML = '';
             document.getElementById('selectedDate').style.display = 'none';
-            document.getElementById('blockDateBtn').style.display = 'none';
+            document.getElementById('sectionButtons').style.display = 'none';
+            document.getElementById('blockDateBtn').disabled = true;
             updateScheduleButton();
         }
         function resetToEmpty() {
