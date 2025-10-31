@@ -4065,7 +4065,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('blockDateBtn').style.display = 'none';
             updateScheduleButton();
         }
-        function clearSelections() {
+        function resetToEmpty() {
             clearCalendarSelections();
             editingId = null;
             document.getElementById('scheduleBtn').textContent = 'Agendar Consulta';
@@ -4081,18 +4081,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('firstAppointmentSelect').value = '';
             discountObj = {}; // Limpa descontos
             document.getElementById('displayedDiscounts').style.display = 'none'; // Esconde seção de descontos
+            currentAgendaType = ''; // Reset para vazio
             updateScheduleButton();
-            // Resetar para valores padrão para novo agendamento
-            const defaultAgendaType = 'Agenda Especialidades Médicas';
-            document.getElementById('agendaTypeSelect').value = defaultAgendaType;
-            currentAgendaType = defaultAgendaType;
-            populateProfessionals(defaultAgendaType, 'dentistSelect');
-            const defaultProfessionals = getProfessionals(defaultAgendaType);
-            if (defaultProfessionals.length > 0) {
-                document.getElementById('dentistSelect').value = defaultProfessionals[0];
-            }
-            generateCalendar(currentAgendaType);
-            autoSelectToday();
+            generateCalendar(currentAgendaType); // Gera calendário vazio
+            // Não seleciona profissional ou auto-seleciona dia, deixa vazio
             document.getElementById('patientName').focus();
         }
         // Debounce para filtros (evita chamadas excessivas)
@@ -4324,8 +4316,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 currentPrintId = appointment.id; // Para impressão posterior
                 updateAppointmentDatesSet();
                 showToast('Consulta agendada com sucesso! ✅');
-                // Chama clearSelections para resetar imediatamente para novo agendamento
-                clearSelections();
+                // Chama resetToEmpty para limpar todos os campos para um novo agendamento
+                resetToEmpty();
                 generateCalendar(currentAgendaType);
                 if (document.getElementById('scheduledGrid').style.display !== 'none') {
                     displayAppointments();
@@ -5007,19 +4999,9 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             editCpfInput.oninput = function() { formatCPF(this); validateEditCPF(this); };
             const editPhoneInput = document.getElementById('editPatientPhone');
             editPhoneInput.oninput = function() { formatPhone(this); validateEditPhone(this); };
-            // Inicializar calendário com tipo padrão
-            const defaultAgendaType = 'Agenda Especialidades Médicas';
-            agendaTypeSelect.value = defaultAgendaType;
-            currentAgendaType = defaultAgendaType;
-            populateProfessionals(defaultAgendaType, 'dentistSelect');
-            // Selecionar profissional padrão (primeiro disponível)
-            const defaultProfessionals = getProfessionals(defaultAgendaType);
-            if (defaultProfessionals.length > 0) {
-                document.getElementById('dentistSelect').value = defaultProfessionals[0];
-            }
+            // Inicializar calendário vazio (sem defaults)
+            currentAgendaType = '';
             generateCalendar(currentAgendaType);
-            // Auto-selecionar o dia atual (hoje) se possível, agora com tipo e profissional padrão
-            autoSelectToday();
             // Auto-focus no campo de nome do paciente
             document.getElementById('patientName').focus();
             // Listener para tecla Esc
