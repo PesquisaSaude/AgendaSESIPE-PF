@@ -71,17 +71,6 @@
             gap: 8px;
             transition: all 0.3s ease;
         }
-        .system-title {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
-            text-align: center;
-            padding: 12px;
-            margin: -15px 0 15px 0;
-            border-radius: 0 0 12px 12px;
-            font-weight: 400;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
         .container {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -1757,7 +1746,6 @@
         <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema" role="switch" aria-checked="false">🌙</button>
         <img src="img/melhoriatodobranco.png" alt="Melhoria Logo" class="header-logo" id="melhoriaLogo">
     </div>
-    <div class="system-title">Sistema de Agendamento PF - SESI Saúde</div>
     <div class="container">
         <div class="section">
             <h3>👤 Dados da Consulta</h3>
@@ -1797,20 +1785,15 @@
             <label for="observations">Observações <span class="help-tooltip">?<span class="tooltip-text">Adicione detalhes importantes sobre o paciente ou consulta.</span></span></label>
             <textarea id="observations" placeholder="Digite observações adicionais (opcional)" aria-describedby="observationsDesc"></textarea>
             <small id="observationsDesc" class="sr-only">Campo opcional para observações adicionais.</small>
-            <button class="add-discount-btn" onclick="openDiscountModal()" aria-label="Adicionar Desconto">Adicionar Desconto</button>
             <div id="displayedDiscounts" style="display:none;">
                 <h4>Descontos Aplicados:</h4>
                 <p id="industryDiscountDisplay"></p>
                 <p id="promotionalDiscountDisplay"></p>
                 <button class="close-discount-btn" onclick="closeDiscountDisplay()">Fechar</button>
             </div>
-            <button class="schedule-btn" id="scheduleBtn" onclick="saveAppointment()" disabled aria-label="Agendar consulta (desabilitado até preencher todos os campos obrigatórios)" role="button">
-                Agendar Consulta
-                <div class="spinner" id="scheduleSpinner"></div>
-            </button>
         </div>
         <div class="section">
-            <h3>🕒 Horários Disponíveis</h3>
+            <h3>Especialidades Disponíveis</h3>
             <div class="agenda-type-select">
                 <h4>📋 Selecione o Tipo de Agenda</h4>
                 <label for="agendaTypeSelect" class="sr-only">Tipo de agenda</label>
@@ -1827,12 +1810,6 @@
                 </select>
                 <small id="dentistDesc" class="sr-only">Selecione o profissional para verificar horários disponíveis.</small>
             </div>
-            <div class="hours-grid" id="hoursGrid" role="grid" aria-label="Horários disponíveis">
-                <!-- Hours will be populated by JS -->
-            </div>
-        </div>
-        <div class="section">
-            <h3>📅 Selecione uma Data</h3>
             <div class="calendar-header">
                 <div class="month-nav">
                     <button onclick="prevMonth()" aria-label="Mês anterior" role="button">‹</button>
@@ -1851,6 +1828,17 @@
                 <button class="block-btn" id="blockProfessionalBtn" onclick="blockSelectedProfessional()" aria-label="Bloquear profissional" role="button">🔒 Bloquear Profissional</button>
             </div>
             <button class="agenda-mgmt-toggle" onclick="toggleAgendaMgmt()" aria-label="Gerenciar agenda" role="button">📋 Gestão de Agenda</button>
+        </div>
+        <div class="section">
+            <h3>Selecione um Horário</h3>
+            <div class="hours-grid" id="hoursGrid" role="grid" aria-label="Horários disponíveis">
+                <!-- Hours will be populated by JS -->
+            </div>
+            <button class="add-discount-btn" onclick="openDiscountModal()" aria-label="Adicionar Desconto">Adicionar Desconto</button>
+            <button class="schedule-btn" id="scheduleBtn" onclick="saveAppointment()" disabled aria-label="Agendar consulta (desabilitado até preencher todos os campos obrigatórios)" role="button">
+                Agendar Consulta
+                <div class="spinner" id="scheduleSpinner"></div>
+            </button>
         </div>
     </div>
     <div class="agenda-mgmt-section" id="agendaMgmtSection" style="display: none;">
