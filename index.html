@@ -2262,6 +2262,7 @@
         let discountObj = {}; // Objeto global para armazenar descontos durante o agendamento
         let currentServicePrice = 0; // Preço atual do serviço para cálculos de desconto
         let currentDeclarationId = null; // Global para ID do agendamento na declaração
+        let justScheduled = false; // Flag para indicar se um agendamento foi recém-criado
         // Objeto de preços para serviços (exemplo de valores - ajuste conforme necessário)
         const prices = {
             // Combos para Especialidades Médicas
@@ -3337,6 +3338,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const printType = document.querySelector('input[name="printType"]:checked').value;
             generatePDF(currentPrintId, printType);
             closeModal('printTypeModal');
+            // Se foi um agendamento recém-criado, recarregar a página após impressão para resetar tudo
+            if (justScheduled) {
+                justScheduled = false;
+                window.location.reload();
+            }
         }
         function preparePrint(id) {
             currentPrintId = id;
@@ -4300,6 +4306,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
                 btn.classList.remove('loading');
                 spinner.style.display = 'none';
+                // Definir flag para recarregar após finalização
+                justScheduled = true;
                 // Mostrar pop-up de impressão após agendamento
                 document.getElementById('printConfirmModal').style.display = 'block';
                 focusTrap(document.getElementById('printConfirmModal'));
@@ -4433,6 +4441,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.style.display = 'none';
+            // Se for o modal de confirmação de impressão e um agendamento foi recém-criado, recarregar a página
+            if (modalId === 'printConfirmModal' && justScheduled) {
+                justScheduled = false;
+                window.location.reload();
+            }
             // Retorna foco ao botão que abriu o modal, se possível
             const triggeringButton = document.activeElement;
             if (triggeringButton && triggeringButton.classList.contains('btn-edit') || triggeringButton.classList.contains('btn-delete')) {
