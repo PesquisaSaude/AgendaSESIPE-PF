@@ -4031,12 +4031,14 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             updateScheduleButton();
         }
         function prevMonth() {
+            currentDate.setDate(1);
             currentDate.setMonth(currentDate.getMonth() - 1);
             generateCalendar(currentAgendaType);
             document.getElementById('selectedDate').style.display = 'none';
             clearCalendarSelections();
         }
         function nextMonth() {
+            currentDate.setDate(1);
             currentDate.setMonth(currentDate.getMonth() + 1);
             generateCalendar(currentAgendaType);
             document.getElementById('selectedDate').style.display = 'none';
