@@ -2737,6 +2737,8 @@
             const cnpj = apt.location && apt.location.includes('Paulista') ? '03.910.210/0025-82' : '03.910.210/0002-52';
             // Calcular preço com desconto se aplicável
             let originalPrice = prices[apt.professional] || 0;
+            let industryAmount = 0;
+            let promotionalAmount = 0;
             let discountedPrice = originalPrice;
             let industryDiscountLine = '';
             let promotionalDiscountLine = '';
@@ -2744,11 +2746,13 @@
             if (apt.discount) {
                 if (apt.discount.industry) {
                     const industryDiscount = apt.discount.industry;
+                    industryAmount = originalPrice * (industryDiscount / 100);
                     discountedPrice = originalPrice * (1 - industryDiscount / 100);
                     industryDiscountLine = `Desconto Indústria: ${industryDiscount}%`;
                 }
                 if (apt.discount.promotional) {
                     const promotionalDiscount = apt.discount.promotional;
+                    promotionalAmount = discountedPrice * (promotionalDiscount / 100);
                     discountedPrice = discountedPrice * (1 - promotionalDiscount / 100);
                     promotionalDiscountLine = `Desconto Promocional: ${promotionalDiscount}%`;
                 }
@@ -3252,8 +3256,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           </div>
                           <div class="print-summary">
                             <p><i class="fas fa-calculator"></i><span>Valor Total Original:</span> <span>R$ ${originalPrice.toFixed(2)}</span></p>
-                            ${industryDiscountLine ? `<p class="discount-line"><i class="fas fa-industry"></i><span>${industryDiscountLine}:</span> <span>R$ ${originalPrice * (apt.discount.industry / 100).toFixed(2)}</span></p>` : ''}
-                            ${promotionalDiscountLine ? `<p class="discount-line"><i class="fas fa-tag"></i><span>${promotionalDiscountLine}:</span> <span>R$ ${(originalPrice * (apt.discount.promotional / 100)).toFixed(2)}</span></p>` : ''}
+                            ${industryDiscountLine ? `<p class="discount-line"><i class="fas fa-industry"></i><span>${industryDiscountLine}:</span> <span>R$ ${industryAmount.toFixed(2)}</span></p>` : ''}
+                            ${promotionalDiscountLine ? `<p class="discount-line"><i class="fas fa-tag"></i><span>${promotionalDiscountLine}:</span> <span>R$ ${promotionalAmount.toFixed(2)}</span></p>` : ''}
                             ${promotionalPeriodLine ? `<p class="discount-line"><i class="fas fa-calendar-alt"></i><span>${promotionalPeriodLine}:</span></p>` : ''}
                             <p class="final-price"><i class="fas fa-receipt"></i><span>Total do Pagamento:</span> <span>R$ ${discountedPrice.toFixed(2)}</span></p>
                           </div>
@@ -3292,8 +3296,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             ${apt.priority ? `<p><i class="fas fa-exclamation-triangle"></i><span>Prioritário:</span> <span>${apt.priority}</span></p>` : ''}
                             ${apt.firstAppointment ? `<p><i class="fas fa-star"></i><span>1º Atendimento.:</span> <span>${apt.firstAppointment}</span></p>` : ''}
                             <p><i class="fas fa-tag"></i><span>Valor Original:</span> <span>R$ ${originalPrice.toFixed(2)}</span></p>
-                            ${industryDiscountLine ? `<p class="discount-line"><i class="fas fa-industry"></i><span>${industryDiscountLine}:</span> <span>R$ ${(originalPrice * (apt.discount.industry / 100)).toFixed(2)}</span></p>` : ''}
-                            ${promotionalDiscountLine ? `<p class="discount-line"><i class="fas fa-tag"></i><span>${promotionalDiscountLine}:</span> <span>R$ ${(originalPrice * (apt.discount.promotional / 100)).toFixed(2)}</span></p>` : ''}
+                            ${industryDiscountLine ? `<p class="discount-line"><i class="fas fa-industry"></i><span>${industryDiscountLine}:</span> <span>R$ ${industryAmount.toFixed(2)}</span></p>` : ''}
+                            ${promotionalDiscountLine ? `<p class="discount-line"><i class="fas fa-tag"></i><span>${promotionalDiscountLine}:</span> <span>R$ ${promotionalAmount.toFixed(2)}</span></p>` : ''}
                             ${promotionalPeriodLine ? `<p class="discount-line"><i class="fas fa-calendar-alt"></i><span>${promotionalPeriodLine}:</span></p>` : ''}
                             <p><i class="fas fa-receipt"></i><span>Valor Final:</span> <span>R$ ${discountedPrice.toFixed(2)}</span></p>
                             ${apt.observations ? `<p><i class="fas fa-sticky-note"></i><span>Obs.:</span> <span>${sanitizeInput(apt.observations)}</span></p>` : ''}
@@ -4693,6 +4697,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
             const firstFocusable = focusableElements[0];
             const lastFocusable = focusableElements[focusableElements.length - 1];
+            if (focusableElements.length === 0) return;
             modal.addEventListener('keydown', (e) => {
                 if (e.key === 'Tab') {
                     if (e.shiftKey) {
@@ -4708,6 +4713,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     }
                 }
             });
+            firstFocusable.focus(); // Foco inicial no primeiro elemento
         }
         // Discount Modal Functions
         function openDiscountModal() {
@@ -5420,4 +5426,3 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
     </script>
 </body>
 </html>
-
