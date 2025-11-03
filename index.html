@@ -1880,14 +1880,6 @@
         .disabled-indicator {
             background: #dc3545;
         }
-        .agenda-preview {
-            background: #e9ecef;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 10px;
-            font-size: 11px;
-            text-align: center;
-        }
     </style>
 </head>
 <body data-theme="light">
@@ -4437,7 +4429,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         <div class="accordion-content">
                             ${createProfessionalScheduleTable(type, prof)}
                             <button class="reset-global-btn" onclick="resetToGlobal('${type}', '${prof}')">Resetar para Global</button>
-                            <div class="agenda-preview" id="preview_${type.replace(/\s+/g, '_')}_${prof.replace(/\s+/g, '_')}"></div>
                         </div>
                     `;
                     customContainer.appendChild(accordion);
@@ -4455,15 +4446,9 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     if (currentAgendaType === type && selectedDay) {
                         populateHours(selectedDay);
                     }
-                    // Refresh previews
-                    professionals.forEach(prof => updatePreview(type, prof));
                 };
                 item.appendChild(saveBtn);
                 grid.appendChild(item);
-            });
-            // Initialize previews
-            agendaTypes.forEach(type => {
-                getProfessionals(type).forEach(prof => updatePreview(type, prof));
             });
         }
         function toggleAccordion(header) {
@@ -4532,7 +4517,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
             });
             displayAgendaMgmt();
-            updatePreview(type, prof);
             showToast(`Dia ${day} ${enabled ? 'ativado' : 'desativado'} para ${prof} em ${type}.`, enabled ? 'success' : 'warning');
         }
         function togglePeriodCustom(type, prof, day, periodIndex, enabled) {
@@ -4544,40 +4528,22 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 period.end = '';
             }
             displayAgendaMgmt();
-            updatePreview(type, prof);
             showToast(`${periodIndex + 1}º período ${enabled ? 'ativado' : 'desativado'} para ${prof} em ${type} no dia ${day}.`, enabled ? 'success' : 'warning');
         }
         function updatePeriodStartCustom(type, prof, day, periodIndex, value) {
             agendaSchedules[type].custom[prof][day].periods[periodIndex].start = value;
             displayAgendaMgmt();
-            updatePreview(type, prof);
         }
         function updatePeriodEndCustom(type, prof, day, periodIndex, value) {
             agendaSchedules[type].custom[prof][day].periods[periodIndex].end = value;
             displayAgendaMgmt();
-            updatePreview(type, prof);
         }
         function resetToGlobal(type, prof) {
             if (confirm(`Deseja resetar a agenda de ${prof} para a configuração global?`)) {
                 agendaSchedules[type].custom[prof] = JSON.parse(JSON.stringify(agendaSchedules[type].global));
                 displayAgendaMgmt();
-                updatePreview(type, prof);
                 showToast(`Agenda de ${prof} resetada para global em ${type}.`, 'success');
             }
-        }
-        function updatePreview(type, prof) {
-            const schedule = agendaSchedules[type].custom[prof];
-            let previewText = 'Pré-visualização de horários (Seg-Sex):<br>';
-            for (let d = 1; d <= 5; d++) {
-                const enabledPeriods = schedule[d].periods.filter(p => p.enabled && p.start && p.end);
-                if (enabledPeriods.length > 0) {
-                    previewText += `${dayNames[d-1]}: ${enabledPeriods.map(p => `${p.start}-${p.end}`).join(', ')}<br>`;
-                } else {
-                    previewText += `${dayNames[d-1]}: Desabilitado<br>`;
-                }
-            }
-            const previewEl = document.getElementById(`preview_${type.replace(/\s+/g, '_')}_${prof.replace(/\s+/g, '_')}`);
-            if (previewEl) previewEl.innerHTML = previewText;
         }
         function saveAppointment() {
             const btn = document.getElementById('scheduleBtn');
