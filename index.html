@@ -4221,11 +4221,13 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     tableHTML += `<tr><td>${periodNames[p]}</td>`;
                     for (let d = 1; d <= 5; d++) { // Only Monday to Friday (days 1-5)
                         const period = agendaSchedules[type][d]?.[p] || {start: '', end: ''};
-                        const value = formatPeriod(period);
-                        const isGray = !period.start || !period.end;
+                        const isGray = !period.start && !period.end;
                         tableHTML += `
                             <td class="${isGray ? 'gray-cell' : ''}">
-                                <input type="text" value="${value}" placeholder="HH:MM HH:MM" onchange="updatePeriod('${type}', ${d}, ${p}, this.value)" ${isGray ? 'disabled' : ''}>
+                                <div style="display: flex; gap: 5px; width: 100%;">
+                                    <input type="time" style="flex:1;" value="${period.start || ''}" onchange="updatePeriodStart('${type}', ${d}, ${p}, this.value)" ${isGray ? 'disabled' : ''}>
+                                    <input type="time" style="flex:1;" value="${period.end || ''}" onchange="updatePeriodEnd('${type}', ${d}, ${p}, this.value)" ${isGray ? 'disabled' : ''}>
+                                </div>
                             </td>
                         `;
                     }
@@ -4240,13 +4242,24 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 grid.appendChild(item);
             });
         }
-        function updatePeriod(type, day, periodIndex, value) {
-            const parsed = parsePeriodInput(value);
-            if (!agendaSchedules[type][day]) agendaSchedules[type][day] = [];
-            if (!agendaSchedules[type][day][periodIndex]) agendaSchedules[type][day][periodIndex] = {start: '', end: ''};
-            agendaSchedules[type][day][periodIndex].start = parsed.start;
-            agendaSchedules[type][day][periodIndex].end = parsed.end;
-            // Re-render table to update gray cells
+        function updatePeriodStart(type, day, periodIndex, value) {
+            if (!agendaSchedules[type][day]) {
+                agendaSchedules[type][day] = Array(3).fill().map(() => ({start: '', end: ''}));
+            }
+            if (!agendaSchedules[type][day][periodIndex]) {
+                agendaSchedules[type][day][periodIndex] = {start: '', end: ''};
+            }
+            agendaSchedules[type][day][periodIndex].start = value;
+            displayAgendaMgmt();
+        }
+        function updatePeriodEnd(type, day, periodIndex, value) {
+            if (!agendaSchedules[type][day]) {
+                agendaSchedules[type][day] = Array(3).fill().map(() => ({start: '', end: ''}));
+            }
+            if (!agendaSchedules[type][day][periodIndex]) {
+                agendaSchedules[type][day][periodIndex] = {start: '', end: ''};
+            }
+            agendaSchedules[type][day][periodIndex].end = value;
             displayAgendaMgmt();
         }
         function saveAgenda(type) {
@@ -5424,4 +5437,3 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
     </script>
 </body>
 </html>
-
