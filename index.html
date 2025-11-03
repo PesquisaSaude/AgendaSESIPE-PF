@@ -1672,7 +1672,7 @@
         }
         .agenda-table th, .agenda-table td {
             border: 1px solid #dee2e6;
-            padding: 8px;
+            padding: 12px; /* Aumentado para dar mais espaço */
             text-align: center;
             font-size: 12px;
         }
@@ -1681,10 +1681,13 @@
             color: white;
             font-weight: 500;
         }
+        .agenda-table td {
+            min-width: 180px; /* Aumentado para dar mais largura às células */
+        }
         .agenda-table td input[type="time"] {
-            width: 70px;
+            width: 90px; /* Aumentado de 70px para 90px */
             text-align: center;
-            padding: 4px;
+            padding: 6px; /* Aumentado padding */
             border: 1px solid #007bff;
             border-radius: 4px;
         }
@@ -1806,7 +1809,7 @@
             background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             color: white;
             padding: 15px;
-            cursor: pointer;
+            cursor: default; /* Remove cursor pointer do header inteiro */
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -1817,8 +1820,20 @@
         .accordion-header:hover {
             background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
         }
+        .accordion-title { /* Nova classe para o span com o nome */
+            cursor: pointer;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .accordion-title:hover {
+            transform: translateX(5px);
+        }
         .accordion-header i {
             transition: transform 0.3s ease;
+            pointer-events: none; /* Impede clique no ícone */
         }
         .accordion-header.active i {
             transform: rotate(180deg);
@@ -1866,8 +1881,9 @@
             align-items: center;
         }
         .time-input-group input {
-            width: 60px;
+            width: 90px; /* Aumentado para dar mais espaço aos inputs de horário */
             text-align: center;
+            padding: 8px; /* Aumentado padding */
         }
         .enabled-indicator {
             display: inline-block;
@@ -4422,8 +4438,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     const accordion = document.createElement('div');
                     accordion.className = 'accordion';
                     accordion.innerHTML = `
-                        <div class="accordion-header prof-accordion-header" onclick="toggleAccordion(this)">
-                            <span><i class="fas fa-user-md"></i> ${prof}</span>
+                        <div class="accordion-header prof-accordion-header">
+                            <span class="accordion-title" onclick="toggleAccordion(this.parentElement)"><i class="fas fa-user-md"></i> ${prof}</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="accordion-content">
