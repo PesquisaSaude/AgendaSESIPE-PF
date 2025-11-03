@@ -1661,6 +1661,27 @@
             margin: 0 0 10px 0;
             color: #007bff;
         }
+        .custom-agenda-section {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 6px;
+        }
+        .custom-agenda-section label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+        .custom-agenda-section div {
+            margin-top: 10px;
+        }
+        .prof-custom-list div {
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         .agenda-table {
             width: 100%;
             border-collapse: collapse;
@@ -1682,7 +1703,7 @@
             font-weight: 500;
         }
         .agenda-table td input {
-            width: 80px;
+            width: 45%;
             text-align: center;
             padding: 4px;
             border: 1px solid #007bff;
@@ -1696,6 +1717,12 @@
             background: #e9ecef;
             border-color: #adb5bd;
             cursor: not-allowed;
+        }
+        .agenda-table td:has(.gray-cell input) {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            justify-content: center;
         }
         .save-agenda-btn {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
@@ -2584,20 +2611,14 @@
             const m = minutes % 60;
             return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
         }
-        function formatPeriod(period) {
-            if (!period.start || !period.end) return '';
-            return `${period.start} ${period.end}`;
-        }
-        function parsePeriodInput(value) {
-            const parts = value.trim().split(/\s+/);
-            if (parts.length >= 2) {
-                return { start: parts[0], end: parts[1] };
+        // Updated generateSlots for day-specific and professional custom
+        function generateSlotsForDay(agendaType, dayOfWeek, selectedDate, professional = null) {
+            let periods;
+            if (professional && agendaSchedules[agendaType].custom && agendaSchedules[agendaType].custom[professional] && agendaSchedules[agendaType].custom[professional][dayOfWeek]) {
+                periods = agendaSchedules[agendaType].custom[professional][dayOfWeek];
+            } else {
+                periods = agendaSchedules[agendaType][dayOfWeek] || [];
             }
-            return { start: '', end: '' };
-        }
-        // Updated generateSlots for day-specific
-        function generateSlotsForDay(agendaType, dayOfWeek, selectedDate) {
-            const periods = agendaSchedules[agendaType]?.[dayOfWeek] || [];
             let slots = [];
             const interval = intervals[agendaType];
             periods.forEach(period => {
@@ -2612,8 +2633,8 @@
             });
             return [...new Set(slots)].sort();
         }
-        function getHoursForAgendaType(agendaType, dayOfWeek) {
-            return generateSlotsForDay(agendaType, dayOfWeek, null);
+        function getHoursForAgendaType(agendaType, dayOfWeek, professional = null) {
+            return generateSlotsForDay(agendaType, dayOfWeek, null, professional);
         }
         function getStatusText(status) {
             switch (status) {
@@ -2810,7 +2831,7 @@
             let hours;
             if (agendaType && professional) {
                 // Use day 1 (Monday) for example
-                hours = getHoursForAgendaType(agendaType, 1);
+                hours = getHoursForAgendaType(agendaType, 1, professional);
             } else if (agendaType) {
                 hours = getHoursForAgendaType(agendaType, 1);
             } else {
@@ -4035,7 +4056,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 hoursGrid.appendChild(message);
                 return;
             }
-            let hours = getHoursForAgendaType(selectedAgendaType || 'Agenda Especialidades Médicas', dayOfWeek);
+            let hours = getHoursForAgendaType(selectedAgendaType || 'Agenda Especialidades Médicas', dayOfWeek, selectedDentist);
             let bookedHours = [];
             if (selectedAgendaType && selectedDentist) {
                 bookedHours = appointments
@@ -4197,18 +4218,29 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 btn.textContent = '📋 Gestão de Agenda';
             }
         }
-        // Updated displayAgendaMgmt for table view - Only Monday to Friday
+        // Updated displayAgendaMgmt for table view with separate start/end inputs and custom professional association
         function displayAgendaMgmt() {
             const grid = document.getElementById('agendaMgmtGrid');
             grid.innerHTML = '';
             const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']; // Only Monday to Friday
             const periodNames = ['1º Período', '2º Período', '3º Período'];
             agendaTypes.forEach((type, typeIndex) => {
+                const idPrefix = type.replace(/ /g, '_').replace(/[^\w]/g, '');
                 const item = document.createElement('div');
                 item.className = `agenda-mgmt-item ${type === 'Agenda Odontológica' ? 'odontologica' : type === 'Agenda Especialidades Médicas' ? 'medicas' : ''}`;
                 let tableHTML = `
                     <h4>${type}</h4>
-                    <table class="agenda-table">
+                    <div class="custom-agenda-section">
+                        <label>
+                            <input type="checkbox" id="enableCustom_${idPrefix}" onchange="enableCustomAgendas('${type}', this.checked)">
+                            Associar configurações personalizadas a profissionais
+                        </label>
+                        <div id="profCustom_${idPrefix}" style="display:none;">
+                            <p>Profissionais com agenda personalizada:</p>
+                            <div id="profList_${idPrefix}" class="prof-custom-list"></div>
+                        </div>
+                    </div>
+                    <table class="agenda-table" id="agendaTable_${idPrefix}">
                         <thead>
                             <tr>
                                 <th>Período</th>
@@ -4220,12 +4252,12 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 for (let p = 0; p < 3; p++) {
                     tableHTML += `<tr><td>${periodNames[p]}</td>`;
                     for (let d = 1; d <= 5; d++) { // Only Monday to Friday (days 1-5)
-                        const period = agendaSchedules[type][d]?.[p] || {start: '', end: ''};
-                        const value = formatPeriod(period);
-                        const isGray = !period.start || !period.end;
+                        const period = agendaSchedules[type][d] ? agendaSchedules[type][d][p] || {start: '', end: ''} : {start: '', end: ''};
+                        const isGray = !period.start && !period.end;
                         tableHTML += `
-                            <td class="${isGray ? 'gray-cell' : ''}">
-                                <input type="text" value="${value}" placeholder="HH:MM HH:MM" onchange="updatePeriod('${type}', ${d}, ${p}, this.value)" ${isGray ? 'disabled' : ''}>
+                            <td class="${isGray ? 'gray-cell' : ''}" style="display: flex; gap: 4px; align-items: center; justify-content: center;">
+                                <input type="time" value="${period.start || ''}" placeholder="Início" onchange="updatePeriodStart('${type}', ${d}, ${p}, this.value)" ${isGray ? 'disabled' : ''} style="width: 45%;">
+                                <input type="time" value="${period.end || ''}" placeholder="Fim" onchange="updatePeriodEnd('${type}', ${d}, ${p}, this.value)" ${isGray ? 'disabled' : ''} style="width: 45%;">
                             </td>
                         `;
                     }
@@ -4240,14 +4272,66 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 grid.appendChild(item);
             });
         }
-        function updatePeriod(type, day, periodIndex, value) {
-            const parsed = parsePeriodInput(value);
+        function updatePeriodStart(type, day, p, value) {
+            ensureDay(type, day);
+            ensurePeriod(type, day, p);
+            agendaSchedules[type][day][p].start = value;
+        }
+        function updatePeriodEnd(type, day, p, value) {
+            ensureDay(type, day);
+            ensurePeriod(type, day, p);
+            agendaSchedules[type][day][p].end = value;
+        }
+        function ensureDay(type, day) {
             if (!agendaSchedules[type][day]) agendaSchedules[type][day] = [];
-            if (!agendaSchedules[type][day][periodIndex]) agendaSchedules[type][day][periodIndex] = {start: '', end: ''};
-            agendaSchedules[type][day][periodIndex].start = parsed.start;
-            agendaSchedules[type][day][periodIndex].end = parsed.end;
-            // Re-render table to update gray cells
-            displayAgendaMgmt();
+        }
+        function ensurePeriod(type, day, p) {
+            if (!agendaSchedules[type][day][p]) agendaSchedules[type][day][p] = {start: '', end: ''};
+        }
+        function enableCustomAgendas(type, enabled) {
+            const idPrefix = type.replace(/ /g, '_').replace(/[^\w]/g, '');
+            const div = document.getElementById(`profCustom_${idPrefix}`);
+            div.style.display = enabled ? 'block' : 'none';
+            if (enabled) {
+                populateProfCustom(type, idPrefix);
+            }
+        }
+        function populateProfCustom(type, idPrefix) {
+            const list = document.getElementById(`profList_${idPrefix}`);
+            list.innerHTML = '';
+            const pros = getProfessionals(type);
+            pros.forEach(prof => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '5px';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.checked = !!(agendaSchedules[type].custom && agendaSchedules[type].custom[prof]);
+                cb.onchange = (e) => associateCustomToProf(type, prof, e.target.checked);
+                const label = document.createTextNode(` ${prof}`);
+                div.appendChild(cb);
+                div.appendChild(label);
+                list.appendChild(div);
+            });
+        }
+        function associateCustomToProf(type, prof, enabled) {
+            if (enabled) {
+                if (!agendaSchedules[type].custom) agendaSchedules[type].custom = {};
+                if (!agendaSchedules[type].custom[prof]) {
+                    agendaSchedules[type].custom[prof] = {};
+                    for (let d = 0; d < 7; d++) {
+                        agendaSchedules[type].custom[prof][d] = agendaSchedules[type][d] ? [...agendaSchedules[type][d]] : [{start: '', end: ''}, {start: '', end: ''}, {start: '', end: ''}];
+                    }
+                }
+                showToast(`Configuração personalizada associada a ${prof}.`, 'success');
+            } else {
+                if (agendaSchedules[type].custom) {
+                    delete agendaSchedules[type].custom[prof];
+                    if (Object.keys(agendaSchedules[type].custom).length === 0) {
+                        delete agendaSchedules[type].custom;
+                    }
+                }
+                showToast(`Configuração personalizada removida de ${prof}.`, 'success');
+            }
         }
         function saveAgenda(type) {
             localStorage.setItem('agendaSchedules', JSON.stringify(agendaSchedules));
