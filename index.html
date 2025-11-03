@@ -4523,6 +4523,27 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             `;
             return tableHTML;
         }
+        function refreshProfessionalAccordion(type, prof) {
+            const customContainerId = `customSchedules_${type.replace(/\s+/g, '_')}`;
+            const customContainer = document.getElementById(customContainerId);
+            if (!customContainer) return;
+            const accordion = Array.from(customContainer.children).find(child => 
+                child.querySelector('.accordion-title')?.textContent.includes(prof)
+            );
+            if (!accordion) return;
+            const header = accordion.querySelector('.accordion-header');
+            const content = accordion.querySelector('.accordion-content');
+            const wasActive = content.classList.contains('active');
+            const newContentHTML = createProfessionalScheduleTable(type, prof) + 
+                '<button class="reset-global-btn" onclick="resetToGlobal(\'' + type + '\', \'' + prof + '\')">Resetar para Global</button>';
+            content.innerHTML = newContentHTML;
+            if (wasActive) {
+                content.classList.add('active');
+                header.classList.add('active');
+                header.querySelector('i').style.transform = 'rotate(180deg)';
+            }
+            showToast(`Atualização aplicada para ${prof} em ${type}.`, 'success');
+        }
         function toggleDayCustom(type, prof, day, enabled) {
             const schedule = agendaSchedules[type].custom[prof];
             schedule[day].periods.forEach(p => {
@@ -4532,7 +4553,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     p.end = '';
                 }
             });
-            displayAgendaMgmt();
+            refreshProfessionalAccordion(type, prof);
             showToast(`Dia ${day} ${enabled ? 'ativado' : 'desativado'} para ${prof} em ${type}.`, enabled ? 'success' : 'warning');
         }
         function togglePeriodCustom(type, prof, day, periodIndex, enabled) {
@@ -4543,21 +4564,21 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 period.start = '';
                 period.end = '';
             }
-            displayAgendaMgmt();
+            refreshProfessionalAccordion(type, prof);
             showToast(`${periodIndex + 1}º período ${enabled ? 'ativado' : 'desativado'} para ${prof} em ${type} no dia ${day}.`, enabled ? 'success' : 'warning');
         }
         function updatePeriodStartCustom(type, prof, day, periodIndex, value) {
             agendaSchedules[type].custom[prof][day].periods[periodIndex].start = value;
-            displayAgendaMgmt();
+            refreshProfessionalAccordion(type, prof);
         }
         function updatePeriodEndCustom(type, prof, day, periodIndex, value) {
             agendaSchedules[type].custom[prof][day].periods[periodIndex].end = value;
-            displayAgendaMgmt();
+            refreshProfessionalAccordion(type, prof);
         }
         function resetToGlobal(type, prof) {
             if (confirm(`Deseja resetar a agenda de ${prof} para a configuração global?`)) {
                 agendaSchedules[type].custom[prof] = JSON.parse(JSON.stringify(agendaSchedules[type].global));
-                displayAgendaMgmt();
+                refreshProfessionalAccordion(type, prof);
                 showToast(`Agenda de ${prof} resetada para global em ${type}.`, 'success');
             }
         }
