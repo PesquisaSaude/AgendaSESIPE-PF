@@ -1697,6 +1697,24 @@
             border-color: #adb5bd;
             cursor: not-allowed;
         }
+        .agenda-table .disabled-day {
+            background: #f5f5f5 !important;
+            opacity: 0.5;
+        }
+        .agenda-table .disabled-day input {
+            background: #f5f5f5;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+            color: #adb5bd;
+        }
+        .day-toggle {
+            margin: 0;
+            transform: scale(0.8);
+        }
+        .day-toggle-cell {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
         .save-agenda-btn {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
             color: white;
@@ -2236,96 +2254,96 @@
         let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
         let blockedDates = JSON.parse(localStorage.getItem('blockedDates')) || [];
         let blockedProfessionals = JSON.parse(localStorage.getItem('blockedProfessionals')) || [];
-        // Updated structure for day-specific schedules
+        // Updated structure for day-specific schedules with enabled flag
         let agendaSchedules = JSON.parse(localStorage.getItem('agendaSchedules')) || {
             'Agenda Odontológica': {
-                0: [], // Domingo
-                1: [ // Segunda
+                0: { enabled: false, periods: [] }, // Domingo
+                1: { enabled: true, periods: [ // Segunda
                     {start: '08:00', end: '11:00'},
                     {start: '12:00', end: '12:50'},
                     {start: '13:00', end: '17:00'}
-                ],
-                2: [ // Terça
+                ] },
+                2: { enabled: true, periods: [ // Terça
                     {start: '08:00', end: '11:00'},
                     {start: '12:00', end: '12:50'},
                     {start: '13:00', end: '17:00'}
-                ],
-                3: [ // Quarta
+                ] },
+                3: { enabled: true, periods: [ // Quarta
                     {start: '08:00', end: '11:00'},
                     {start: '12:00', end: '12:50'},
                     {start: '13:00', end: '17:00'}
-                ],
-                4: [ // Quinta
+                ] },
+                4: { enabled: true, periods: [ // Quinta
                     {start: '08:00', end: '11:00'},
                     {start: '12:00', end: '12:50'},
                     {start: '13:00', end: '17:00'}
-                ],
-                5: [ // Sexta
+                ] },
+                5: { enabled: true, periods: [ // Sexta
                     {start: '08:00', end: '11:00'},
                     {start: '12:00', end: '12:50'},
                     {start: '13:00', end: '17:00'}
-                ],
-                6: [] // Sábado
+                ] },
+                6: { enabled: false, periods: [] } // Sábado
             },
             'Agenda Especialidades Médicas': {
-                0: [],
-                1: [
+                0: { enabled: false, periods: [] },
+                1: { enabled: true, periods: [
                     {start: '07:00', end: '12:00'},
                     {start: '14:00', end: '17:00'},
                     {start: '', end: ''} // Empty for 3rd period
-                ],
+                ] },
                 // Similar for 2-5, empty for 6
-                2: [
+                2: { enabled: true, periods: [
                     {start: '07:00', end: '12:00'},
                     {start: '14:00', end: '17:00'},
                     {start: '', end: ''}
-                ],
-                3: [
+                ] },
+                3: { enabled: true, periods: [
                     {start: '07:00', end: '12:00'},
                     {start: '14:00', end: '17:00'},
                     {start: '', end: ''}
-                ],
-                4: [
+                ] },
+                4: { enabled: true, periods: [
                     {start: '07:00', end: '12:00'},
                     {start: '14:00', end: '17:00'},
                     {start: '', end: ''}
-                ],
-                5: [
+                ] },
+                5: { enabled: true, periods: [
                     {start: '07:00', end: '12:00'},
                     {start: '14:00', end: '17:00'},
                     {start: '', end: ''}
-                ],
-                6: []
+                ] },
+                6: { enabled: false, periods: [] }
             },
             'Agenda de Exames': {
-                0: [],
-                1: [
+                0: { enabled: false, periods: [] },
+                1: { enabled: true, periods: [
                     {start: '07:00', end: '12:00'},
                     {start: '14:00', end: '17:00'},
                     {start: '', end: ''}
-                ],
+                ] },
                 // Similar pattern
-                2: [
+                2: { enabled: true, periods: [
                     {start: '07:00', end: '12:00'},
                     {start: '14:00', end: '17:00'},
                     {start: '', end: ''}
-                ],
-                3: [
+                ] },
+                3: { enabled: true, periods: [
                     {start: '07:00', end: '12:00'},
                     {start: '14:00', end: '17:00'},
                     {start: '', end: ''}
-                ],
-                4: [
+                ] },
+                4: { enabled: true, periods: [
                     {start: '07:00', end: '12:00'},
                     {start: '14:00', end: '17:00'},
                     {start: '', end: ''}
-                ],
-                5: [
+                ] },
+                5: { enabled: true, periods: [
                     {start: '07:00', end: '12:00'},
                     {start: '14:00', end: '17:00'},
                     {start: '', end: ''}
-                ],
-                6: []
+                ] },
+                6: { enabled: false, periods: [] }
             }
         };
         const intervals = {
@@ -2595,9 +2613,13 @@
             }
             return { start: '', end: '' };
         }
-        // Updated generateSlots for day-specific
+        // Updated generateSlots for day-specific with enabled check
         function generateSlotsForDay(agendaType, dayOfWeek, selectedDate) {
-            const periods = agendaSchedules[agendaType]?.[dayOfWeek] || [];
+            const daySchedule = agendaSchedules[agendaType]?.[dayOfWeek];
+            if (!daySchedule || !daySchedule.enabled) {
+                return []; // No slots if day is disabled
+            }
+            const periods = daySchedule.periods || [];
             let slots = [];
             const interval = intervals[agendaType];
             periods.forEach(period => {
@@ -3689,7 +3711,9 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     const isHolidayDay = isHoliday(date);
                     const isBlockedDay = agendaType ? isBlocked(dateStr, agendaType) : false;
                     const blockReason = agendaType ? blockedDates.find(b => b.date === dateStr && b.agendaType === agendaType)?.reason : null;
-                    const isUnavailableBase = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || date < today || isBlockedDay || (agendaType && !agendaSchedules[agendaType][dayOfWeek].some(p => p.start && p.end));
+                    const daySchedule = agendaSchedules[agendaType]?.[dayOfWeek];
+                    const isDayDisabled = daySchedule && !daySchedule.enabled;
+                    const isUnavailableBase = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || date < today || isBlockedDay || isDayDisabled || (agendaType && !daySchedule?.enabled);
                     if (isUnavailableBase) {
                         dayElement.classList.add('unavailable');
                         if (isHolidayDay) {
@@ -3700,6 +3724,9 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             dayElement.classList.add('blocked');
                             dayElement.title = `Data bloqueada para ${agendaType}: ${blockReason}`;
                             dayElement.setAttribute('aria-label', `Data bloqueada para ${agendaType}: ${blockReason} - ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
+                        } else if (isDayDisabled) {
+                            dayElement.title = `Dia da semana desativado para ${agendaType}.`;
+                            dayElement.setAttribute('aria-label', `Dia da semana desativado para ${agendaType} - ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
                         } else if (!agendaSchedules[agendaType]?.[dayOfWeek]?.some(p => p.start && p.end)) {
                             dayElement.title = `Sem disponibilidade para ${agendaType} neste dia da semana.`;
                         }
@@ -3738,7 +3765,12 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 return;
             }
             const dayOfWeek = date.getDay();
-            if (selectedAgendaType && !agendaSchedules[selectedAgendaType][dayOfWeek].some(p => p.start && p.end)) {
+            const daySchedule = agendaSchedules[selectedAgendaType]?.[dayOfWeek];
+            if (selectedAgendaType && (!daySchedule || !daySchedule.enabled)) {
+                showToast(`Sem disponibilidade para ${selectedAgendaType} neste dia da semana (desativado).`, 'error');
+                return;
+            }
+            if (selectedAgendaType && !daySchedule?.periods?.some(p => p.start && p.end)) {
                 showToast(`Sem disponibilidade para ${selectedAgendaType} neste dia da semana.`, 'error');
                 return;
             }
@@ -3779,8 +3811,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         const isHolidayDay = isHoliday(testDate);
                         const selectedAgendaType = document.getElementById('agendaTypeSelect').value;
                         const isBlockedDay = selectedAgendaType ? isBlocked(dateStr, selectedAgendaType) : false;
-                        const hasSchedule = selectedAgendaType ? agendaSchedules[selectedAgendaType][dayOfWeek].some(p => p.start && p.end) : true;
-                        const isUnavailable = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || testDate < today || isBlockedDay || !hasSchedule;
+                        const daySchedule = selectedAgendaType ? agendaSchedules[selectedAgendaType][dayOfWeek] : null;
+                        const isDayDisabled = daySchedule && !daySchedule.enabled;
+                        const hasSchedule = selectedAgendaType ? (daySchedule?.enabled && daySchedule?.periods?.some(p => p.start && p.end)) : true;
+                        const isUnavailable = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || testDate < today || isBlockedDay || isDayDisabled || !hasSchedule;
                         if (!isUnavailable) {
                             selectDay(testDate, day);
                             day.focus();
@@ -4025,7 +4059,18 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 hoursGrid.appendChild(message);
                 return;
             }
-            if (selectedAgendaType && !agendaSchedules[selectedAgendaType][dayOfWeek].some(p => p.start && p.end)) {
+            const daySchedule = agendaSchedules[selectedAgendaType]?.[dayOfWeek];
+            if (selectedAgendaType && (!daySchedule || !daySchedule.enabled)) {
+                const message = document.createElement('div');
+                message.textContent = 'Sem disponibilidade para este tipo de agenda neste dia da semana (desativado).';
+                message.style.textAlign = 'center';
+                message.style.padding = '20px';
+                message.style.color = '#ffc107';
+                message.style.fontWeight = 'bold';
+                hoursGrid.appendChild(message);
+                return;
+            }
+            if (selectedAgendaType && !daySchedule?.periods?.some(p => p.start && p.end)) {
                 const message = document.createElement('div');
                 message.textContent = 'Sem disponibilidade para este tipo de agenda neste dia da semana.';
                 message.style.textAlign = 'center';
@@ -4197,7 +4242,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 btn.textContent = '📋 Gestão de Agenda';
             }
         }
-        // Updated displayAgendaMgmt for table view - Only Monday to Friday
+        // Updated displayAgendaMgmt for table view with day toggles - Only Monday to Friday
         function displayAgendaMgmt() {
             const grid = document.getElementById('agendaMgmtGrid');
             grid.innerHTML = '';
@@ -4212,7 +4257,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         <thead>
                             <tr>
                                 <th>Período</th>
-                                ${dayNames.map(day => `<th>${day}</th>`).join('')}
+                                ${dayNames.map((day, dayIndex) => `<th>${day}<br><input type="checkbox" class="day-toggle" ${agendaSchedules[type][dayIndex + 1].enabled ? 'checked' : ''} onchange="toggleDay('${type}', ${dayIndex + 1}, this.checked)" aria-label="Ativar/Desativar ${day}"></th>`).join('')}
                             </tr>
                         </thead>
                         <tbody>
@@ -4220,13 +4265,15 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 for (let p = 0; p < 3; p++) {
                     tableHTML += `<tr><td>${periodNames[p]}</td>`;
                     for (let d = 1; d <= 5; d++) { // Only Monday to Friday (days 1-5)
-                        const period = agendaSchedules[type][d]?.[p] || {start: '', end: ''};
-                        const isGray = !period.start && !period.end;
+                        const daySchedule = agendaSchedules[type][d] || { enabled: false, periods: Array(3).fill({start: '', end: ''}) };
+                        const period = daySchedule.periods[p] || {start: '', end: ''};
+                        const isDisabledDay = !daySchedule.enabled;
+                        const isGray = isDisabledDay || (!period.start && !period.end);
                         tableHTML += `
-                            <td class="${isGray ? 'gray-cell' : ''}">
+                            <td class="${isDisabledDay ? 'disabled-day' : ''} ${isGray ? 'gray-cell' : ''}">
                                 <div style="display: flex; gap: 5px; width: 100%;">
-                                    <input type="time" style="flex:1;" value="${period.start || ''}" onchange="updatePeriodStart('${type}', ${d}, ${p}, this.value)" ${isGray ? 'disabled' : ''}>
-                                    <input type="time" style="flex:1;" value="${period.end || ''}" onchange="updatePeriodEnd('${type}', ${d}, ${p}, this.value)" ${isGray ? 'disabled' : ''}>
+                                    <input type="time" style="flex:1;" value="${period.start || ''}" onchange="updatePeriodStart('${type}', ${d}, ${p}, this.value)" ${isDisabledDay || isGray ? 'disabled' : ''}>
+                                    <input type="time" style="flex:1;" value="${period.end || ''}" onchange="updatePeriodEnd('${type}', ${d}, ${p}, this.value)" ${isDisabledDay || isGray ? 'disabled' : ''}>
                                 </div>
                             </td>
                         `;
@@ -4242,24 +4289,36 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 grid.appendChild(item);
             });
         }
-        function updatePeriodStart(type, day, periodIndex, value) {
+        function toggleDay(type, day, enabled) {
             if (!agendaSchedules[type][day]) {
-                agendaSchedules[type][day] = Array(3).fill().map(() => ({start: '', end: ''}));
+                agendaSchedules[type][day] = { enabled: false, periods: Array(3).fill({start: '', end: ''}) };
             }
-            if (!agendaSchedules[type][day][periodIndex]) {
-                agendaSchedules[type][day][periodIndex] = {start: '', end: ''};
+            agendaSchedules[type][day].enabled = enabled;
+            if (!enabled) {
+                // When disabling, clear all periods for that day
+                agendaSchedules[type][day].periods = Array(3).fill({start: '', end: ''});
             }
-            agendaSchedules[type][day][periodIndex].start = value;
+            // Refresh the display to reflect changes
+            displayAgendaMgmt();
+            // Optionally save immediately or prompt
+            showToast(`Dia ${day} ${enabled ? 'ativado' : 'desativado'} para ${type}.`, enabled ? 'success' : 'warning');
+        }
+        function updatePeriodStart(type, day, periodIndex, value) {
+            const daySchedule = agendaSchedules[type][day] || { enabled: true, periods: Array(3).fill({start: '', end: ''}) };
+            if (!daySchedule.periods[periodIndex]) {
+                daySchedule.periods[periodIndex] = {start: '', end: ''};
+            }
+            daySchedule.periods[periodIndex].start = value;
+            agendaSchedules[type][day] = daySchedule;
             displayAgendaMgmt();
         }
         function updatePeriodEnd(type, day, periodIndex, value) {
-            if (!agendaSchedules[type][day]) {
-                agendaSchedules[type][day] = Array(3).fill().map(() => ({start: '', end: ''}));
+            const daySchedule = agendaSchedules[type][day] || { enabled: true, periods: Array(3).fill({start: '', end: ''}) };
+            if (!daySchedule.periods[periodIndex]) {
+                daySchedule.periods[periodIndex] = {start: '', end: ''};
             }
-            if (!agendaSchedules[type][day][periodIndex]) {
-                agendaSchedules[type][day][periodIndex] = {start: '', end: ''};
-            }
-            agendaSchedules[type][day][periodIndex].end = value;
+            daySchedule.periods[periodIndex].end = value;
+            agendaSchedules[type][day] = daySchedule;
             displayAgendaMgmt();
         }
         function saveAgenda(type) {
@@ -4303,7 +4362,14 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     spinner.style.display = 'none';
                     return;
                 }
-                if (!agendaSchedules[agendaType][dayOfWeek].some(p => p.start && p.end)) {
+                const daySchedule = agendaSchedules[agendaType][dayOfWeek];
+                if (!daySchedule?.enabled) {
+                    showToast(`Não é possível agendar: Dia da semana desativado para ${agendaType}.`, 'error');
+                    btn.classList.remove('loading');
+                    spinner.style.display = 'none';
+                    return;
+                }
+                if (!daySchedule?.periods?.some(p => p.start && p.end)) {
                     showToast(`Sem disponibilidade para ${agendaType} neste dia da semana.`, 'error');
                     btn.classList.remove('loading');
                     spinner.style.display = 'none';
@@ -4433,7 +4499,12 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 showToast(`Não é possível agendar em data bloqueada para ${agendaType}: ${reason}.`, 'error');
                 return;
             }
-            if (!agendaSchedules[agendaType][newDayOfWeek].some(p => p.start && p.end)) {
+            const daySchedule = agendaSchedules[agendaType][newDayOfWeek];
+            if (!daySchedule?.enabled) {
+                showToast(`Não é possível agendar: Dia da semana desativado para ${agendaType}.`, 'error');
+                return;
+            }
+            if (!daySchedule?.periods?.some(p => p.start && p.end)) {
                 showToast(`Sem disponibilidade para ${agendaType} neste dia da semana.`, 'error');
                 return;
             }
