@@ -1789,6 +1789,105 @@
             color: #28a745;
             font-size: 13px;
         }
+
+        /* Melhorias no Gestor de Agenda */
+        .accordion {
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .accordion:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .accordion-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .accordion-header:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        }
+        .accordion-header i {
+            transition: transform 0.3s ease;
+        }
+        .accordion-header.active i {
+            transform: rotate(180deg);
+        }
+        .accordion-content {
+            display: none;
+            padding: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .accordion-content.active {
+            display: block;
+        }
+        .prof-accordion-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        .prof-accordion-header:hover {
+            background: linear-gradient(135deg, #20c997 0%, #1e7e34 100%);
+        }
+        .period-icon {
+            font-size: 16px;
+            margin-right: 8px;
+        }
+        .period-morning { color: #ffc107; }
+        .period-lunch { color: #fd7e14; }
+        .period-afternoon { color: #0d6efd; }
+        .reset-global-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+        .reset-global-btn:hover {
+            background: #5a6268;
+            transform: scale(1.05);
+        }
+        .time-input-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .time-input-group input {
+            width: 60px;
+            text-align: center;
+        }
+        .enabled-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+            margin-left: 5px;
+        }
+        .disabled-indicator {
+            background: #dc3545;
+        }
+        .agenda-preview {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 11px;
+            text-align: center;
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -4308,13 +4407,19 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         }
         const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'];
         const periodNames = ['1º Período', '2º Período', '3º Período'];
-        // Updated displayAgendaMgmt for table view with day toggles and per-period toggles - Only Monday to Friday, plus per-professional customs
+        // Icons for periods
+        const periodIcons = ['☀️', '🍽️', '🌅'];
+        const periodColors = ['period-morning', 'period-lunch', 'period-afternoon'];
+        // Updated displayAgendaMgmt for accordion-based view with day toggles and per-period toggles - Only Monday to Friday, plus per-professional customs
         function displayAgendaMgmt() {
             const grid = document.getElementById('agendaMgmtGrid');
             grid.innerHTML = '';
             agendaTypes.forEach((type, typeIndex) => {
                 const item = document.createElement('div');
                 item.className = `agenda-mgmt-item ${type === 'Agenda Odontológica' ? 'odontologica' : type === 'Agenda Especialidades Médicas' ? 'medicas' : ''}`;
+                item.innerHTML = `
+                    <h4>${type} <span style="font-size: 12px; color: #6c757d;">(Clique nos profissionais para expandir)</span></h4>
+                `;
                 const professionalCustoms = document.createElement('div');
                 professionalCustoms.className = 'professional-customs';
                 professionalCustoms.innerHTML = '<h5>Configurações Personalizadas por Profissional</h5>';
@@ -4322,12 +4427,20 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 customContainer.id = `customSchedules_${type.replace(/\s+/g, '_')}`;
                 const professionals = getProfessionals(type);
                 professionals.forEach(prof => {
-                    const checkDiv = document.createElement('div');
-                    checkDiv.className = 'prof-checkbox';
-                    checkDiv.dataset.prof = prof;
-                    const tableDiv = createProfessionalScheduleTable(type, prof);
-                    checkDiv.appendChild(tableDiv);
-                    customContainer.appendChild(checkDiv);
+                    const accordion = document.createElement('div');
+                    accordion.className = 'accordion';
+                    accordion.innerHTML = `
+                        <div class="accordion-header prof-accordion-header" onclick="toggleAccordion(this)">
+                            <span><i class="fas fa-user-md"></i> ${prof}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="accordion-content">
+                            ${createProfessionalScheduleTable(type, prof)}
+                            <button class="reset-global-btn" onclick="resetToGlobal('${type}', '${prof}')">Resetar para Global</button>
+                            <div class="agenda-preview" id="preview_${type.replace(/\s+/g, '_')}_${prof.replace(/\s+/g, '_')}"></div>
+                        </div>
+                    `;
+                    customContainer.appendChild(accordion);
                 });
                 professionalCustoms.appendChild(customContainer);
                 item.appendChild(professionalCustoms);
@@ -4342,14 +4455,25 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     if (currentAgendaType === type && selectedDay) {
                         populateHours(selectedDay);
                     }
+                    // Refresh previews
+                    professionals.forEach(prof => updatePreview(type, prof));
                 };
                 item.appendChild(saveBtn);
                 grid.appendChild(item);
             });
+            // Initialize previews
+            agendaTypes.forEach(type => {
+                getProfessionals(type).forEach(prof => updatePreview(type, prof));
+            });
+        }
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('i');
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+            icon.style.transform = header.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
         }
         function createProfessionalScheduleTable(type, prof) {
-            const div = document.createElement('div');
-            div.className = 'prof-table';
             const schedule = agendaSchedules[type].custom[prof];
             let tableHTML = `
                 <h6>Agenda Personalizada para ${prof}</h6>
@@ -4357,24 +4481,35 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     <thead>
                         <tr>
                             <th>Período</th>
-                            ${dayNames.map((day, dayIndex) => `<th>${day}<br><input type="checkbox" class="day-toggle" ${schedule[dayIndex + 1].periods.every(p => p.enabled) ? 'checked' : ''} onchange="toggleDayCustom('${type}', '${prof}', ${dayIndex + 1}, this.checked)" aria-label="Ativar/Desativar ${day} para ${prof}"></th>`).join('')}
+                            ${dayNames.map((day, dayIndex) => `
+                                <th>
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+                                        ${day}
+                                        <input type="checkbox" class="day-toggle" ${schedule[dayIndex + 1].periods.every(p => p.enabled) ? 'checked' : ''} onchange="toggleDayCustom('${type}', '${prof}', ${dayIndex + 1}, this.checked)" aria-label="Ativar/Desativar ${day} para ${prof}">
+                                        <span class="enabled-indicator ${schedule[dayIndex + 1].periods.every(p => p.enabled) ? '' : 'disabled-indicator'}"></span>
+                                    </div>
+                                </th>
+                            `).join('')}
                         </tr>
                     </thead>
                     <tbody>
             `;
             for (let p = 0; p < 3; p++) {
-                tableHTML += `<tr><td>${periodNames[p]}</td>`;
+                tableHTML += `<tr><td><span class="period-icon ${periodColors[p]}">${periodIcons[p]}</span>${periodNames[p]}</td>`;
                 for (let d = 1; d <= 5; d++) {
                     const daySchedule = schedule[d] || { periods: Array(3).fill({enabled: false, start: '', end: ''}) };
                     const period = daySchedule.periods[p] || {enabled: false, start: '', end: ''};
                     const isDisabledPeriod = !period.enabled;
                     const isGray = isDisabledPeriod || (!period.start && !period.end);
+                    const indicatorClass = period.enabled ? '' : 'disabled-indicator';
                     tableHTML += `
                         <td class="${isDisabledPeriod ? 'disabled-day' : ''} ${isGray ? 'gray-cell' : ''}">
-                            <div style="display: flex; gap: 5px; width: 100%;">
+                            <div class="time-input-group">
                                 <input type="checkbox" class="period-toggle" ${period.enabled ? 'checked' : ''} onchange="togglePeriodCustom('${type}', '${prof}', ${d}, ${p}, this.checked)" aria-label="Ativar/Desativar ${periodNames[p]} para ${prof}">
-                                <input type="time" style="flex:1;" value="${period.start || ''}" onchange="updatePeriodStartCustom('${type}', '${prof}', ${d}, ${p}, this.value)" ${isDisabledPeriod ? 'disabled' : ''}>
-                                <input type="time" style="flex:1;" value="${period.end || ''}" onchange="updatePeriodEndCustom('${type}', '${prof}', ${d}, ${p}, this.value)" ${isDisabledPeriod ? 'disabled' : ''}>
+                                <input type="time" value="${period.start || ''}" onchange="updatePeriodStartCustom('${type}', '${prof}', ${d}, ${p}, this.value)" ${isDisabledPeriod ? 'disabled' : ''}>
+                                <span>-</span>
+                                <input type="time" value="${period.end || ''}" onchange="updatePeriodEndCustom('${type}', '${prof}', ${d}, ${p}, this.value)" ${isDisabledPeriod ? 'disabled' : ''}>
+                                <span class="enabled-indicator ${indicatorClass}"></span>
                             </div>
                         </td>
                     `;
@@ -4385,8 +4520,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     </tbody>
                 </table>
             `;
-            div.innerHTML = tableHTML;
-            return div;
+            return tableHTML;
         }
         function toggleDayCustom(type, prof, day, enabled) {
             const schedule = agendaSchedules[type].custom[prof];
@@ -4398,6 +4532,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
             });
             displayAgendaMgmt();
+            updatePreview(type, prof);
             showToast(`Dia ${day} ${enabled ? 'ativado' : 'desativado'} para ${prof} em ${type}.`, enabled ? 'success' : 'warning');
         }
         function togglePeriodCustom(type, prof, day, periodIndex, enabled) {
@@ -4409,15 +4544,40 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 period.end = '';
             }
             displayAgendaMgmt();
+            updatePreview(type, prof);
             showToast(`${periodIndex + 1}º período ${enabled ? 'ativado' : 'desativado'} para ${prof} em ${type} no dia ${day}.`, enabled ? 'success' : 'warning');
         }
         function updatePeriodStartCustom(type, prof, day, periodIndex, value) {
             agendaSchedules[type].custom[prof][day].periods[periodIndex].start = value;
             displayAgendaMgmt();
+            updatePreview(type, prof);
         }
         function updatePeriodEndCustom(type, prof, day, periodIndex, value) {
             agendaSchedules[type].custom[prof][day].periods[periodIndex].end = value;
             displayAgendaMgmt();
+            updatePreview(type, prof);
+        }
+        function resetToGlobal(type, prof) {
+            if (confirm(`Deseja resetar a agenda de ${prof} para a configuração global?`)) {
+                agendaSchedules[type].custom[prof] = JSON.parse(JSON.stringify(agendaSchedules[type].global));
+                displayAgendaMgmt();
+                updatePreview(type, prof);
+                showToast(`Agenda de ${prof} resetada para global em ${type}.`, 'success');
+            }
+        }
+        function updatePreview(type, prof) {
+            const schedule = agendaSchedules[type].custom[prof];
+            let previewText = 'Pré-visualização de horários (Seg-Sex):<br>';
+            for (let d = 1; d <= 5; d++) {
+                const enabledPeriods = schedule[d].periods.filter(p => p.enabled && p.start && p.end);
+                if (enabledPeriods.length > 0) {
+                    previewText += `${dayNames[d-1]}: ${enabledPeriods.map(p => `${p.start}-${p.end}`).join(', ')}<br>`;
+                } else {
+                    previewText += `${dayNames[d-1]}: Desabilitado<br>`;
+                }
+            }
+            const previewEl = document.getElementById(`preview_${type.replace(/\s+/g, '_')}_${prof.replace(/\s+/g, '_')}`);
+            if (previewEl) previewEl.innerHTML = previewText;
         }
         function saveAppointment() {
             const btn = document.getElementById('scheduleBtn');
