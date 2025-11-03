@@ -1639,6 +1639,24 @@
             margin-top: 20px;
             transition: all 0.3s ease;
         }
+        .holiday-reminder {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .holiday-reminder h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .holiday-reminder p {
+            margin: 5px 0;
+            font-size: 12px;
+            color: #d39e00;
+            line-height: 1.4;
+        }
         .agenda-mgmt-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -1650,6 +1668,12 @@
             padding: 15px;
             border-radius: 8px;
             border-left: 4px solid #007bff;
+        }
+        .agenda-mgmt-item.odontologica {
+            border-left-color: #28a745;
+        }
+        .agenda-mgmt-item.medicas {
+            border-left-color: #17a2b8;
         }
         .agenda-mgmt-item h4 {
             margin: 0 0 10px 0;
@@ -1845,6 +1869,10 @@
     </div>
     <div class="agenda-mgmt-section" id="agendaMgmtSection" style="display: none;">
         <h3>📋 Gestão de Agenda (Inspirado em SOC S+)</h3>
+        <div class="holiday-reminder">
+            <h4>📅 Lembrete: Feriados Nacionais (2025)</h4>
+            <div id="holidayList"></div>
+        </div>
         <button class="toggle-scheduled-btn" onclick="toggleAgendaMgmt()" aria-label="Fechar gestão de agenda" role="button">Fechar</button>
         <div class="agenda-mgmt-grid" id="agendaMgmtGrid">
             <!-- Populated by JS -->
@@ -4191,15 +4219,19 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 btn.textContent = '📋 Gestão de Agenda';
             }
         }
-        // Updated displayAgendaMgmt for table view
+        // Updated displayAgendaMgmt for table view - Only Monday to Friday, with holiday reminder
         function displayAgendaMgmt() {
             const grid = document.getElementById('agendaMgmtGrid');
+            const holidayList = document.getElementById('holidayList');
+            // Populate holiday reminder for current year (2025)
+            const currentYearHolidays = holidays.filter(h => h.getFullYear() === 2025);
+            holidayList.innerHTML = currentYearHolidays.map(h => `<p>${h.toLocaleDateString('pt-BR')} - ${getHolidayName(h)}</p>`).join('');
             grid.innerHTML = '';
-            const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            const dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']; // Only Monday to Friday
             const periodNames = ['1º Período', '2º Período', '3º Período'];
-            agendaTypes.forEach(type => {
+            agendaTypes.forEach((type, typeIndex) => {
                 const item = document.createElement('div');
-                item.className = 'agenda-mgmt-item';
+                item.className = `agenda-mgmt-item ${type === 'Agenda Odontológica' ? 'odontologica' : type === 'Agenda Especialidades Médicas' ? 'medicas' : ''}`;
                 let tableHTML = `
                     <h4>${type}</h4>
                     <table class="agenda-table">
@@ -4213,7 +4245,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 `;
                 for (let p = 0; p < 3; p++) {
                     tableHTML += `<tr><td>${periodNames[p]}</td>`;
-                    for (let d = 0; d < 7; d++) {
+                    for (let d = 1; d <= 5; d++) { // Only Monday to Friday (days 1-5)
                         const period = agendaSchedules[type][d]?.[p] || {start: '', end: ''};
                         const value = formatPeriod(period);
                         const isGray = !period.start || !period.end;
