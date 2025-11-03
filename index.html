@@ -1897,6 +1897,19 @@
         .disabled-indicator {
             background: #dc3545;
         }
+        .duration-row {
+            border-top: 2px solid #007bff;
+            background: #f8f9fa;
+        }
+        .duration-row td {
+            text-align: right;
+            padding: 15px;
+            font-weight: bold;
+        }
+        .duration-row input {
+            width: 80px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -2521,21 +2534,27 @@
                 const type = 'Agenda Odontológica';
                 if (!agendaSchedules[type].custom) agendaSchedules[type].custom = {};
                 if (!agendaSchedules[type].custom[prof]) {
-                    agendaSchedules[type].custom[prof] = JSON.parse(JSON.stringify(agendaSchedules[type].global));
+                    const schedule = JSON.parse(JSON.stringify(agendaSchedules[type].global));
+                    schedule.duration = professionalDurations[prof] || intervals[type];
+                    agendaSchedules[type].custom[prof] = schedule;
                 }
             });
             medicalSpecialists.forEach(prof => {
                 const type = 'Agenda Especialidades Médicas';
                 if (!agendaSchedules[type].custom) agendaSchedules[type].custom = {};
                 if (!agendaSchedules[type].custom[prof]) {
-                    agendaSchedules[type].custom[prof] = JSON.parse(JSON.stringify(agendaSchedules[type].global));
+                    const schedule = JSON.parse(JSON.stringify(agendaSchedules[type].global));
+                    schedule.duration = professionalDurations[prof] || intervals[type];
+                    agendaSchedules[type].custom[prof] = schedule;
                 }
             });
             examSpecialists.forEach(prof => {
                 const type = 'Agenda de Exames';
                 if (!agendaSchedules[type].custom) agendaSchedules[type].custom = {};
                 if (!agendaSchedules[type].custom[prof]) {
-                    agendaSchedules[type].custom[prof] = JSON.parse(JSON.stringify(agendaSchedules[type].global));
+                    const schedule = JSON.parse(JSON.stringify(agendaSchedules[type].global));
+                    schedule.duration = professionalDurations[prof] || intervals[type];
+                    agendaSchedules[type].custom[prof] = schedule;
                 }
             });
         }
@@ -2816,7 +2835,7 @@
             const enabledPeriods = daySchedule.periods.filter(p => p.enabled && p.start && p.end);
             if (enabledPeriods.length === 0) return [];
             let slots = [];
-            const interval = intervals[agendaType];
+            const interval = getDuration(agendaType, professional) || intervals[agendaType];
             enabledPeriods.forEach(period => {
                 let currentMin = parseTime(period.start);
                 const endMin = parseTime(period.end);
@@ -2826,6 +2845,10 @@
                 }
             });
             return [...new Set(slots)].sort();
+        }
+        function getDuration(agendaType, professional) {
+            if (!agendaSchedules[agendaType] || !agendaSchedules[agendaType].custom || !agendaSchedules[agendaType].custom[professional]) return null;
+            return agendaSchedules[agendaType].custom[professional].duration;
         }
         function getHoursFor(agendaType, dayOfWeek, professional = null) {
             return generateSlotsForDay(agendaType, dayOfWeek, professional);
@@ -4493,6 +4516,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                                     </div>
                                 </th>
                             `).join('')}
+                            <th>Tempo de Atendimento (min)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -4517,13 +4541,32 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         </td>
                     `;
                 }
-                tableHTML += '</tr>';
+                tableHTML += `<td></td></tr>`;
             }
             tableHTML += `
                     </tbody>
+                    <tr class="duration-row">
+                        <td colspan="6" style="text-align: right; padding: 15px;">
+                            <label>Tempo de Atendimento: <input type="number" min="5" max="120" value="${schedule.duration || intervals[type]}" onchange="updateDuration('${type}', '${prof}', this.value)" style="width: 80px; margin-left: 10px;"> minutos</label>
+                        </td>
+                    </tr>
                 </table>
             `;
             return tableHTML;
+        }
+        function updateDuration(type, prof, value) {
+            const numValue = parseInt(value);
+            if (isNaN(numValue) || numValue < 5 || numValue > 120) {
+                showToast('Tempo deve ser entre 5 e 120 minutos.', 'error');
+                return;
+            }
+            agendaSchedules[type].custom[prof].duration = numValue;
+            refreshProfessionalAccordion(type, prof);
+            showToast(`Tempo de atendimento atualizado para ${prof}: ${numValue} min`, 'success');
+            // If current, update hours
+            if (currentAgendaType === type && selectedDay && document.getElementById('dentistSelect').value === prof) {
+                populateHours(selectedDay);
+            }
         }
         function refreshProfessionalAccordion(type, prof) {
             const customContainerId = `customSchedules_${type.replace(/\s+/g, '_')}`;
@@ -4588,6 +4631,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         function resetToGlobal(type, prof) {
             if (confirm(`Deseja resetar a agenda de ${prof} para a configuração global?`)) {
                 agendaSchedules[type].custom[prof] = JSON.parse(JSON.stringify(agendaSchedules[type].global));
+                agendaSchedules[type].custom[prof].duration = professionalDurations[prof] || intervals[type];
                 refreshProfessionalAccordion(type, prof);
                 showToast(`Agenda de ${prof} resetada para global em ${type}.`, 'success');
             }
