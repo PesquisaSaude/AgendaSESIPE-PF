@@ -1630,7 +1630,7 @@
             transform: translateY(-2px) scale(1.02);
             box-shadow: 0 6px 20px rgba(23, 162, 184, 0.3);
         }
-        /* Agenda Management Styles */
+        /* Agenda Management Styles - Updated for Table View */
         .agenda-mgmt-section {
             background: var(--bg-secondary);
             border-radius: 12px;
@@ -1641,7 +1641,7 @@
         }
         .agenda-mgmt-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: 1fr;
             gap: 20px;
             margin-top: 15px;
         }
@@ -1655,57 +1655,41 @@
             margin: 0 0 10px 0;
             color: #007bff;
         }
-        .agenda-mgmt-item input {
-            margin-bottom: 10px;
-        }
-        .periods-container {
+        .agenda-table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 10px;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 10px;
-            min-height: 100px;
-        }
-        .period-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr auto;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 10px;
-            padding: 8px;
             background: white;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        .period-row:last-child {
-            margin-bottom: 0;
-        }
-        .period-row input {
-            margin-bottom: 0;
-            width: auto;
-        }
-        .add-period-btn, .delete-period-btn {
-            padding: 4px 8px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+        .agenda-table th, .agenda-table td {
+            border: 1px solid #dee2e6;
+            padding: 8px;
+            text-align: center;
             font-size: 12px;
-            transition: all 0.3s ease;
         }
-        .add-period-btn {
-            background: #28a745;
+        .agenda-table th {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             color: white;
+            font-weight: 500;
         }
-        .add-period-btn:hover {
-            background: #218838;
-            transform: scale(1.05);
+        .agenda-table td input {
+            width: 80px;
+            text-align: center;
+            padding: 4px;
+            border: 1px solid #007bff;
+            border-radius: 4px;
         }
-        .delete-period-btn {
-            background: #dc3545;
-            color: white;
+        .agenda-table .gray-cell {
+            background: #e9ecef;
+            color: #adb5bd;
         }
-        .delete-period-btn:hover {
-            background: #c82333;
-            transform: scale(1.05);
+        .agenda-table .gray-cell input {
+            background: #e9ecef;
+            border-color: #adb5bd;
+            cursor: not-allowed;
         }
         .save-agenda-btn {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
@@ -1716,6 +1700,7 @@
             cursor: pointer;
             font-size: 14px;
             transition: all 0.3s ease;
+            margin-top: 10px;
         }
         .save-agenda-btn:hover {
             transform: translateY(-2px);
@@ -2245,20 +2230,102 @@
         let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
         let blockedDates = JSON.parse(localStorage.getItem('blockedDates')) || [];
         let blockedProfessionals = JSON.parse(localStorage.getItem('blockedProfessionals')) || [];
-        // Updated structure for agendaSchedules: array of periods per type
+        // Updated structure for day-specific schedules
         let agendaSchedules = JSON.parse(localStorage.getItem('agendaSchedules')) || {
-            'Agenda Odontológica': [
-                { startHour: 7, endHour: 12, interval: 20 },
-                { startHour: 14, endHour: 18, interval: 20 }
-            ],
-            'Agenda Especialidades Médicas': [
-                { startHour: 7, endHour: 12, interval: 30 },
-                { startHour: 14, endHour: 17, interval: 30 }
-            ],
-            'Agenda de Exames': [
-                { startHour: 7, endHour: 12, interval: 20 },
-                { startHour: 14, endHour: 17, interval: 20 }
-            ]
+            'Agenda Odontológica': {
+                0: [], // Domingo
+                1: [ // Segunda
+                    {start: '08:00', end: '11:00'},
+                    {start: '12:00', end: '12:50'},
+                    {start: '13:00', end: '17:00'}
+                ],
+                2: [ // Terça
+                    {start: '08:00', end: '11:00'},
+                    {start: '12:00', end: '12:50'},
+                    {start: '13:00', end: '17:00'}
+                ],
+                3: [ // Quarta
+                    {start: '08:00', end: '11:00'},
+                    {start: '12:00', end: '12:50'},
+                    {start: '13:00', end: '17:00'}
+                ],
+                4: [ // Quinta
+                    {start: '08:00', end: '11:00'},
+                    {start: '12:00', end: '12:50'},
+                    {start: '13:00', end: '17:00'}
+                ],
+                5: [ // Sexta
+                    {start: '08:00', end: '11:00'},
+                    {start: '12:00', end: '12:50'},
+                    {start: '13:00', end: '17:00'}
+                ],
+                6: [] // Sábado
+            },
+            'Agenda Especialidades Médicas': {
+                0: [],
+                1: [
+                    {start: '07:00', end: '12:00'},
+                    {start: '14:00', end: '17:00'},
+                    {start: '', end: ''} // Empty for 3rd period
+                ],
+                // Similar for 2-5, empty for 6
+                2: [
+                    {start: '07:00', end: '12:00'},
+                    {start: '14:00', end: '17:00'},
+                    {start: '', end: ''}
+                ],
+                3: [
+                    {start: '07:00', end: '12:00'},
+                    {start: '14:00', end: '17:00'},
+                    {start: '', end: ''}
+                ],
+                4: [
+                    {start: '07:00', end: '12:00'},
+                    {start: '14:00', end: '17:00'},
+                    {start: '', end: ''}
+                ],
+                5: [
+                    {start: '07:00', end: '12:00'},
+                    {start: '14:00', end: '17:00'},
+                    {start: '', end: ''}
+                ],
+                6: []
+            },
+            'Agenda de Exames': {
+                0: [],
+                1: [
+                    {start: '07:00', end: '12:00'},
+                    {start: '14:00', end: '17:00'},
+                    {start: '', end: ''}
+                ],
+                // Similar pattern
+                2: [
+                    {start: '07:00', end: '12:00'},
+                    {start: '14:00', end: '17:00'},
+                    {start: '', end: ''}
+                ],
+                3: [
+                    {start: '07:00', end: '12:00'},
+                    {start: '14:00', end: '17:00'},
+                    {start: '', end: ''}
+                ],
+                4: [
+                    {start: '07:00', end: '12:00'},
+                    {start: '14:00', end: '17:00'},
+                    {start: '', end: ''}
+                ],
+                5: [
+                    {start: '07:00', end: '12:00'},
+                    {start: '14:00', end: '17:00'},
+                    {start: '', end: ''}
+                ],
+                6: []
+            }
+        };
+        const intervals = {
+            'Agenda Odontológica': 20,
+            'Agenda Especialidades Médicas': 30,
+            'Agenda de Exames': 20
         };
         let appointmentDatesSet = new Set();
         let editingId = null;
@@ -2500,39 +2567,47 @@
             'Psicologia': 60,
             'Nutricionista': 50
         };
-        // Updated to handle multiple periods
-        function generateSlotsForPeriod(startHour, endHour, intervalMin) {
-            const slots = [];
-            let current = startHour * 60;
-            const end = endHour * 60;
-            while (current + intervalMin <= end) {
-                const h = Math.floor(current / 60);
-                const m = current % 60;
-                slots.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
-                current += intervalMin;
+        // Helper functions for time
+        function parseTime(timeStr) {
+            if (!timeStr) return 0;
+            const [h, m] = timeStr.split(':').map(Number);
+            return h * 60 + m;
+        }
+        function formatTime(minutes) {
+            const h = Math.floor(minutes / 60);
+            const m = minutes % 60;
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        }
+        function formatPeriod(period) {
+            if (!period.start || !period.end) return '';
+            return `${period.start} ${period.end}`;
+        }
+        function parsePeriodInput(value) {
+            const parts = value.trim().split(/\s+/);
+            if (parts.length >= 2) {
+                return { start: parts[0], end: parts[1] };
             }
-            return slots;
+            return { start: '', end: '' };
         }
-        function getHoursForAgendaType(agendaType) {
-            const periods = agendaSchedules[agendaType] || [];
-            let allSlots = [];
+        // Updated generateSlots for day-specific
+        function generateSlotsForDay(agendaType, dayOfWeek, selectedDate) {
+            const periods = agendaSchedules[agendaType]?.[dayOfWeek] || [];
+            let slots = [];
+            const interval = intervals[agendaType];
             periods.forEach(period => {
-                allSlots = allSlots.concat(generateSlotsForPeriod(period.startHour, period.endHour, period.interval));
+                if (period.start && period.end) {
+                    let currentMin = parseTime(period.start);
+                    const endMin = parseTime(period.end);
+                    while (currentMin + interval <= endMin) {
+                        slots.push(formatTime(currentMin));
+                        currentMin += interval;
+                    }
+                }
             });
-            // Sort and unique
-            allSlots = [...new Set(allSlots)].sort();
-            return allSlots;
+            return [...new Set(slots)].sort();
         }
-        function getHoursForProfessional(agendaType, professional) {
-            const periods = agendaSchedules[agendaType] || [];
-            let allSlots = [];
-            const profInterval = professionalDurations[professional] || (periods.length > 0 ? periods[0].interval : 20);
-            periods.forEach(period => {
-                allSlots = allSlots.concat(generateSlotsForPeriod(period.startHour, period.endHour, profInterval));
-            });
-            // Sort and unique
-            allSlots = [...new Set(allSlots)].sort();
-            return allSlots;
+        function getHoursForAgendaType(agendaType, dayOfWeek) {
+            return generateSlotsForDay(agendaType, dayOfWeek, null);
         }
         function getStatusText(status) {
             switch (status) {
@@ -2562,18 +2637,15 @@
         }
         function isBlocked(dateStr, agendaType = null) {
             if (!agendaType) {
-                // Se não especificar tipo, verifica se há bloqueio para qualquer tipo
                 return blockedDates.some(b => b.date === dateStr);
             }
-            // Verifica bloqueio específico para o tipo de agenda
             return blockedDates.some(b => b.date === dateStr && b.agendaType === agendaType);
         }
         function isProfessionalBlocked(professional, agendaType) {
             const today = new Date().toISOString().split('T')[0];
             return blockedProfessionals.some(bp => {
                 if (bp.professional === professional && bp.agendaType === agendaType) {
-                    // Verifica se hoje está dentro do período de bloqueio
-                    if (!bp.startDate || !bp.endDate) return true; // Bloqueio indefinido
+                    if (!bp.startDate || !bp.endDate) return true;
                     return today >= bp.startDate && today <= bp.endDate;
                 }
                 return false;
@@ -2607,7 +2679,7 @@
                 input.classList.remove('error');
                 errorEl.style.display = 'none';
                 input.removeAttribute('aria-invalid');
-            } else if (input.value.trim()) { // Só mostra erro se não vazio
+            } else if (input.value.trim()) {
                 input.classList.add('error');
                 errorEl.style.display = 'block';
                 input.setAttribute('aria-invalid', 'true');
@@ -2710,7 +2782,7 @@
             const agendaType = document.getElementById('blockProfessionalAgendaType').value;
             const select = document.getElementById('blockProfessionalSelect');
             select.innerHTML = '<option value="">Selecione o profissional</option>';
-            const professionals = getProfessionals(agendaType); // Use the same filter to avoid blocking already blocked ones
+            const professionals = getProfessionals(agendaType);
             professionals.forEach(prof => {
                 const option = document.createElement('option');
                 option.value = prof;
@@ -2722,7 +2794,6 @@
             const agendaType = document.getElementById('editAgendaTypeSelect').value;
             populateProfessionals(agendaType, 'editDentistSelect');
         }
-        // Updated to handle multiple periods
         function populateEditTimes() {
             const agendaTypeSelect = document.getElementById('editAgendaTypeSelect');
             const dentistSelect = document.getElementById('editDentistSelect');
@@ -2732,11 +2803,12 @@
             timeSelect.innerHTML = '';
             let hours;
             if (agendaType && professional) {
-                hours = getHoursForProfessional(agendaType, professional);
+                // Use day 1 (Monday) for example
+                hours = getHoursForAgendaType(agendaType, 1);
             } else if (agendaType) {
-                hours = getHoursForAgendaType(agendaType);
+                hours = getHoursForAgendaType(agendaType, 1);
             } else {
-                hours = getHoursForAgendaType('Agenda Especialidades Médicas');
+                hours = getHoursForAgendaType('Agenda Especialidades Médicas', 1);
             }
             hours.forEach(h => {
                 const opt = document.createElement('option');
@@ -2750,10 +2822,8 @@
             if (!apt) return;
             const isThermal = format === 'thermal';
             const generatedDate = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-            const schedulerName = apt.scheduler ? sanitizeInput(apt.scheduler) : 'Não informado'; // Show 'Não informado' if empty
-            // Determinar CNPJ baseado na localização (Paulista usa /0025-82, outros /0002-52)
+            const schedulerName = apt.scheduler ? sanitizeInput(apt.scheduler) : 'Não informado';
             const cnpj = apt.location && apt.location.includes('Paulista') ? '03.910.210/0025-82' : '03.910.210/0002-52';
-            // Calcular preço com desconto se aplicável
             let originalPrice = prices[apt.professional] || 0;
             let industryAmount = 0;
             let promotionalAmount = 0;
@@ -2774,7 +2844,6 @@
                     discountedPrice = discountedPrice * (1 - promotionalDiscount / 100);
                     promotionalDiscountLine = `Desconto Promocional: ${promotionalDiscount}%`;
                 }
-                // Verificar se há período promocional e adicionar linha quando aplicável, incluindo o nome da promoção
                 if (apt.discount.promotion && (apt.agendaType === 'Agenda de Exames' || apt.agendaType === 'Agenda Especialidades Médicas')) {
                     const { name, start, end } = apt.discount.promotion;
                     if (name && start && end) {
@@ -2783,7 +2852,6 @@
                 }
             }
             if (isThermal) {
-                // Usar janela de impressão com HTML/CSS otimizado para térmica, incluindo imagens e descontos
                 let title = apt.agendaType === 'Agenda de Exames' ? 'ORÇAMENTO DE EXAMES' : 'COMPROVANTE DE AGENDAMENTO';
                 let printContent = `
                     <html>
@@ -2792,29 +2860,29 @@
                       <title>${title}</title>
                       <style>
                         @page {
-                          margin: 0; /* Remove margens da página para maximizar o uso do papel térmico */
+                          margin: 0;
                         }
                         body {
-                          font-family: monospace; /* Fonte monospace para alinhamento fixo e legibilidade em impressoras térmicas */
-                          font-size: 10pt; /* Tamanho de fonte compacto (10pt) para caber em 80mm de largura */
-                          margin: 0; /* Sem margens laterais na body */
-                          padding: 0 5mm 5mm 0; /* Padding mínimo: 0 no topo/esquerda, 5mm na direita e fundo para evitar corte */
-                          width: 80mm; /* Largura fixa de 80mm, padrão para rolos térmicos (ex: Epson TM-T20) */
-                          line-height: 1.2; /* Espaçamento de linha apertado para economia de papel */
-                          color: #000; /* Cor preta pura para compatibilidade com impressão térmica */
-                          background: #fff; /* Fundo branco, mas irrelevante em térmica (impressão monocromática) */
-                          text-align: left; /* Alinhamento à esquerda para layout linear */
+                          font-family: monospace;
+                          font-size: 10pt;
+                          margin: 0;
+                          padding: 0 5mm 5mm 0;
+                          width: 80mm;
+                          line-height: 1.2;
+                          color: #000;
+                          background: #fff;
+                          text-align: left;
                         }
-                        .line { margin-bottom: 0.3em; } /* Espaçamento entre linhas de texto */
+                        .line { margin-bottom: 0.3em; }
                         .divider {
-                          border-top: 1px dashed #000; /* Linhas divisórias tracejadas para separar seções */
+                          border-top: 1px dashed #000;
                           margin: 0.5em 0;
                         }
-                        .center { text-align: center; } /* Centralização para cabeçalhos */
-                        .bold { font-weight: bold; } /* Negrito para destaques */
+                        .center { text-align: center; }
+                        .bold { font-weight: bold; }
                         .warning {
                           margin: 0.5em 0;
-                          font-size: 9pt; /* Fonte ligeiramente menor para avisos */
+                          font-size: 9pt;
                           text-align: center;
                         }
                         .warning-title {
@@ -2823,14 +2891,14 @@
                         }
                         .thermal-logo {
                           display: block;
-                          margin: 0 auto 0.5em auto; /* Centraliza a imagem e adiciona espaçamento abaixo */
-                          max-width: 60mm; /* Limita a largura para caber na largura do papel térmico (80mm) */
-                          max-height: 15mm; /* Altura compacta para economizar papel */
+                          margin: 0 auto 0.5em auto;
+                          max-width: 60mm;
+                          max-height: 15mm;
                           width: auto;
                           height: auto;
-                          filter: grayscale(100%) contrast(200%) brightness(0%); /* Converte para preto e branco otimizado para térmica: grayscale total, alto contraste e brilho ajustado para melhor legibilidade em monocromático */
-                          image-rendering: -webkit-optimize-contrast; /* Otimiza contraste para WebKit */
-                          image-rendering: crisp-edges; /* Bordas nítidas para imagens pequenas */
+                          filter: grayscale(100%) contrast(200%) brightness(0%);
+                          image-rendering: -webkit-optimize-contrast;
+                          image-rendering: crisp-edges;
                         }
                         .discount-line {
                           font-weight: bold;
@@ -2845,7 +2913,6 @@
                       <div class="center bold line">${title}</div>
                 `;
                 if (apt.agendaType === 'Agenda de Exames') {
-                    // Conteúdo específico para Exames com desconto separado
                     printContent += `
                       <div class="line">Responsável pelo Orçamento: ${schedulerName || ''}</div>
                       <div class="line">Paciente: ${apt.patient}</div>
@@ -2861,7 +2928,6 @@
                       <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
                     `;
                 } else if (apt.agendaType === 'Agenda Odontológica') {
-                    // Conteúdo para Odontologia sem preços
                     printContent += `
                       <div class="line">Data: ${apt.date || ''}</div>
                       <div class="line">Horário: ${apt.time || ''}</div>
@@ -2879,7 +2945,6 @@
                       <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
                     `;
                 } else {
-                    // Conteúdo para outros tipos (campos listados) com desconto separado
                     printContent += `
                       <div class="line">Data: ${apt.date || ''}</div>
                       <div class="line">Horário: ${apt.time || ''}</div>
@@ -2902,7 +2967,6 @@
                       <div class="center line">Endereço: ${locationAddresses[apt.location] || 'Endereço não especificado'}</div>
                     `;
                 }
-                // Aviso comum
                 printContent += `
                       <div class="line">Gerado em: ${generatedDate}</div>
                       <div class="divider"></div>
@@ -2918,13 +2982,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const printWindow = window.open('', '_blank', 'width=300,height=600');
                 printWindow.document.write(printContent);
                 printWindow.document.close();
-                // Adicionar delay para garantir carregamento antes de imprimir
                 setTimeout(() => {
                     printWindow.print();
                     printWindow.close();
                 }, 500);
             } else {
-                // Formato normal: usar window.print com HTML/CSS adaptado para A4, incluindo as imagens de SESI e Melhoria e descontos separados
                 let title = apt.agendaType === 'Agenda de Exames' ? 'Orçamento de Exames e Especialidades' : 'Comprovante de Agendamento';
                 const address = locationAddresses[apt.location] || 'Endereço não especificado';
                 const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
@@ -2936,7 +2998,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                       <style>
                         @page {
                           size: A4;
-                          margin: 1.5cm 1cm; /* Margens equilibradas: mais em cima para cabeçalho */
+                          margin: 1.5cm 1cm;
                           @bottom-center {
                             content: "Página " counter(page) " de " counter(pages);
                             font-size: 10pt;
@@ -2944,29 +3006,29 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           }
                         }
                         body {
-                          font-family: 'Roboto', Arial, sans-serif; /* Fonte principal com fallback */
-                          font-size: 11pt; /* Fonte ligeiramente maior para melhor legibilidade em impressão */
+                          font-family: 'Roboto', Arial, sans-serif;
+                          font-size: 11pt;
                           margin: 0;
                           padding: 0;
-                          line-height: 1.5; /* Espaçamento de linha melhorado para leitura */
-                          color: #000; /* Texto preto para impressão clara */
+                          line-height: 1.5;
+                          color: #000;
                           background: white;
                           text-align: left;
                           width: 100%;
                         }
                         .print-container {
-                          max-width: 210mm; /* Largura A4 padrão */
+                          max-width: 210mm;
                           margin: 0 auto;
                           padding: 20px;
                           border: 2px solid #007bff;
                           border-radius: 8px;
                           background: #ffffff;
-                          box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Sombra sutil para profundidade */
+                          box-shadow: 0 0 10px rgba(0,0,0,0.1);
                         }
                         .print-header {
                           background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
                           color: white;
-                          padding: 20px; /* Padding maior para header mais espaçoso */
+                          padding: 20px;
                           border-radius: 8px 8px 0 0;
                           margin: -20px -20px 20px -20px;
                           text-align: center;
@@ -2980,14 +3042,14 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           left: 0;
                           right: 0;
                           height: 4px;
-                          background: rgba(255,255,255,0.2); /* Linha sutil no rodapé do header */
+                          background: rgba(255,255,255,0.2);
                         }
                         .header-container {
                           display: flex;
                           align-items: center;
                           justify-content: space-between;
-                          margin-bottom: 15px; /* Mais espaço entre logo e título */
-                          flex-wrap: wrap; /* Responsivo para telas menores */
+                          margin-bottom: 15px;
+                          flex-wrap: wrap;
                         }
                         .logo-container {
                           display: flex;
@@ -2996,13 +3058,13 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           flex: 0 0 auto;
                         }
                         .logo-container img {
-                          max-width: 120px; /* Logo ligeiramente maior */
+                          max-width: 120px;
                           height: auto;
                           margin-bottom: 5px;
                         }
                         .logo-container p {
                           margin: 0;
-                          font-size: 9pt; /* Fonte menor para legenda */
+                          font-size: 9pt;
                           color: rgba(255,255,255,0.9);
                           text-align: center;
                           font-weight: 300;
@@ -3010,19 +3072,19 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         .title-container {
                           flex: 1;
                           text-align: center;
-                          margin: 0 15px; /* Mais margem para centralização */
-                          min-width: 200px; /* Garante espaço para título */
+                          margin: 0 15px;
+                          min-width: 200px;
                         }
                         .cnpj-container {
                           text-align: right;
                           flex: 0 0 auto;
                         }
                         h1 {
-                          font-size: 20pt; /* Título maior e mais impactante */
+                          font-size: 20pt;
                           color: white;
                           margin: 0 0 5px 0;
-                          font-weight: 600; /* Peso médio para elegância */
-                          letter-spacing: 0.5px; /* Espaçamento sutil para profissionalismo */
+                          font-weight: 600;
+                          letter-spacing: 0.5px;
                         }
                         .header-info {
                           font-size: 9pt;
@@ -3031,9 +3093,9 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           font-weight: 300;
                         }
                         .section {
-                          border-bottom: 1px solid #e0e0e0; /* Borda mais sutil */
-                          padding-bottom: 15px; /* Mais padding para seções */
-                          margin-bottom: 20px; /* Espaçamento maior entre seções */
+                          border-bottom: 1px solid #e0e0e0;
+                          padding-bottom: 15px;
+                          margin-bottom: 20px;
                         }
                         .section:last-child {
                           border-bottom: none;
@@ -3042,24 +3104,24 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         .section-title {
                           background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
                           color: #007bff;
-                          padding: 8px 12px; /* Padding maior para título de seção */
+                          padding: 8px 12px;
                           border-radius: 6px;
-                          font-size: 12pt; /* Fonte maior para títulos de seção */
+                          font-size: 12pt;
                           font-weight: 500;
-                          margin-bottom: 15px; /* Mais margem abaixo */
+                          margin-bottom: 15px;
                           border-left: 4px solid #007bff;
-                          box-shadow: 0 2px 4px rgba(0,123,255,0.1); /* Sombra sutil */
+                          box-shadow: 0 2px 4px rgba(0,123,255,0.1);
                         }
                         p {
-                          margin: 8px 0; /* Margem consistente para parágrafos */
-                          font-size: 11pt; /* Fonte consistente */
+                          margin: 8px 0;
+                          font-size: 11pt;
                           display: flex;
                           align-items: center;
-                          gap: 8px; /* Gap maior para ícones */
-                          word-wrap: break-word; /* Quebra de linha para textos longos */
+                          gap: 8px;
+                          word-wrap: break-word;
                         }
                         p i {
-                          width: 18px; /* Ícones maiores */
+                          width: 18px;
                           text-align: center;
                           color: #007bff;
                           font-size: 12pt;
@@ -3067,17 +3129,17 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         .print-table {
                           width: 100%;
                           border-collapse: collapse;
-                          margin: 20px 0; /* Mais margem para tabela */
+                          margin: 20px 0;
                           border: 1px solid #007bff;
                           border-radius: 6px;
                           overflow: hidden;
-                          box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Sombra para tabela */
+                          box-shadow: 0 2px 6px rgba(0,0,0,0.05);
                         }
                         .print-table th, .print-table td {
                           border: 1px solid #007bff;
-                          padding: 10px 8px; /* Padding ajustado para células */
+                          padding: 10px 8px;
                           text-align: left;
-                          font-size: 10pt; /* Fonte menor para células */
+                          font-size: 10pt;
                         }
                         .print-table th {
                           background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
@@ -3090,14 +3152,14 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           background: #f8f9fa;
                         }
                         .print-table tr:nth-child(even) td {
-                          background: #e9ecef; /* Linhas alternadas mais suaves */
+                          background: #e9ecef;
                         }
                         .print-table tr:hover td {
-                          background: #e3f2fd; /* Hover sutil para impressão */
+                          background: #e3f2fd;
                         }
                         .print-summary {
                           background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-                          padding: 20px; /* Padding maior para resumo */
+                          padding: 20px;
                           border-radius: 8px;
                           margin: 20px 0;
                           border-left: 4px solid #007bff;
@@ -3106,16 +3168,16 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         .print-summary p {
                           justify-content: space-between;
                           font-size: 11pt;
-                          margin: 10px 0; /* Margem consistente */
+                          margin: 10px 0;
                           font-weight: 500;
-                          border-bottom: 1px dashed #007bff; /* Linha separadora sutil */
+                          border-bottom: 1px dashed #007bff;
                           padding-bottom: 5px;
                         }
                         .print-summary p:last-child {
                           border-bottom: none;
                         }
                         .print-summary .final-price {
-                          font-size: 13pt; /* Destaque maior para preço final */
+                          font-size: 13pt;
                           color: #007bff;
                           border-top: 2px solid #007bff;
                           padding-top: 10px;
@@ -3130,20 +3192,20 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           margin-top: 5px;
                         }
                         .print-warning {
-                          background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); /* Gradiente suave para aviso */
+                          background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
                           border: 2px solid #ffc107;
                           border-radius: 8px;
-                          padding: 20px; /* Padding maior para legibilidade */
+                          padding: 20px;
                           margin: 25px 0;
                           color: #856404;
                           font-size: 10pt;
-                          line-height: 1.4; /* Melhor espaçamento para texto longo */
+                          line-height: 1.4;
                           box-shadow: 0 2px 6px rgba(255,193,7,0.2);
                         }
                         .print-warning .warning-title {
                           font-weight: 700;
                           color: #d39e00;
-                          margin-bottom: 12px; /* Mais margem para título */
+                          margin-bottom: 12px;
                           text-align: center;
                           font-size: 12pt;
                           text-transform: uppercase;
@@ -3153,7 +3215,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           text-align: center;
                           color: #6c757d;
                           font-size: 9pt;
-                          margin-top: 25px; /* Mais espaço no rodapé */
+                          margin-top: 25px;
                           border-top: 1px solid #dee2e6;
                           padding-top: 15px;
                           font-style: italic;
@@ -3169,7 +3231,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           color: #007bff;
                           text-decoration: underline;
                           font-size: 10pt;
-                          transition: color 0.3s ease; /* Transição para hover, mesmo em print */
+                          transition: color 0.3s ease;
                         }
                         .maps-link:hover {
                           color: #0056b3;
@@ -3182,15 +3244,15 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           body {
                             -webkit-print-color-adjust: exact;
                             print-color-adjust: exact;
-                            font-size: 11pt; /* Garante tamanho em impressão */
+                            font-size: 11pt;
                           }
                           .print-table {
                             border-collapse: collapse;
-                            box-shadow: none; /* Remove sombra em print para simplicidade */
+                            box-shadow: none;
                           }
                           .print-container {
                             box-shadow: none;
-                            border: 1px solid #000; /* Borda mais visível em preto para print */
+                            border: 1px solid #000;
                           }
                           .print-header {
                             -webkit-print-color-adjust: exact;
@@ -3209,7 +3271,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           .print-table td:before {
                             content: attr(data-label) ": ";
                             font-weight: bold;
-                            display: block; /* Stack para mobile print */
+                            display: block;
                           }
                           .print-table td {
                             border: none;
@@ -3250,7 +3312,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           <p><i class="fas fa-phone"></i><span>Telefone do Cliente:</span> <span>${apt.phone || 'Não informado'}</span></p>
                 `;
                 if (apt.agendaType === 'Agenda de Exames') {
-                    // Tabela de exames como na imagem com desconto separado
                     printContent += `
                           <div class="section">
                             <div class="section-title">Exames Selecionados</div>
@@ -3290,7 +3351,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           ` : ''}
                     `;
                 } else if (apt.agendaType === 'Agenda Odontológica') {
-                    // Para Odontologia, campos lineares sem desconto
                     printContent += `
                           <div class="section">
                             <div class="section-title">Detalhes do Agendamento</div>
@@ -3305,7 +3365,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           </div>
                     `;
                 } else {
-                    // Para outros tipos, campos lineares com desconto separado
                     printContent += `
                           <div class="section">
                             <div class="section-title">Detalhes do Agendamento</div>
@@ -3325,7 +3384,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                           </div>
                     `;
                 }
-                // Aviso como na imagem
                 printContent += `
                         </div>
                         <div class="print-warning">
@@ -3343,7 +3401,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const printWindow = window.open('', '_blank', 'width=800,height=600');
                 printWindow.document.write(printContent);
                 printWindow.document.close();
-                // Adicionar delay para garantir carregamento antes de imprimir
                 setTimeout(() => {
                     printWindow.print();
                     printWindow.close();
@@ -3354,19 +3411,17 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         function showPrintTypeModal() {
             closeModal('printConfirmModal');
             document.getElementById('printTypeModal').style.display = 'block';
-            // Auto-focus no primeiro radio
             document.querySelector('input[name="printType"]').focus();
         }
         function generatePrintPDF() {
             const printType = document.querySelector('input[name="printType"]:checked').value;
             generatePDF(currentPrintId, printType);
             closeModal('printTypeModal');
-            // Se foi um agendamento recém-criado, recarregar a página após impressão para resetar tudo
             if (justScheduled) {
                 setTimeout(() => {
                     justScheduled = false;
                     window.location.reload();
-                }, 2000); // Delay maior para permitir que o usuário feche a janela de impressão
+                }, 2000);
             }
         }
         function preparePrint(id) {
@@ -3385,36 +3440,33 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         }
         function confirmOpenFicha(cpf, patient = '', phone = '', observations = '') {
             if (confirm('Deseja abrir o arquivo da ficha clínica?')) {
-                // Sanitiza os valores para URL (evita injeção de código)
                 const sanitizedPatient = encodeURIComponent(sanitizeInput(patient));
                 const sanitizedPhone = encodeURIComponent(sanitizeInput(phone));
                 const sanitizedObs = encodeURIComponent(sanitizeInput(observations));
-                // Monta a URL com parâmetros adicionais para preencher o formulário
                 const fichaUrl = `https://pesenaibr-my.sharepoint.com/:w:/g/personal/socrates_silva_sistemafiepe_org_br/EezX1v19-BBDl9cKn3fKqgcB_lCc-cVTcpZi26gErPTlDw?e=5DVI2m&cpf=${encodeURIComponent(cpf || '')}&name=${sanitizedPatient}&phone=${sanitizedPhone}&obs=${sanitizedObs}`;
                 window.open(fichaUrl, '_blank');
             }
         }
         function showPatientHistory(cpf, patientName) {
-            currentPatientCpf = cpf; // Armazena globalmente para uso no botão
+            currentPatientCpf = cpf;
             const patientAppointments = appointments.filter(apt => apt.cpf === cpf);
             if (patientAppointments.length === 0) {
                 showToast('Nenhum histórico encontrado para este paciente.', 'error');
                 return;
             }
-            // Ordenar por data descendente
             patientAppointments.sort((a, b) => {
                 const dateA = new Date(a.date.split('/').reverse().join('-'));
                 const dateB = new Date(b.date.split('/').reverse().join('-'));
                 return dateB - dateA;
             });
-            currentPatientName = patientName || patientAppointments[0].patient; // Usa o nome passado ou o do primeiro agendamento
-            currentPatientDate = patientAppointments[0].date; // Armazena data do agendamento mais recente
+            currentPatientName = patientName || patientAppointments[0].patient;
+            currentPatientDate = patientAppointments[0].date;
             const modal = document.getElementById('patientHistoryModal');
             const title = document.getElementById('historyTitle');
             const info = document.getElementById('historyPatientInfo');
             const list = document.getElementById('historyList');
-            title.textContent = `Histórico de Atendimentos - ${currentPatientName}`; // Exibe o nome completo explicitamente
-            info.innerHTML = `<strong>Nome Completo:</strong> ${currentPatientName}<br><strong>CPF:</strong> ${cpf} | <strong>Total de Atendimentos:</strong> ${patientAppointments.length}`; // Exibe nome completo de forma destacada
+            title.textContent = `Histórico de Atendimentos - ${currentPatientName}`;
+            info.innerHTML = `<strong>Nome Completo:</strong> ${currentPatientName}<br><strong>CPF:</strong> ${cpf} | <strong>Total de Atendimentos:</strong> ${patientAppointments.length}`;
             list.innerHTML = '';
             patientAppointments.forEach(apt => {
                 const item = document.createElement('div');
@@ -3439,7 +3491,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 return;
             }
             document.getElementById('declarationPatientInfo').innerHTML = `<strong>Paciente:</strong> ${sanitizeInput(apt.patient)}<br><strong>CPF:</strong> ${apt.cpf || 'Não informado'}<br><strong>Data do Atendimento:</strong> ${apt.date}`;
-            document.getElementById('entryTime').value = ''; // Limpa o campo
+            document.getElementById('entryTime').value = '';
             document.getElementById('declarationTimeModal').style.display = 'block';
             document.getElementById('entryTime').focus();
             focusTrap(document.getElementById('declarationTimeModal'));
@@ -3590,7 +3642,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const printWindow = window.open('', '_blank', 'width=800,height=600');
             printWindow.document.write(printContent);
             printWindow.document.close();
-            // Adicionar delay para garantir carregamento antes de imprimir
             setTimeout(() => {
                 printWindow.print();
                 printWindow.close();
@@ -3622,7 +3673,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 dayElement.className = 'day';
                 dayElement.textContent = date.getDate();
                 dayElement.setAttribute('role', 'gridcell');
-                dayElement.setAttribute('tabindex', '0'); // Para navegação por teclado
+                dayElement.setAttribute('tabindex', '0');
                 dayElement.setAttribute('aria-label', `Dia ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
                 if (date.getMonth() !== month) {
                     dayElement.classList.add('other-month');
@@ -3632,7 +3683,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     const isHolidayDay = isHoliday(date);
                     const isBlockedDay = agendaType ? isBlocked(dateStr, agendaType) : false;
                     const blockReason = agendaType ? blockedDates.find(b => b.date === dateStr && b.agendaType === agendaType)?.reason : null;
-                    const isUnavailableBase = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || date < today || isBlockedDay;
+                    const isUnavailableBase = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || date < today || isBlockedDay || (agendaType && !agendaSchedules[agendaType][dayOfWeek].some(p => p.start && p.end));
                     if (isUnavailableBase) {
                         dayElement.classList.add('unavailable');
                         if (isHolidayDay) {
@@ -3643,6 +3694,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             dayElement.classList.add('blocked');
                             dayElement.title = `Data bloqueada para ${agendaType}: ${blockReason}`;
                             dayElement.setAttribute('aria-label', `Data bloqueada para ${agendaType}: ${blockReason} - ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
+                        } else if (!agendaSchedules[agendaType]?.[dayOfWeek]?.some(p => p.start && p.end)) {
+                            dayElement.title = `Sem disponibilidade para ${agendaType} neste dia da semana.`;
                         }
                         dayElement.setAttribute('aria-disabled', 'true');
                         dayElement.onclick = null;
@@ -3656,7 +3709,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                             dayElement.setAttribute('aria-label', `Hoje: ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
                         }
                     }
-                    // Check for appointments on this day
                     const hasAppointment = appointmentDatesSet.has(date.toDateString());
                     if (hasAppointment) {
                         dayElement.classList.add('has-appointment');
@@ -3679,13 +3731,16 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 showToast(`Data bloqueada para ${selectedAgendaType}: ${reason}`, 'error');
                 return;
             }
+            const dayOfWeek = date.getDay();
+            if (selectedAgendaType && !agendaSchedules[selectedAgendaType][dayOfWeek].some(p => p.start && p.end)) {
+                showToast(`Sem disponibilidade para ${selectedAgendaType} neste dia da semana.`, 'error');
+                return;
+            }
             selectedDay = date;
-            // Adiciona classe selected ao elemento fornecido ou ao clicado
             if (dayElement) {
                 dayElement.classList.add('selected');
             } else {
                 document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
-                // Se chamado via autoSelectToday, encontrar o elemento e adicionar
                 const days = document.querySelectorAll('.day');
                 for (let d of days) {
                     const dayNum = parseInt(d.textContent);
@@ -3700,7 +3755,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             }
             document.getElementById('selectedDate').style.display = 'block';
             document.getElementById('selectedDateText').textContent = `${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })} de ${date.getFullYear()}`;
-            // Mostra os botões da seção quando uma data é selecionada
             document.getElementById('sectionButtons').style.display = 'flex';
             document.getElementById('blockDateBtn').disabled = false;
             updateScheduleButton();
@@ -3714,22 +3768,21 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 if (!isNaN(dayNum)) {
                     const testDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNum);
                     if (testDate.toDateString() === today.toDateString() && testDate.getMonth() === currentDate.getMonth()) {
-                        // Verifica se o dia não é indisponível (fim de semana, feriado, passado ou bloqueado)
                         const dayOfWeek = testDate.getDay();
                         const dateStr = testDate.toLocaleDateString('pt-BR');
                         const isHolidayDay = isHoliday(testDate);
                         const selectedAgendaType = document.getElementById('agendaTypeSelect').value;
                         const isBlockedDay = selectedAgendaType ? isBlocked(dateStr, selectedAgendaType) : false;
-                        const isUnavailable = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || testDate < today || isBlockedDay;
+                        const hasSchedule = selectedAgendaType ? agendaSchedules[selectedAgendaType][dayOfWeek].some(p => p.start && p.end) : true;
+                        const isUnavailable = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || testDate < today || isBlockedDay || !hasSchedule;
                         if (!isUnavailable) {
                             selectDay(testDate, day);
-                            day.focus(); // Para acessibilidade: foco no dia selecionado
+                            day.focus();
                             return;
                         }
                     }
                 }
             }
-            // Se hoje não for selecionável (ex: fim de semana), não seleciona nada
             console.log('Hoje não é selecionável (fim de semana, feriado ou bloqueado).');
         }
         function blockSelectedDate() {
@@ -3739,27 +3792,23 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             }
             const dateStr = selectedDay.toLocaleDateString('pt-BR');
             const selectedAgendaType = document.getElementById('agendaTypeSelect').value;
-            // Verifica se já está bloqueado para o tipo selecionado (se houver)
             if (selectedAgendaType && isBlocked(dateStr, selectedAgendaType)) {
                 showToast(`Esta data já está bloqueada para ${selectedAgendaType}.`, 'error');
                 return;
             }
-            // Verificar se há agendamentos na data selecionada
             const hasAppointment = appointmentDatesSet.has(selectedDay.toDateString());
             if (hasAppointment) {
                 if (!confirm(`Esta data possui agendamentos existentes. Deseja realmente bloquear a data "${dateStr}"? Isso impedirá novos agendamentos, mas os existentes permanecerão até serem editados ou excluídos manualmente.`)) {
-                    return; // Cancela o bloqueio se o usuário não confirmar
+                    return;
                 }
             }
             document.getElementById('blockDateText').textContent = dateStr;
-            // Popula o select de agendaType no modal
             const blockAgendaTypeSelect = document.getElementById('blockAgendaType');
             blockAgendaTypeSelect.innerHTML = '<option value="">Selecione o tipo de agenda</option>';
             agendaTypes.forEach(type => {
                 const option = document.createElement('option');
                 option.value = type;
                 option.textContent = type;
-                // Se há tipo selecionado, pré-seleciona
                 if (selectedAgendaType === type) {
                     option.selected = true;
                 }
@@ -3770,7 +3819,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('blockAgendaType').focus();
         }
         function blockSelectedProfessional() {
-            // Popula o select de agendaType no modal de profissional
             const blockProfessionalAgendaTypeSelect = document.getElementById('blockProfessionalAgendaType');
             blockProfessionalAgendaTypeSelect.innerHTML = '<option value="">Selecione o tipo de agenda</option>';
             agendaTypes.forEach(type => {
@@ -3800,12 +3848,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const dateStr = selectedDay.toLocaleDateString('pt-BR');
             blockedDates.push({ date: dateStr, agendaType: agendaType, reason: sanitizeInput(reason) });
             localStorage.setItem('blockedDates', JSON.stringify(blockedDates));
-            // Recarrega a lista de blockedDates do localStorage para garantir sincronia
             blockedDates = JSON.parse(localStorage.getItem('blockedDates')) || [];
             closeModal('blockModal');
             showToast(`Data bloqueada com sucesso para ${agendaType}! 🔒`);
-            // Sempre abre a seção de bloqueados e atualiza a lista após bloquear
-            toggleBlocked(); // Isso abre se fechada, ou fecha se aberta, mas como está fechada por padrão, abre
+            toggleBlocked();
             generateCalendar(currentAgendaType);
             clearCalendarSelections();
         }
@@ -3815,40 +3861,24 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const startDate = document.getElementById('blockProfessionalStartDate').value;
             const endDate = document.getElementById('blockProfessionalEndDate').value;
             const reason = document.getElementById('blockProfessionalReason').value.trim();
-            if (!agendaType) {
-                showToast('Selecione o tipo de agenda para o bloqueio.', 'error');
-                return;
-            }
-            if (!professional) {
-                showToast('Selecione o profissional para o bloqueio.', 'error');
-                return;
-            }
-            if (!startDate || !endDate) {
-                showToast('Informe as datas de início e fim do bloqueio.', 'error');
+            if (!agendaType || !professional || !startDate || !endDate || !reason) {
+                showToast('Preencha todos os campos obrigatórios.', 'error');
                 return;
             }
             if (new Date(startDate) > new Date(endDate)) {
                 showToast('A data de início não pode ser posterior à data de fim.', 'error');
                 return;
             }
-            if (!reason) {
-                showToast('Informe o motivo do bloqueio.', 'error');
-                return;
-            }
-            // Verifica se já está bloqueado
             if (isProfessionalBlocked(professional, agendaType)) {
                 showToast(`Este profissional já está bloqueado para ${agendaType}.`, 'error');
                 return;
             }
-            blockedProfessionals.push({ professional: professional, agendaType: agendaType, startDate, endDate, reason: sanitizeInput(reason) });
+            blockedProfessionals.push({ professional, agendaType, startDate, endDate, reason: sanitizeInput(reason) });
             localStorage.setItem('blockedProfessionals', JSON.stringify(blockedProfessionals));
-            // Recarrega a lista de blockedProfessionals do localStorage para garantir sincronia
             blockedProfessionals = JSON.parse(localStorage.getItem('blockedProfessionals')) || [];
             closeModal('blockProfessionalModal');
             showToast(`Profissional ${professional} bloqueado com sucesso para ${agendaType} de ${startDate} a ${endDate}! 🔒`);
-            // Atualiza selects de profissionais em todos os lugares
             populateProfessionals(currentAgendaType, 'dentistSelect');
-            // Atualiza listas de agendamentos se aberta
             if (document.getElementById('scheduledGrid').style.display !== 'none') {
                 displayAppointments();
             }
@@ -3857,7 +3887,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             if (confirm('Tem certeza que deseja remover este bloqueio?')) {
                 blockedDates.splice(index, 1);
                 localStorage.setItem('blockedDates', JSON.stringify(blockedDates));
-                // Recarrega para garantir sincronia
                 blockedDates = JSON.parse(localStorage.getItem('blockedDates')) || [];
                 displayBlocked();
                 generateCalendar(currentAgendaType);
@@ -3868,10 +3897,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             if (confirm('Tem certeza que deseja remover este bloqueio de profissional?')) {
                 blockedProfessionals.splice(index, 1);
                 localStorage.setItem('blockedProfessionals', JSON.stringify(blockedProfessionals));
-                // Recarrega para garantir sincronia
                 blockedProfessionals = JSON.parse(localStorage.getItem('blockedProfessionals')) || [];
                 displayBlocked();
-                // Atualiza selects
                 populateProfessionals(currentAgendaType, 'dentistSelect');
                 showToast('Bloqueio de profissional removido com sucesso! ✅');
             }
@@ -3896,20 +3923,17 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const list = document.getElementById('blockedList');
             const summary = document.getElementById('blockedSummary');
             list.innerHTML = '';
-            // Ordenar por data descendente para datas
             blockedDates.sort((a, b) => {
                 const dateA = new Date(a.date.split('/').reverse().join('-'));
                 const dateB = new Date(b.date.split('/').reverse().join('-'));
                 return dateB - dateA;
             });
-            // Ordenar por agendaType e profissional para profissionais
             blockedProfessionals.sort((a, b) => a.agendaType.localeCompare(b.agendaType) || a.professional.localeCompare(b.professional));
             if (blockedDates.length === 0 && blockedProfessionals.length === 0) {
                 list.innerHTML = '<p class="empty-message">Nenhuma data ou profissional bloqueado.</p>';
                 summary.style.display = 'none';
                 return;
             }
-            // Resumo por tipo (agora inclui profissionais)
             const countOdontoDates = blockedDates.filter(b => b.agendaType === 'Agenda Odontológica').length;
             const countMedicasDates = blockedDates.filter(b => b.agendaType === 'Agenda Especialidades Médicas').length;
             const countExamesDates = blockedDates.filter(b => b.agendaType === 'Agenda de Exames').length;
@@ -3943,7 +3967,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     <p>${countExamesProfs}</p>
                 </div>
             `;
-            // Lista de bloqueios de datas
             blockedDates.forEach((block, index) => {
                 const card = document.createElement('div');
                 card.className = 'block-card';
@@ -3960,9 +3983,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 list.appendChild(card);
                 setTimeout(() => card.classList.add('show'), index * 100);
             });
-            // Lista de bloqueios de profissionais
             blockedProfessionals.forEach((block, index) => {
-                const cardIndex = blockedDates.length + index; // Offset para índices únicos
+                const cardIndex = blockedDates.length + index;
                 const card = document.createElement('div');
                 card.className = 'block-card';
                 card.setAttribute('role', 'listitem');
@@ -3980,14 +4002,13 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 setTimeout(() => card.classList.add('show'), cardIndex * 100);
             });
         }
-        // Updated to handle multiple periods
         function populateHours(selectedDate) {
             const hoursGrid = document.getElementById('hoursGrid');
             hoursGrid.innerHTML = '';
             const dateStr = selectedDate.toLocaleDateString('pt-BR');
             const selectedAgendaType = document.getElementById('agendaTypeSelect').value;
             const selectedDentist = document.getElementById('dentistSelect').value;
-            // Verifica bloqueio específico para o tipo de agenda
+            const dayOfWeek = selectedDate.getDay();
             if (selectedAgendaType && isBlocked(dateStr, selectedAgendaType)) {
                 const message = document.createElement('div');
                 message.textContent = 'Esta data está bloqueada para o tipo de agenda selecionado. Nenhum horário disponível.';
@@ -3998,21 +4019,22 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 hoursGrid.appendChild(message);
                 return;
             }
-            let hours;
-            if (selectedAgendaType && selectedDentist) {
-                hours = getHoursForProfessional(selectedAgendaType, selectedDentist);
-            } else if (selectedAgendaType) {
-                hours = getHoursForAgendaType(selectedAgendaType);
-            } else {
-                hours = getHoursForAgendaType('Agenda Especialidades Médicas');
+            if (selectedAgendaType && !agendaSchedules[selectedAgendaType][dayOfWeek].some(p => p.start && p.end)) {
+                const message = document.createElement('div');
+                message.textContent = 'Sem disponibilidade para este tipo de agenda neste dia da semana.';
+                message.style.textAlign = 'center';
+                message.style.padding = '20px';
+                message.style.color = '#ffc107';
+                message.style.fontWeight = 'bold';
+                hoursGrid.appendChild(message);
+                return;
             }
+            let hours = getHoursForAgendaType(selectedAgendaType || 'Agenda Especialidades Médicas', dayOfWeek);
             let bookedHours = [];
-            let isSpecificDentist = false;
             if (selectedAgendaType && selectedDentist) {
                 bookedHours = appointments
                     .filter(apt => apt.agendaType === selectedAgendaType && apt.date === dateStr && apt.professional === selectedDentist)
                     .map(apt => apt.time);
-                isSpecificDentist = true;
             } else if (selectedAgendaType) {
                 bookedHours = appointments
                     .filter(apt => apt.agendaType === selectedAgendaType && apt.date === dateStr)
@@ -4031,14 +4053,14 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 slot.setAttribute('aria-label', `Horário ${hour}`);
                 if (bookedHours.includes(hour)) {
                     slot.classList.add('booked');
-                    const titleText = isSpecificDentist ? 'Horário já agendado para este profissional' : 'Horário ocupado';
+                    const titleText = selectedDentist ? 'Horário já agendado para este profissional' : 'Horário ocupado';
                     slot.title = titleText;
                     slot.setAttribute('aria-disabled', 'true');
                     slot.setAttribute('aria-label', `Horário ${hour} - Ocupado`);
-                    slot.onkeydown = null; // Desabilita teclado
+                    slot.onkeydown = null;
                     slot.onclick = (e) => {
                         e.preventDefault();
-                        const alertText = isSpecificDentist ? 'Este horário já está agendado para este profissional.' : 'Este horário está ocupado.';
+                        const alertText = selectedDentist ? 'Este horário já está agendado para este profissional.' : 'Este horário está ocupado.';
                         alert(alertText);
                     };
                 } else {
@@ -4047,7 +4069,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
                 slot.textContent = hour;
                 if (bookedHours.includes(hour)) {
-                    const text = isSpecificDentist ? ' (Agendado)' : ' (Ocupado)';
+                    const text = selectedDentist ? ' (Agendado)' : ' (Ocupado)';
                     slot.innerHTML += `<span style="font-size: 10px;">${text}</span>`;
                 }
                 hoursGrid.appendChild(slot);
@@ -4097,15 +4119,13 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('dentistSelect').value = '';
             document.getElementById('prioritySelect').value = '';
             document.getElementById('firstAppointmentSelect').value = '';
-            discountObj = {}; // Limpa descontos
-            document.getElementById('displayedDiscounts').style.display = 'none'; // Esconde seção de descontos
-            currentAgendaType = ''; // Reset para vazio
+            discountObj = {};
+            document.getElementById('displayedDiscounts').style.display = 'none';
+            currentAgendaType = '';
             updateScheduleButton();
-            generateCalendar(currentAgendaType); // Gera calendário vazio
-            // Não seleciona profissional ou auto-seleciona dia, deixa vazio
+            generateCalendar(currentAgendaType);
             document.getElementById('patientName').focus();
         }
-        // Debounce para filtros (evita chamadas excessivas)
         function debouncedFilterAppointments() {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(filterAppointments, 300);
@@ -4171,77 +4191,62 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 btn.textContent = '📋 Gestão de Agenda';
             }
         }
-        // Updated displayAgendaMgmt to show grid with multiple periods
+        // Updated displayAgendaMgmt for table view
         function displayAgendaMgmt() {
             const grid = document.getElementById('agendaMgmtGrid');
             grid.innerHTML = '';
+            const dayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+            const periodNames = ['1º Período', '2º Período', '3º Período'];
             agendaTypes.forEach(type => {
                 const item = document.createElement('div');
                 item.className = 'agenda-mgmt-item';
-                item.innerHTML = `
+                let tableHTML = `
                     <h4>${type}</h4>
-                    <div class="periods-container" id="periods_${type.replace(/\s/g, '')}">
-                        <!-- Periods will be populated here -->
-                    </div>
-                    <button class="add-period-btn" onclick="addPeriod('${type}')">+ Incluir Período</button>
-                    <button class="save-agenda-btn" onclick="saveAllPeriods('${type}')">Gravar Alterações</button>
+                    <table class="agenda-table">
+                        <thead>
+                            <tr>
+                                <th>Período</th>
+                                ${dayNames.map(day => `<th>${day}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
                 `;
-                grid.appendChild(item);
-                // Populate existing periods
-                populatePeriods(type);
-            });
-        }
-        function populatePeriods(type) {
-            const container = document.getElementById(`periods_${type.replace(/\s/g, '')}`);
-            const periods = agendaSchedules[type] || [];
-            container.innerHTML = '';
-            periods.forEach((period, index) => {
-                const row = document.createElement('div');
-                row.className = 'period-row';
-                row.innerHTML = `
-                    <input type="number" value="${period.startHour}" min="0" max="23" onchange="updatePeriod('${type}', ${index}, 'startHour', this.value)">
-                    <input type="number" value="${period.endHour}" min="0" max="23" onchange="updatePeriod('${type}', ${index}, 'endHour', this.value)">
-                    <input type="number" value="${period.interval}" min="5" max="120" onchange="updatePeriod('${type}', ${index}, 'interval', this.value)">
-                    <button class="delete-period-btn" onclick="deletePeriod('${type}', ${index})">Excluir</button>
-                `;
-                container.appendChild(row);
-            });
-        }
-        function addPeriod(type) {
-            if (!agendaSchedules[type]) agendaSchedules[type] = [];
-            const newPeriod = { startHour: 7, endHour: 12, interval: 30 };
-            agendaSchedules[type].push(newPeriod);
-            populatePeriods(type);
-            showToast(`Novo período adicionado para ${type}.`, 'success');
-        }
-        function updatePeriod(type, index, field, value) {
-            if (agendaSchedules[type] && agendaSchedules[type][index]) {
-                agendaSchedules[type][index][field] = parseInt(value);
-            }
-        }
-        function deletePeriod(type, index) {
-            if (confirm('Deseja excluir este período?')) {
-                agendaSchedules[type].splice(index, 1);
-                populatePeriods(type);
-                showToast('Período excluído.', 'success');
-            }
-        }
-        function saveAllPeriods(type) {
-            // Simple validation: ensure start < end for each period
-            const periods = agendaSchedules[type];
-            let valid = true;
-            periods.forEach(period => {
-                if (period.startHour >= period.endHour) {
-                    valid = false;
+                for (let p = 0; p < 3; p++) {
+                    tableHTML += `<tr><td>${periodNames[p]}</td>`;
+                    for (let d = 0; d < 7; d++) {
+                        const period = agendaSchedules[type][d]?.[p] || {start: '', end: ''};
+                        const value = formatPeriod(period);
+                        const isGray = !period.start || !period.end;
+                        tableHTML += `
+                            <td class="${isGray ? 'gray-cell' : ''}">
+                                <input type="text" value="${value}" placeholder="HH:MM HH:MM" onchange="updatePeriod('${type}', ${d}, ${p}, this.value)" ${isGray ? 'disabled' : ''}>
+                            </td>
+                        `;
+                    }
+                    tableHTML += '</tr>';
                 }
+                tableHTML += `
+                        </tbody>
+                    </table>
+                    <button class="save-agenda-btn" onclick="saveAgenda('${type}')">Salvar Agenda ${type}</button>
+                `;
+                item.innerHTML = tableHTML;
+                grid.appendChild(item);
             });
-            if (!valid) {
-                showToast('Erro: Hora de início deve ser menor que hora de fim em todos os períodos.', 'error');
-                return;
-            }
+        }
+        function updatePeriod(type, day, periodIndex, value) {
+            const parsed = parsePeriodInput(value);
+            if (!agendaSchedules[type][day]) agendaSchedules[type][day] = [];
+            if (!agendaSchedules[type][day][periodIndex]) agendaSchedules[type][day][periodIndex] = {start: '', end: ''};
+            agendaSchedules[type][day][periodIndex].start = parsed.start;
+            agendaSchedules[type][day][periodIndex].end = parsed.end;
+            // Re-render table to update gray cells
+            displayAgendaMgmt();
+        }
+        function saveAgenda(type) {
             localStorage.setItem('agendaSchedules', JSON.stringify(agendaSchedules));
-            showToast(`Configurações de agenda para ${type} gravadas com sucesso!`, 'success');
-            // Update hours if current type
+            showToast(`Agenda para ${type} salva com sucesso!`, 'success');
+            // If current, update hours
             if (currentAgendaType === type && selectedDay) {
                 populateHours(selectedDay);
             }
@@ -4257,7 +4262,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const cpfClean = patientCpf.replace(/\D/g, '');
                 const patientPhone = document.getElementById('patientPhone').value.trim();
                 const phoneClean = patientPhone.replace(/\D/g, '');
-                const schedulerName = sanitizeInput(document.getElementById('schedulerName').value.trim()); // Novo campo
+                const schedulerName = sanitizeInput(document.getElementById('schedulerName').value.trim());
                 const observations = sanitizeInput(document.getElementById('observations').value.trim());
                 const agendaType = document.getElementById('agendaTypeSelect').value;
                 const professional = sanitizeInput(document.getElementById('dentistSelect').value);
@@ -4265,6 +4270,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 const priority = document.getElementById('prioritySelect').value;
                 const firstAppointment = document.getElementById('firstAppointmentSelect').value;
                 const dateStr = selectedDay.toLocaleDateString('pt-BR');
+                const dayOfWeek = selectedDay.getDay();
                 if (isHoliday(selectedDay)) {
                     showToast(`Não é possível agendar em feriados: ${getHolidayName(selectedDay)}.`, 'error');
                     btn.classList.remove('loading');
@@ -4274,6 +4280,12 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 if (isBlocked(dateStr, agendaType)) {
                     const reason = blockedDates.find(b => b.date === dateStr && b.agendaType === agendaType)?.reason;
                     showToast(`Não é possível agendar em data bloqueada para ${agendaType}: ${reason}.`, 'error');
+                    btn.classList.remove('loading');
+                    spinner.style.display = 'none';
+                    return;
+                }
+                if (!agendaSchedules[agendaType][dayOfWeek].some(p => p.start && p.end)) {
+                    showToast(`Sem disponibilidade para ${agendaType} neste dia da semana.`, 'error');
                     btn.classList.remove('loading');
                     spinner.style.display = 'none';
                     return;
@@ -4297,7 +4309,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     spinner.style.display = 'none';
                     return;
                 }
-                // Check for duplicate
                 const existing = appointments.find(apt =>
                     apt.agendaType === agendaType &&
                     apt.date === dateStr &&
@@ -4310,13 +4321,12 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     spinner.style.display = 'none';
                     return;
                 }
-                // Create new appointment com desconto
                 const appointment = {
                     id: Date.now(),
                     patient: patientName,
                     cpf: patientCpf,
                     phone: patientPhone,
-                    scheduler: schedulerName, // Novo campo
+                    scheduler: schedulerName,
                     observations,
                     location,
                     agendaType,
@@ -4325,16 +4335,15 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     professional,
                     priority,
                     firstAppointment,
-                    status: 'pending', // Status inicial
+                    status: 'pending',
                     timestamp: new Date().toISOString(),
-                    discount: Object.keys(discountObj).length > 0 ? discountObj : undefined // Adiciona desconto se aplicável
+                    discount: Object.keys(discountObj).length > 0 ? discountObj : undefined
                 };
                 appointments.unshift(appointment);
                 localStorage.setItem('appointments', JSON.stringify(appointments));
-                currentPrintId = appointment.id; // Para impressão posterior
+                currentPrintId = appointment.id;
                 updateAppointmentDatesSet();
                 showToast('Consulta agendada com sucesso! ✅');
-                // Chama resetToEmpty para limpar todos os campos para um novo agendamento
                 resetToEmpty();
                 generateCalendar(currentAgendaType);
                 if (document.getElementById('scheduledGrid').style.display !== 'none') {
@@ -4342,9 +4351,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
                 btn.classList.remove('loading');
                 spinner.style.display = 'none';
-                // Definir flag para recarregar após finalização
                 justScheduled = true;
-                // Mostrar pop-up de impressão após agendamento
                 document.getElementById('printConfirmModal').style.display = 'block';
                 focusTrap(document.getElementById('printConfirmModal'));
             }, 1000);
@@ -4356,7 +4363,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 document.getElementById('editPatientName').value = appointment.patient;
                 document.getElementById('editPatientCpf').value = appointment.cpf || '';
                 document.getElementById('editPatientPhone').value = appointment.phone || '';
-                document.getElementById('editSchedulerName').value = appointment.scheduler || ''; // Novo campo
+                document.getElementById('editSchedulerName').value = appointment.scheduler || '';
                 document.getElementById('editObservations').value = appointment.observations || '';
                 document.getElementById('editLocationSelect').value = appointment.location || '';
                 const agendaType = appointment.agendaType || '';
@@ -4367,10 +4374,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 populateEditTimes();
                 document.getElementById('editPrioritySelect').value = appointment.priority || '';
                 document.getElementById('editFirstAppointmentSelect').value = appointment.firstAppointment || '';
-                // Set date
                 const [d, m, y] = appointment.date.split('/');
                 document.getElementById('editDate').value = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-                // Set time
                 document.getElementById('editTime').value = appointment.time;
                 document.getElementById('editModal').style.display = 'block';
                 document.getElementById('editPatientName').focus();
@@ -4383,7 +4388,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const cpfClean = patientCpf.replace(/\D/g, '');
             const patientPhone = document.getElementById('editPatientPhone').value.trim();
             const phoneClean = patientPhone.replace(/\D/g, '');
-            const schedulerName = sanitizeInput(document.getElementById('editSchedulerName').value.trim()); // Novo campo
+            const schedulerName = sanitizeInput(document.getElementById('editSchedulerName').value.trim());
             const observations = sanitizeInput(document.getElementById('editObservations').value.trim());
             const location = document.getElementById('editLocationSelect').value;
             const agendaType = document.getElementById('editAgendaTypeSelect').value;
@@ -4399,6 +4404,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const [y, m, d] = newDateInput.split('-');
             const newDateStr = `${d}/${m}/${y}`;
             const newDateObj = new Date(y, m - 1, d);
+            const newDayOfWeek = newDateObj.getDay();
             if (isHoliday(newDateObj)) {
                 showToast(`Não é possível agendar em feriados: ${getHolidayName(newDateObj)}.`, 'error');
                 return;
@@ -4408,12 +4414,15 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 showToast(`Não é possível agendar em data bloqueada para ${agendaType}: ${reason}.`, 'error');
                 return;
             }
+            if (!agendaSchedules[agendaType][newDayOfWeek].some(p => p.start && p.end)) {
+                showToast(`Sem disponibilidade para ${agendaType} neste dia da semana.`, 'error');
+                return;
+            }
             if (isProfessionalBlocked(professional, agendaType)) {
                 const reason = blockedProfessionals.find(bp => bp.professional === professional && bp.agendaType === agendaType)?.reason;
                 showToast(`Não é possível agendar com profissional bloqueado para ${agendaType}: ${reason}.`, 'error');
                 return;
             }
-            // Check for conflict
             const existing = appointments.find(apt =>
                 apt.id !== editingId &&
                 apt.agendaType === agendaType &&
@@ -4431,7 +4440,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 appointment.patient = patientName;
                 appointment.cpf = patientCpf;
                 appointment.phone = patientPhone;
-                appointment.scheduler = schedulerName; // Novo campo
+                appointment.scheduler = schedulerName;
                 appointment.observations = observations;
                 appointment.location = location;
                 appointment.agendaType = agendaType;
@@ -4477,20 +4486,17 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             modal.style.display = 'none';
-            // Se for o modal de confirmação de impressão e um agendamento foi recém-criado, recarregar a página
             if (modalId === 'printConfirmModal' && justScheduled) {
                 setTimeout(() => {
                     justScheduled = false;
                     window.location.reload();
-                }, 1000); // Delay para permitir que o usuário feche o modal
+                }, 1000);
             }
-            // Retorna foco ao botão que abriu o modal, se possível
             const triggeringButton = document.activeElement;
-            if (triggeringButton && triggeringButton.classList.contains('btn-edit') || triggeringButton.classList.contains('btn-delete')) {
+            if (triggeringButton && (triggeringButton.classList.contains('btn-edit') || triggeringButton.classList.contains('btn-delete'))) {
                 triggeringButton.focus();
             }
         }
-        // Close modals when clicking outside
         window.onclick = function(event) {
             const deleteModal = document.getElementById('deleteModal');
             const editModal = document.getElementById('editModal');
@@ -4501,33 +4507,15 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const patientHistoryModal = document.getElementById('patientHistoryModal');
             const discountModal = document.getElementById('discountModal');
             const declarationTimeModal = document.getElementById('declarationTimeModal');
-            if (event.target === deleteModal) {
-                closeModal('deleteModal');
-            }
-            if (event.target === editModal) {
-                closeModal('editModal');
-            }
-            if (event.target === blockModal) {
-                closeModal('blockModal');
-            }
-            if (event.target === blockProfessionalModal) {
-                closeModal('blockProfessionalModal');
-            }
-            if (event.target === printConfirmModal) {
-                closeModal('printConfirmModal');
-            }
-            if (event.target === printTypeModal) {
-                closeModal('printTypeModal');
-            }
-            if (event.target === patientHistoryModal) {
-                closeModal('patientHistoryModal');
-            }
-            if (event.target === discountModal) {
-                closeModal('discountModal');
-            }
-            if (event.target === declarationTimeModal) {
-                closeModal('declarationTimeModal');
-            }
+            if (event.target === deleteModal) closeModal('deleteModal');
+            if (event.target === editModal) closeModal('editModal');
+            if (event.target === blockModal) closeModal('blockModal');
+            if (event.target === blockProfessionalModal) closeModal('blockProfessionalModal');
+            if (event.target === printConfirmModal) closeModal('printConfirmModal');
+            if (event.target === printTypeModal) closeModal('printTypeModal');
+            if (event.target === patientHistoryModal) closeModal('patientHistoryModal');
+            if (event.target === discountModal) closeModal('discountModal');
+            if (event.target === declarationTimeModal) closeModal('declarationTimeModal');
         }
         function filterAppointments() {
             displayAppointments();
@@ -4714,7 +4702,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 });
             }
         }
-        // Toast notification expandido
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             const icon = type === 'success' ? '✅' : '❌';
@@ -4722,7 +4709,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             toast.className = `toast show ${type}`;
             setTimeout(() => toast.className = 'toast', 3000);
         }
-        // Função para atualizar status de comparecimento
         function updateAttendanceStatus(id, status) {
             const appointment = appointments.find(apt => apt.id === id);
             if (appointment) {
@@ -4736,14 +4722,12 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 }
             }
         }
-        // Função para gerenciar tecla Esc nos modais
         function handleEscapeKey(e) {
             if (e.key === 'Escape') {
                 const openModals = document.querySelectorAll('.modal[style*="block"]');
                 openModals.forEach(modal => closeModal(modal.id));
             }
         }
-        // Função para trap de foco nos modais
         function focusTrap(modal) {
             const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
             const firstFocusable = focusableElements[0];
@@ -4764,7 +4748,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     }
                 }
             });
-            firstFocusable.focus(); // Foco inicial no primeiro elemento
+            firstFocusable.focus();
         }
         // Discount Modal Functions
         function openDiscountModal() {
@@ -4778,7 +4762,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('serviceNameDisplay').textContent = `${professional} (${agendaType})`;
             document.getElementById('currentPriceDisplay').textContent = `R$ ${currentServicePrice.toFixed(2)}`;
             document.getElementById('serviceInfo').style.display = 'block';
-            calculateDiscount(); // Inicializa exibição de desconto
+            calculateDiscount();
             document.getElementById('discountModal').style.display = 'block';
             focusTrap(document.getElementById('discountModal'));
             document.getElementById('industryDiscount').checked = false;
@@ -4845,8 +4829,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 discountObj.promotional = value;
                 discountInfo += `Promocional: ${value}% `;
                 document.getElementById('promotionalDiscountDisplay').textContent = `Desconto Promocional: ${value}%`;
-            
-                // Capturar detalhes da promoção se o desconto promocional estiver ativado
                 const promotionType = document.getElementById('promotionType').value;
                 if (promotionType) {
                     let promotionName = promotionType;
@@ -4877,13 +4859,10 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         }
         function closeDiscountDisplay() {
             document.getElementById('displayedDiscounts').style.display = 'none';
-            discountObj = {}; // Limpa os descontos ao fechar
+            discountObj = {};
         }
-        // Populate selects
         window.onload = async function() {
-            // Aviso sobre localStorage (melhoria de segurança)
             console.warn('Aviso: Dados salvos em localStorage. Para produção, migre para Firebase ou Supabase para melhor segurança e persistência.');
-            // Pré-carregar logo como base64 para impressões (com retry)
             try {
                 logoBase64 = await getImageBase64('img/sesibranco.png');
                 if (!logoBase64) {
@@ -4893,7 +4872,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 console.error('Falha ao carregar logo para impressões:', e);
                 logoBase64 = '';
             }
-            // Carregar logo colorido para declarações (assumindo arquivo 'img/sesisaude.png' - ajuste o nome se necessário)
             try {
                 coloredLogoBase64 = await getImageBase64('img/sesisaude.png');
                 if (!coloredLogoBase64) {
@@ -4904,13 +4882,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 coloredLogoBase64 = '';
             }
             updateAppointmentDatesSet();
-            // Carregar tema salvo
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.body.setAttribute('data-theme', savedTheme);
             const toggleBtn = document.querySelector('.theme-toggle');
             toggleBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
             toggleBtn.setAttribute('aria-checked', savedTheme === 'dark' ? 'true' : 'false');
-            // Agenda Types
             const agendaTypeSelect = document.getElementById('agendaTypeSelect');
             agendaTypeSelect.innerHTML = '<option value="">Selecione</option>';
             agendaTypes.forEach(type => {
@@ -4919,7 +4895,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = type;
                 agendaTypeSelect.appendChild(option);
             });
-            // Edit Agenda Types
             const editAgendaTypeSelect = document.getElementById('editAgendaTypeSelect');
             editAgendaTypeSelect.innerHTML = '<option value="">Selecione</option>';
             agendaTypes.forEach(type => {
@@ -4928,7 +4903,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = type;
                 editAgendaTypeSelect.appendChild(option);
             });
-            // Report Agenda Types
             const reportAgendaTypeSelect = document.getElementById('reportAgendaType');
             reportAgendaTypeSelect.innerHTML = '<option value="">Todos os Tipos</option>';
             agendaTypes.forEach(type => {
@@ -4937,7 +4911,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = type;
                 reportAgendaTypeSelect.appendChild(option);
             });
-            // Locations
             const locationSelect = document.getElementById('locationSelect');
             locationSelect.innerHTML = '<option value="">Selecione um local</option>';
             locations.forEach(loc => {
@@ -4946,7 +4919,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = loc;
                 locationSelect.appendChild(option);
             });
-            // Edit Locations
             const editLocationSelect = document.getElementById('editLocationSelect');
             editLocationSelect.innerHTML = '<option value="">Selecione um local</option>';
             locations.forEach(loc => {
@@ -4955,7 +4927,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = loc;
                 editLocationSelect.appendChild(option);
             });
-            // Odontologia Professionals
             const odontologiaProfessional = document.getElementById('odontologiaProfessional');
             odontologiaProfessional.innerHTML = '<option value="">Todos</option>';
             dentists.forEach(prof => {
@@ -4964,7 +4935,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = prof;
                 odontologiaProfessional.appendChild(option);
             });
-            // Medicas Professionals
             const medicasProfessional = document.getElementById('medicasProfessional');
             medicasProfessional.innerHTML = '<option value="">Todos</option>';
             medicalSpecialists.forEach(prof => {
@@ -4973,7 +4943,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = prof;
                 medicasProfessional.appendChild(option);
             });
-            // Exames Professionals
             const examesProfessional = document.getElementById('examesProfessional');
             examesProfessional.innerHTML = '<option value="">Todos</option>';
             examSpecialists.forEach(prof => {
@@ -4982,7 +4951,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 option.textContent = prof;
                 examesProfessional.appendChild(option);
             });
-            // Configurar eventos
             document.getElementById('agendaTypeSelect').onchange = function() {
                 currentAgendaType = this.value;
                 const agendaType = this.value;
@@ -5012,19 +4980,15 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             document.getElementById('patientName').oninput = updateScheduleButton;
             document.getElementById('patientCpf').oninput = function() { formatCPF(this); validateCPF(this); };
             document.getElementById('patientPhone').oninput = function() { formatPhone(this); validatePhone(this); };
-            document.getElementById('schedulerName').oninput = updateScheduleButton; // Novo campo não afeta botão
+            document.getElementById('schedulerName').oninput = updateScheduleButton;
             const editCpfInput = document.getElementById('editPatientCpf');
             editCpfInput.oninput = function() { formatCPF(this); validateEditCPF(this); };
             const editPhoneInput = document.getElementById('editPatientPhone');
             editPhoneInput.oninput = function() { formatPhone(this); validateEditPhone(this); };
-            // Inicializar calendário vazio (sem defaults)
             currentAgendaType = '';
             generateCalendar(currentAgendaType);
-            // Auto-focus no campo de nome do paciente
             document.getElementById('patientName').focus();
-            // Listener para tecla Esc
             document.addEventListener('keydown', handleEscapeKey);
-            // Event listener para o select de promoção (mostrar/esconder "Outra promoção")
             document.getElementById('promotionType').onchange = function() {
                 const otherInput = document.getElementById('otherPromotion');
                 if (this.value === 'Outros') {
@@ -5034,7 +4998,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     otherInput.value = '';
                 }
             };
-            // Inicializar seção de datas bloqueadas se houver bloqueios
             const blockedGrid = document.getElementById('blockedGrid');
             const toggleBlockedBtn = document.getElementById('toggleBlockedBtn');
             if (blockedDates.length > 0 || blockedProfessionals.length > 0) {
@@ -5048,7 +5011,7 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         function updateScheduleButton() {
             const patientName = document.getElementById('patientName').value.trim();
             const patientCpf = document.getElementById('patientCpf').value.trim();
-            const cpfValid = patientCpf ? isValidCPF(patientCpf.replace(/\D/g, '')) : true; // Opcional, sempre válido se vazio
+            const cpfValid = patientCpf ? isValidCPF(patientCpf.replace(/\D/g, '')) : true;
             const patientPhone = document.getElementById('patientPhone').value.trim();
             const phoneValid = patientPhone && (patientPhone.replace(/\D/g, '').length >= 10 && patientPhone.replace(/\D/g, '').length <= 11);
             const agendaType = document.getElementById('agendaTypeSelect').value;
@@ -5085,13 +5048,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     }
                     return true;
                 });
-                // Ordenar por data e depois por horário
                 filteredAppointments.sort((a, b) => {
                     const dateA = new Date(a.date.split('/').reverse().join('-'));
                     const dateB = new Date(b.date.split('/').reverse().join('-'));
                     if (dateA < dateB) return -1;
                     if (dateA > dateB) return 1;
-                    // Mesma data, ordenar por horário
                     const timeA = a.time.split(':').reduce((acc, val, idx) => acc + parseInt(val) * (idx === 0 ? 60 : 1), 0);
                     const timeB = b.time.split(':').reduce((acc, val, idx) => acc + parseInt(val) * (idx === 0 ? 60 : 1), 0);
                     return timeA - timeB;
@@ -5116,7 +5077,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     row.insertCell(10).innerHTML = `<span class="status ${statusClass}">${getStatusText(apt.status)}</span>`;
                     row.insertCell(11).textContent = sanitizeInput(apt.observations || '');
                 });
-                // Summary Stats
                 const total = filteredAppointments.length;
                 const odontologica = filteredAppointments.filter(apt => apt.agendaType === 'Agenda Odontológica').length;
                 const medicas = filteredAppointments.filter(apt => apt.agendaType === 'Agenda Especialidades Médicas').length;
@@ -5140,7 +5100,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         <p>${exames}</p>
                     </div>
                 `;
-                // Generate Bar Chart for Type Distribution
                 const ctx1 = document.getElementById('reportChart').getContext('2d');
                 if (reportChart) {
                     reportChart.destroy();
@@ -5216,14 +5175,12 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         }
                     }
                 });
-                // Display percentages below bar chart
                 const barPercentages = document.getElementById('barPercentages');
                 barPercentages.innerHTML = `
                     <p>Odontológica: ${barTotal > 0 ? ((odontologica / barTotal) * 100).toFixed(1) : 0}%</p>
                     <p>Especialidades Médicas: ${barTotal > 0 ? ((medicas / barTotal) * 100).toFixed(1) : 0}%</p>
                     <p>Exames: ${barTotal > 0 ? ((exames / barTotal) * 100).toFixed(1) : 0}%</p>
                 `;
-                // Generate Bar Chart for Detailed Attendance
                 const attended = filteredAppointments.filter(apt => apt.status === 'attended').length;
                 const noShow = filteredAppointments.filter(apt => apt.status === 'no-show').length;
                 const rescheduled = filteredAppointments.filter(apt => apt.status === 'rescheduled').length;
@@ -5305,7 +5262,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         }
                     }
                 });
-                // Display percentages below attendance bar chart
                 const barAttendancePercentages = document.getElementById('barAttendancePercentages');
                 barAttendancePercentages.innerHTML = `
                     <p>Compareceu: ${attendanceTotal > 0 ? ((attended / attendanceTotal) * 100).toFixed(1) : 0}%</p>
@@ -5313,7 +5269,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     <p>Pendente: ${attendanceTotal > 0 ? ((pending / attendanceTotal) * 100).toFixed(1) : 0}%</p>
                     <p>Reagendado: ${attendanceTotal > 0 ? ((rescheduled / attendanceTotal) * 100).toFixed(1) : 0}%</p>
                 `;
-                // Generate Bar Chart for Productivity per Professional (Top 5)
                 const profCounts = {};
                 filteredAppointments.forEach(apt => {
                     profCounts[apt.professional] = (profCounts[apt.professional] || 0) + 1;
@@ -5388,7 +5343,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                         }
                     }
                 });
-                // Display percentages below productivity chart
                 const productivityPercentages = document.getElementById('productivityPercentages');
                 productivityPercentages.innerHTML = profEntries.map(entry => `<p>${entry[0]}: ${((entry[1] / profTotal) * 100).toFixed(1)}%</p>`).join('');
                 document.getElementById('reportTableContainer').style.display = 'block';
@@ -5421,7 +5375,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                 ])
             ];
             const ws = XLSX.utils.aoa_to_sheet(data);
-            // Estilo para cabeçalhos: negrito, fundo azul, texto branco
             for(let col=0; col<headers.length; col++){
                 const cell_address = XLSX.utils.encode_cell({r:0, c:col});
                 if(!ws[cell_address]) continue;
@@ -5431,7 +5384,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     alignment: { horizontal: "center", vertical: "center" }
                 };
             }
-            // Linhas alternadas: cinza claro e branco
             for(let row=1; row<data.length; row++){
                 const rowColor = row % 2 === 0 ? "F8F9FA" : "FFFFFF";
                 for(let col=0; col<headers.length; col++){
@@ -5443,19 +5395,18 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     };
                 }
             }
-            // Coluna Status (índice 10): cor baseada no status
             for(let row=1; row<data.length; row++){
                 const status = data[row][10];
-                let statusColor = "000000"; // default black
-                if(status === 'Compareceu') statusColor = "155724"; // green text
-                else if(status === 'Não Compareceu') statusColor = "721C24"; // red text
-                else if(status === 'Reagendado') statusColor = "856404"; // yellow text
-                else statusColor = "383D41"; // gray for pending
+                let statusColor = "000000";
+                if(status === 'Compareceu') statusColor = "155724";
+                else if(status === 'Não Compareceu') statusColor = "721C24";
+                else if(status === 'Reagendado') statusColor = "856404";
+                else statusColor = "383D41";
                 const cell_address = XLSX.utils.encode_cell({r:row, c:10});
                 if(!ws[cell_address]) continue;
                 ws[cell_address].s = {
                     font: { bold: true, color: {rgb: statusColor} },
-                    fill: { fgColor: {rgb: "FFFFFF"} }, // white bg for status
+                    fill: { fgColor: {rgb: "FFFFFF"} },
                     alignment: { horizontal: "center", vertical: "center" }
                 };
             }
