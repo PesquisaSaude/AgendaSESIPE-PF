@@ -258,6 +258,20 @@
             font-size: 10px;
             animation: pulse 2s infinite;
         }
+        .day.non-working-day {
+    background: #f5f5f5 !important;
+    color: #adb5bd !important;
+    border-color: #e9ecef !important;
+    cursor: not-allowed;
+    font-style: italic;
+}
+
+.day.non-working-day:hover {
+    background: #f5f5f5 !important;
+    transform: none;
+    box-shadow: none;
+    color: #adb5bd !important;
+}
         @keyframes pulse {
             0% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(1.2); }
@@ -3936,8 +3950,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
             const dateStr = date.toLocaleDateString('pt-BR');
             const isHolidayDay = isHoliday(date);
             const isBlockedDay = agendaType ? isBlocked(dateStr, agendaType) : false;
-            
-            // NOVA LÓGICA: Checa disponibilidade na Gestão da Agenda (global ou custom se prof selecionado)
+           
+            // LÓGICA ATUALIZADA: Verifica disponibilidade na Gestão da Agenda (global ou custom para prof selecionado)
             let hasEnabledPeriods = false;
             const selectedProf = document.getElementById('dentistSelect').value; // Prof atual, se selecionado
             let schedule;
@@ -3952,13 +3966,20 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     hasEnabledPeriods = daySchedule.periods.some(p => p.enabled && p.start && p.end);
                 }
             }
-            
+           
             const slots = hasEnabledPeriods ? generateSlotsForDay(agendaType || 'Agenda Especialidades Médicas', dayOfWeek, selectedProf) : [];
             const isUnavailableBase = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || date < today || isBlockedDay || !hasEnabledPeriods || slots.length === 0;
-            
+           
             if (isUnavailableBase) {
                 dayElement.classList.add('unavailable');
-                if (isHolidayDay) {
+                // ATUALIZAÇÃO: Classe específica para dias sem trabalho (cinza claro) e tooltip explicativo
+                if (!hasEnabledPeriods) {
+                    dayElement.classList.add('non-working-day'); // Nova classe para cinza claro visível
+                    dayElement.title = selectedProf 
+                        ? `Profissional ${selectedProf} não atende neste dia da semana em ${agendaType}. Verifique a Gestão da Agenda.`
+                        : `Dia não disponível na agenda para ${agendaType || 'o tipo selecionado'}. Verifique a Gestão da Agenda.`;
+                    dayElement.setAttribute('aria-label', `${dayElement.getAttribute('aria-label')} - Profissional não atende neste dia (desabilitado)`);
+                } else if (isHolidayDay) {
                     dayElement.classList.add('holiday');
                     dayElement.title = getHolidayName(date);
                     dayElement.setAttribute('aria-label', `Feriado: ${getHolidayName(date)} - ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
@@ -3967,9 +3988,6 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
                     const blockReason = agendaType ? blockedDates.find(b => b.date === dateStr && b.agendaType === agendaType)?.reason : null;
                     dayElement.title = `Data bloqueada para ${agendaType}: ${blockReason}`;
                     dayElement.setAttribute('aria-label', `Data bloqueada para ${agendaType}: ${blockReason} - ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
-                } else if (!hasEnabledPeriods) { // NOVA: Reflete desabilitação da Gestão
-                    dayElement.title = `Dia não disponível na agenda para ${agendaType || 'o tipo selecionado'}. Verifique a Gestão da Agenda.`;
-                    dayElement.setAttribute('aria-label', `Dia não disponível na agenda para ${agendaType || 'o tipo selecionado'} - ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
                 } else if (slots.length === 0) {
                     dayElement.title = `Sem disponibilidade para ${agendaType} neste dia da semana.`;
                     dayElement.setAttribute('aria-label', `Sem disponibilidade para ${agendaType} neste dia da semana - ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
@@ -3996,7 +4014,9 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
     }
     document.getElementById('monthDisplay').textContent = firstDay.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 }
-        function selectDay(date, dayElement = null) {
+
+// Updated selectDay function to prevent selection on non-working days and show explanatory toast
+function selectDay(date, dayElement = null) {
     if (isHoliday(date)) {
         showToast(`Não é possível selecionar feriados: ${getHolidayName(date)}`, 'error');
         return;
@@ -4008,8 +4028,8 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         showToast(`Data bloqueada para ${selectedAgendaType}: ${reason}`, 'error');
         return;
     }
-    
-    // NOVA LÓGICA: Valida enabled periods na Gestão da Agenda
+   
+    // ATUALIZAÇÃO: Valida enabled periods na Gestão da Agenda para impedir seleção
     const dayOfWeek = date.getDay();
     const selectedProf = document.getElementById('dentistSelect').value;
     let hasEnabledPeriods = false;
@@ -4026,10 +4046,11 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
         }
     }
     if (!hasEnabledPeriods) {
-        showToast(`Dia não disponível na agenda para ${selectedAgendaType || 'o tipo selecionado'}. Verifique a Gestão da Agenda.`, 'error');
+        const profMsg = selectedProf ? `Profissional ${selectedProf}` : 'a agenda';
+        showToast(`${profMsg} não atende neste dia da semana em ${selectedAgendaType}. Verifique a Gestão da Agenda para ativar períodos.`, 'error');
         return;
     }
-    
+   
     const slots = generateSlotsForDay(selectedAgendaType || 'Agenda Especialidades Médicas', dayOfWeek, selectedProf);
     if (selectedAgendaType && slots.length === 0) {
         showToast(`Sem disponibilidade para ${selectedAgendaType} neste dia da semana.`, 'error');
