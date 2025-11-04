@@ -2826,25 +2826,30 @@
             return { start: '', end: '' };
         }
         // Updated generateSlots for day-specific with per-period enabled check and per-professional custom
-        function generateSlotsForDay(agendaType, dayOfWeek, professional = null) {
-            const typeSchedules = agendaSchedules[agendaType];
-            if (!typeSchedules || !professional || !typeSchedules.custom || !typeSchedules.custom[professional]) return [];
-            const schedule = typeSchedules.custom[professional];
-            const daySchedule = schedule?.[dayOfWeek];
-            if (!daySchedule) return [];
-            const enabledPeriods = daySchedule.periods.filter(p => p.enabled && p.start && p.end);
-            if (enabledPeriods.length === 0) return [];
-            let slots = [];
-            const interval = getDuration(agendaType, professional) || intervals[agendaType];
-            enabledPeriods.forEach(period => {
-                let currentMin = parseTime(period.start);
-                const endMin = parseTime(period.end);
-                while (currentMin + interval <= endMin) {
-                    slots.push(formatTime(currentMin));
-                    currentMin += interval;
-                }
-            });
-            return [...new Set(slots)].sort();
+function generateSlotsForDay(agendaType, dayOfWeek, professional = null) {
+    const typeSchedules = agendaSchedules[agendaType];
+    if (!typeSchedules) return [];
+    let schedule;
+    if (professional && typeSchedules.custom && typeSchedules.custom[professional]) {
+        schedule = typeSchedules.custom[professional];
+    } else {
+        schedule = typeSchedules.global;
+    }
+    const daySchedule = schedule?.[dayOfWeek];
+    if (!daySchedule) return [];
+    const enabledPeriods = daySchedule.periods.filter(p => p.enabled && p.start && p.end);
+    if (enabledPeriods.length === 0) return [];
+    let slots = [];
+    const interval = professional ? getDuration(agendaType, professional) : intervals[agendaType];
+    enabledPeriods.forEach(period => {
+        let currentMin = parseTime(period.start);
+        const endMin = parseTime(period.end);
+        while (currentMin + interval <= endMin) {
+            slots.push(formatTime(currentMin));
+            currentMin += interval;
+        }
+    });
+    return [...new Set(slots)].sort();
         }
         function getDuration(agendaType, professional) {
             if (!agendaSchedules[agendaType] || !agendaSchedules[agendaType].custom || !agendaSchedules[agendaType].custom[professional]) return null;
@@ -5807,3 +5812,4 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
     </script>
 </body>
 </html>
+
