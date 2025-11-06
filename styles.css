@@ -1955,3 +1955,7 @@ button[aria-disabled="true"] {
     background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
     color: #155724;
 }
+.declaration-body p {
+    text-align: justify;
+    text-justify: inter-word; /* Para um controle extra na distribuição das palavras */
+}
