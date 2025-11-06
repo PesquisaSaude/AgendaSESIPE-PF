@@ -1533,9 +1533,40 @@ function confirmDeclarationTime() {
         showToast('Agendamento não encontrado.', 'error');
         return;
     }
-    generateAttendanceDeclaration(apt.cpf, apt.patient, entryTime);
+    
+    // NOVA REGRA: Verifica se CPF existe; se não, solicita inserção
+    let finalCpf = apt.cpf || '';
+    if (!finalCpf || finalCpf.trim() === '') {
+        // Opção simples: Use prompt() com validação (fácil de testar)
+        let userCpf = prompt('CPF não encontrado no agendamento. Informe o CPF do paciente para prosseguir com a declaração:', '');
+        if (userCpf === null) { // Usuário cancelou
+            showToast('Geração de declaração cancelada.', 'warning');
+            return;
+        }
+        userCpf = userCpf.replace(/\D/g, ''); // Limpa não-dígitos
+        if (userCpf.length !== 11 || !isValidCPF(userCpf)) {
+            showToast('CPF inválido. Verifique e tente novamente.', 'error');
+            return; // Para o fluxo; usuário pode tentar de novo
+        }
+        finalCpf = formatCPFValue(userCpf); // Função auxiliar para formatar (veja abaixo)
+        
+        // Opcional: Salva no agendamento para persistir
+        apt.cpf = finalCpf;
+        localStorage.setItem('appointments', JSON.stringify(appointments));
+        showToast('CPF adicionado e salvo no agendamento!', 'success');
+    }
+    
+    generateAttendanceDeclaration(finalCpf, apt.patient, entryTime);
     closeModal('declarationTimeModal');
     currentDeclarationId = null;
+}
+
+// Função auxiliar para formatar CPF (adicione fora das funções, se não existir)
+function formatCPFValue(cpfClean) {
+    cpfClean = cpfClean.replace(/(\d{3})(\d)/, "$1.$2");
+    cpfClean = cpfClean.replace(/(\d{3})(\d)/, "$1.$2");
+    cpfClean = cpfClean.replace(/(\d{3})(\d{1,2})/, "$1-$2");
+    return cpfClean;
 }
 async function generateAttendanceDeclaration(cpf, patientName, entryTime) {
     const declDate = new Date().toLocaleDateString('pt-BR');
@@ -1646,7 +1677,7 @@ async function generateAttendanceDeclaration(cpf, patientName, entryTime) {
               </div>
             </div>
             <div class="declaration-body">
-              <p>Declaro para os devidos fins que o Senhor(a), <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, compareceu ao atendimento no SESI Saúde no horário de entrada <strong>${entryTimeFormatted}</strong>, e saída ás <strong>${declTime}</strong>, tendo o atendimento realizado na data de <strong>${declDate}</strong>.</p>
+              <p>Declaro para os devidos fins que o Senhor(a), <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF: <strong>${cpf}</strong>, compareceu ao atendimento no SESI Saúde no horário de entrada <strong>${entryTimeFormatted}</strong>, e saída ás <strong>${declTime}</strong>, tendo o atendimento realizado na data de <strong>${declDate}</strong>.</p>
               <p>O atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.</p>
               <p>Esta declaração serve como comprovação de presença e comparecimento ao local e horário designados.</p>
               <p>Local e Data: ${locationText}, ${declDate} às ${declTime}.</p>
