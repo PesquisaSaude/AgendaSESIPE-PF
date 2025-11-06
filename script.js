@@ -470,7 +470,7 @@ const locationAddresses = {
 // Profissionais restritos para Posto Avançado - SESI Paulista
 const paulistaRestricted = {
     'Agenda Odontológica': dentists, // Todos os dentistas
-    'Agenda Especialidades Médicas': ['Clínico Geral', 'Nutricionista'],
+    'Agenda Especialidades Médicas': ['Clínico Geral', 'Nutricionista','Combo Nutricional',"Combo Masculino","Combo Ultrassons Femininos"],
     'Agenda de Exames': [
         'Audiometria',
         'Exames Laboratoriais',
@@ -3835,4 +3835,5 @@ function exportToExcel() {
     XLSX.utils.book_append_sheet(wb, ws, 'Relatório de Agendamentos');
     XLSX.writeFile(wb, `relatorio_agendamentos_${new Date().toISOString().split('T')[0]}.xlsx`);
     showToast('Relatório exportado para Excel com cores! ✅');
+
 }
