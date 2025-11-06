@@ -3528,9 +3528,9 @@ function generateReport() {
                         'rgba(23, 162, 184, 0.8)'
                     ],
                     borderColor: [
-                        'rgba(40, 167, 69, 1)',
-                        'rgba(0, 123, 255, 1)',
-                        'rgba(23, 162, 184, 1)'
+                        'rgba(41, 126, 61, 1)',
+                        'rgba(33, 111, 194, 1)',
+                        'rgba(28, 128, 143, 1)'
                     ],
                     borderWidth: 2
                 }]
@@ -3612,15 +3612,15 @@ function generateReport() {
                         'rgba(40, 167, 69, 0.8)',
                         'rgba(220, 53, 69, 0.8)',
                         'rgba(255, 193, 7, 0.8)',
-                        'rgba(255, 193, 7, 0.6)',
+                        'rgba(251, 255, 0, 0.96)',
                         'rgba(108, 117, 125, 0.8)'
                     ],
                     borderColor: [
-                        'rgba(40, 167, 69, 1)',
-                        'rgba(220, 53, 69, 1)',
-                        'rgba(255, 193, 7, 1)',
-                        'rgba(255, 193, 7, 0.8)',
-                        'rgba(108, 117, 125, 1)'
+                        'rgba(51, 143, 73, 1)',
+                        'rgba(173, 65, 76, 1)',
+                        'rgba(192, 158, 55, 1)',
+                        'rgba(221, 182, 65, 0.8)',
+                        'rgba(83, 85, 87, 1)'
                     ],
                     borderWidth: 2
                 }]
@@ -3703,7 +3703,7 @@ function generateReport() {
                 datasets: [{
                     data: profData,
                     backgroundColor: 'rgba(153, 102, 255, 0.8)',
-                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderColor: 'rgba(83, 48, 155, 1)',
                     borderWidth: 2
                 }]
             },
