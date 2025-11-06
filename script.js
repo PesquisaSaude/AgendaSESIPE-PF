@@ -187,12 +187,24 @@ let currentActionId = null; // Global para ID da ação (inativação/reativaç�
 let currentActionType = ''; // Global para tipo de ação ('inactivate' ou 'reactivate')
 // Objeto de preços para serviços (exemplo de valores - ajuste conforme necessário)
 const prices = {
-    // ... (keep existing combos, medical, and ultrassons as before)
-    // Novos combos adicionados
+    // Novos combos adicionados (já existentes, mantidos)
     'Combo Masculino': 199.00,
     'Combo Ultrassons Femininos': 499.00,
     'Combo Psicologia': 358.00,
-    // Refined new exams
+    // Novos combos adicionados conforme solicitação
+    'Combo Otorrino': 184.00,
+    'Combo Nutricional': 239.00,
+    'Combo Ginecologista': 157.00,
+    'Combo Coração': 339.00,
+    // Preços para especialistas médicos individuais
+    'Cardiologista': 139.00,
+    'Clínico Geral': 119.00,
+    'Ginecologista': 119.00,
+    'Otorrino': 119.00,
+    'Oftalmologista': 119.00,
+    'Psicologia': 107.00,
+    'Nutricionista': 107.00,
+    // Refined new exams (mantidos como antes)
     'ECG - Eletrocardiograma com Laudo Cardiológico': 45.00,
     'EEG - Eletroencefalograma': 78.00,
     'Espirometria': 36.00,
@@ -1650,7 +1662,7 @@ function generateCalendar(agendaType = currentAgendaType) {
             const dateYYYY = formatDateToYYYYMMDD(date);
             const isHolidayDay = isHoliday(date);
             const isBlockedDay = agendaType ? isBlocked(dateStr, agendaType) : false;
-     
+    
             // LÓGICA ATUALIZADA: Verifica disponibilidade na Gestão da Agenda (global ou custom para prof selecionado)
             let hasEnabledPeriods = false;
             const selectedProf = document.getElementById('dentistSelect').value; // Prof atual, se selecionado
@@ -1666,11 +1678,11 @@ function generateCalendar(agendaType = currentAgendaType) {
                     hasEnabledPeriods = daySchedule.periods.some(p => p.enabled && p.start && p.end);
                 }
             }
-     
+    
             const slots = hasEnabledPeriods ? generateSlotsForDay(agendaType || 'Agenda Especialidades Médicas', dayOfWeek, selectedProf) : [];
             const isProfBlocked = selectedProf ? isProfessionalBlockedOnDate(selectedProf, agendaType, dateYYYY) : false;
             const isUnavailableBase = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || date < today || isBlockedDay || !hasEnabledPeriods || slots.length === 0 || isProfBlocked;
-     
+    
             if (isUnavailableBase) {
                 dayElement.classList.add('unavailable');
                 // ATUALIZAÇÃO: Classe específica para dias sem trabalho (cinza claro) e tooltip explicativo
