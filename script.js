@@ -492,7 +492,49 @@ const paulistaRestricted = {
         'Ultrassonografia Região Inguinal',
         'Ultrassonografia Tireóide',
         'Ultrassonografia Transretal',
-        'Ultrassonografia Transvaginal'
+        'Ultrassonografia Transvaginal',
+        'ECG - Eletrocardiograma com Laudo Cardiológico',
+    'EEG - Eletroencefalograma',
+    'Espirometria',
+    'Espirometria com Fluxo Expiratório Máximo - Peak Flow',
+    'Audiometria',
+    'Radiografia Abdômen Simples',
+    'Radiografia Antebraço',
+    'Radiografia Articulação Coxo Femural',
+    'Radiografia Articulação Têmporo Mandibular (ATM)',
+    'Radiografia Bacia',
+    'Radiografia Braço',
+    'Radiografia Calcâneo PA + Perfil',
+    'Radiografia Cavum (Seios da Face)',
+    'Radiografia Coluna Cervical PA + Perfil',
+    'Radiografia Coluna Cervical PA + Perfil + Oblíqua',
+    'Radiografia Coluna Dorsal PA + Perfil',
+    'Radiografia Coluna Lombar PA + Perfil',
+    'Radiografia Coluna Lombo Sacra PA + Perfil',
+    'Radiografia Coluna Toraco Lombar PA + Perfil',
+    'Radiografia Coluna Vertebral PA + Perfil (Total)',
+    'Radiografia Cotovelo',
+    'Radiografia Coxa',
+    'Radiografia Crânio',
+    'Radiografia Crânio PA + Perfil + Oblíqua + Hirtz',
+    'Radiografia Joelho',
+    'Radiografia Joelho PA + Perfil + Axial',
+    'Radiografia Mão PA + Perfil',
+    'Radiografia Ombro',
+    'Radiografia Ombro PA + Axial + Omoplata',
+    'Radiografia Pata de Rã',
+    'Radiografia Pé PA + Oblíqua',
+    'Radiografia Periodontal (por Tomada Radiográfica)',
+    'Radiografia Perna PA + Perfil',
+    'Radiografia Punho PA + Perfil',
+    'Radiografia Seios da Face Frontal + Mento-nasal',
+    'Radiografia Seios da Face Frontal + Mento-nasal + Perfil',
+    'Radiografia Tórax PA',
+    'Radiografia Tórax PA + Perfil + Oblíqua',
+    'Radiografia Tórax PA com Laudo OIT',
+    'Radiografia Tórax PA e Perfil',
+    'Radiografia Tornozelo PA + Perfil',
+    'Exames Laboratoriais'
     ]
 };
 const professionalDurations = {
@@ -1499,6 +1541,11 @@ async function generateAttendanceDeclaration(cpf, patientName, entryTime) {
     const declDate = new Date().toLocaleDateString('pt-BR');
     const declTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     const entryTimeFormatted = new Date(`2000-01-01T${entryTime}`).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    
+    // NOVA LÓGICA: Busca o agendamento pelo ID global e define o local dinamicamente
+    const apt = appointments.find(a => a.id === currentDeclarationId);
+    const locationText = apt && apt.location && apt.location.includes('Paulista') ? 'Paulista/PE' : 'Recife/PE';
+    
     const printContent = `
         <html>
         <head>
@@ -1599,15 +1646,15 @@ async function generateAttendanceDeclaration(cpf, patientName, entryTime) {
               </div>
             </div>
             <div class="declaration-body">
-              <p>Eu, <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, declaro para os devidos fins que compareci ao atendimento no SESI Saúde no horário de entrada <strong>${entryTimeFormatted}</strong>, tendo o atendimento realizado na data de <strong>${declDate}</strong>.</p>
+              <p>Declaro para os devidos fins que o Senhor(a), <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF <strong>${cpf}</strong>, compareceu ao atendimento no SESI Saúde no horário de entrada <strong>${entryTimeFormatted}</strong>, e saída ás <strong>${declTime}</strong>, tendo o atendimento realizado na data de <strong>${declDate}</strong>.</p>
               <p>O atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.</p>
               <p>Esta declaração serve como comprovação de presença e comparecimento ao local e horário designados.</p>
-              <p>Local e Data: Recife/PE, ${declDate} às ${declTime}.</p>
+              <p>Local e Data: ${locationText}, ${declDate} às ${declTime}.</p>
             </div>
             <div class="signature-section">
               <div class="signature-box">
                 Assinatura e Carimbo do Responsável:<br>
-                ________________________________________
+                _________________________________________________________________
               </div>
             </div>
             <div class="footer">
