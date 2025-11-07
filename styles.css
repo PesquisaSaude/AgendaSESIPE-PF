@@ -1959,3 +1959,5 @@ button[aria-disabled="true"] {
     text-align: justify;
     text-justify: inter-word; /* Para um controle extra na distribuição das palavras */
 }
+.today-highlight
+ { box-shadow: 0 0 10px rgba(255,193,7,0.8); }
