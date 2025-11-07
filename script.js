@@ -1,11 +1,10 @@
-// Data atual do sistema (dinâmica) - agora usa new Date() automaticamente
-let currentDate = new Date();
+// Ajuste para a data atual fornecida (November 06, 2025)
+let currentDate = new Date(2025, 10, 6); // Mês é 0-indexed, novembro é 10
 let selectedDay = null;
 let selectedHour = null;
 let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
 let blockedDates = JSON.parse(localStorage.getItem('blockedDates')) || [];
 let blockedProfessionals = JSON.parse(localStorage.getItem('blockedProfessionals')) || [];
-
 // Updated structure for day-specific schedules with per-period enabled flag and per-professional customs
 let agendaSchedules = JSON.parse(localStorage.getItem('agendaSchedules')) || {
     'Agenda Odontológica': {
@@ -1708,12 +1707,7 @@ function generateCalendar(agendaType = currentAgendaType) {
     const calendar = document.getElementById('calendar');
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    
-    // DATA DINÂMICA: hoje real do sistema
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // início do dia atual (00:00:00)
-    const todayStr = now.toDateString();
-
+    const today = new Date(2025, 10, 6); // Data fixa para consistência
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
@@ -1744,9 +1738,10 @@ function generateCalendar(agendaType = currentAgendaType) {
             const dateYYYY = formatDateToYYYYMMDD(date);
             const isHolidayDay = isHoliday(date);
             const isBlockedDay = agendaType ? isBlocked(dateStr, agendaType) : false;
-
+    
+            // LÓGICA ATUALIZADA: Verifica disponibilidade na Gestão da Agenda (global ou custom para prof selecionado)
             let hasEnabledPeriods = false;
-            const selectedProf = document.getElementById('dentistSelect').value;
+            const selectedProf = document.getElementById('dentistSelect').value; // Prof atual, se selecionado
             let schedule;
             if (agendaType && agendaSchedules[agendaType]) {
                 if (selectedProf && agendaSchedules[agendaType].custom && agendaSchedules[agendaType].custom[selectedProf]) {
@@ -1759,17 +1754,16 @@ function generateCalendar(agendaType = currentAgendaType) {
                     hasEnabledPeriods = daySchedule.periods.some(p => p.enabled && p.start && p.end);
                 }
             }
-
+    
             const slots = hasEnabledPeriods ? generateSlotsForDay(agendaType || 'Agenda Especialidades Médicas', dayOfWeek, selectedProf) : [];
             const isProfBlocked = selectedProf ? isProfessionalBlockedOnDate(selectedProf, agendaType, dateYYYY) : false;
-            
-            // DATA DINÂMICA: bloqueia dias passados
-            const isUnavailableBase = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || date < todayStart || isBlockedDay || !hasEnabledPeriods || slots.length === 0 || isProfBlocked;
-
+            const isUnavailableBase = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || date < today || isBlockedDay || !hasEnabledPeriods || slots.length === 0 || isProfBlocked;
+    
             if (isUnavailableBase) {
                 dayElement.classList.add('unavailable');
+                // ATUALIZAÇÃO: Classe específica para dias sem trabalho (cinza claro) e tooltip explicativo
                 if (!hasEnabledPeriods) {
-                    dayElement.classList.add('non-working-day');
+                    dayElement.classList.add('non-working-day'); // Nova classe para cinza claro visível
                     dayElement.title = selectedProf
                         ? `Profissional ${selectedProf} não atende neste dia da semana em ${agendaType}. Verifique a Gestão da Agenda.`
                         : `Dia não disponível na agenda para ${agendaType || 'o tipo selecionado'}. Verifique a Gestão da Agenda.`;
@@ -1798,9 +1792,7 @@ function generateCalendar(agendaType = currentAgendaType) {
             } else {
                 dayElement.onclick = () => selectDay(date);
                 dayElement.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') selectDay(date); };
-                
-                // DESTAQUE DINÂMICO DO DIA ATUAL
-                if (date.toDateString() === todayStr) {
+                if (date.toDateString() === today.toDateString()) {
                     dayElement.style.background = '#ffc107';
                     dayElement.style.color = '#000';
                     dayElement.setAttribute('aria-label', `Hoje: ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
@@ -1816,35 +1808,100 @@ function generateCalendar(agendaType = currentAgendaType) {
     }
     document.getElementById('monthDisplay').textContent = firstDay.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 }
-
-function autoSelectToday() {
-    // DATA DINÂMICA: hoje real do sistema
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    const days = document.querySelectorAll('.day');
-    for (let day of days) {
-        const dayNum = parseInt(day.textContent);
-        if (!isNaN(dayNum)) {
-            const testDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNum);
-            if (testDate.getTime() === today.getTime() && testDate.getMonth() === currentDate.getMonth()) {
-                const dayOfWeek = testDate.getDay();
-                const dateStr = testDate.toLocaleDateString('pt-BR');
-                const isHolidayDay = isHoliday(testDate);
-                const selectedAgendaType = document.getElementById('agendaTypeSelect').value;
-                const isBlockedDay = selectedAgendaType ? isBlocked(dateStr, selectedAgendaType) : false;
-                const slots = generateSlotsForDay(selectedAgendaType || 'Agenda Especialidades Médicas', dayOfWeek);
-                const isUnavailable = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || testDate < today || isBlockedDay || slots.length === 0;
-                if (!isUnavailable) {
-                    selectDay(testDate, day);
-                    day.focus();
-                    return;
-                }
-            }
+// Updated selectDay function to prevent selection on non-working days and show explanatory toast
+function selectDay(date, dayElement = null) {
+    if (isHoliday(date)) {
+        showToast(`Não é possível selecionar feriados: ${getHolidayName(date)}`, 'error');
+        return;
+    }
+    const dateStr = date.toLocaleDateString('pt-BR');
+    const dateYYYY = formatDateToYYYYMMDD(date);
+    const selectedAgendaType = document.getElementById('agendaTypeSelect').value;
+    if (selectedAgendaType && isBlocked(dateStr, selectedAgendaType)) {
+        const reason = blockedDates.find(b => b.date === dateStr && b.agendaType === selectedAgendaType)?.reason;
+        showToast(`Data bloqueada para ${selectedAgendaType}: ${reason}`, 'error');
+        return;
+    }
+    const selectedProf = document.getElementById('dentistSelect').value;
+    if (selectedProf && selectedAgendaType && isProfessionalBlockedOnDate(selectedProf, selectedAgendaType, dateYYYY)) {
+        const block = blockedProfessionals.find(bp => bp.professional === selectedProf && bp.agendaType === selectedAgendaType && dateYYYY >= bp.startDate && dateYYYY <= bp.endDate);
+        showToast(`Profissional ${selectedProf} bloqueado nesta data para ${selectedAgendaType}: ${block?.reason || 'Bloqueio de profissional'}`, 'error');
+        return;
+    }
+    // ATUALIZAÇÃO: Valida enabled periods na Gestão da Agenda para impedir seleção
+    const dayOfWeek = date.getDay();
+    let hasEnabledPeriods = false;
+    if (selectedAgendaType && agendaSchedules[selectedAgendaType]) {
+        let schedule;
+        if (selectedProf && agendaSchedules[selectedAgendaType].custom && agendaSchedules[selectedAgendaType].custom[selectedProf]) {
+            schedule = agendaSchedules[selectedAgendaType].custom[selectedProf];
+        } else {
+            schedule = agendaSchedules[selectedAgendaType].global;
+        }
+        const daySchedule = schedule?.[dayOfWeek];
+        if (daySchedule) {
+            hasEnabledPeriods = daySchedule.periods.some(p => p.enabled && p.start && p.end);
         }
     }
-    console.log('Hoje não é selecionável (fim de semana, feriado ou bloqueado).');
-}
+    if (!hasEnabledPeriods) {
+        const profMsg = selectedProf ? `Profissional ${selectedProf}` : 'a agenda';
+        showToast(`${profMsg} não atende neste dia da semana em ${selectedAgendaType}. Verifique a Gestão da Agenda para ativar períodos.`, 'error');
+        return;
+    }
+    const slots = generateSlotsForDay(selectedAgendaType || 'Agenda Especialidades Médicas', dayOfWeek, selectedProf);
+    if (selectedAgendaType && slots.length === 0) {
+        showToast(`Sem disponibilidade para ${selectedAgendaType} neste dia da semana.`, 'error');
+        return;
+    }
+            selectedDay = date;
+            if (dayElement) {
+                dayElement.classList.add('selected');
+            } else {
+                document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
+                const days = document.querySelectorAll('.day');
+                for (let d of days) {
+                    const dayNum = parseInt(d.textContent);
+                    if (!isNaN(dayNum)) {
+                        const testDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNum);
+                        if (testDate.toDateString() === date.toDateString()) {
+                            d.classList.add('selected');
+                            break;
+                        }
+                    }
+                }
+            }
+            document.getElementById('selectedDate').style.display = 'block';
+            document.getElementById('selectedDateText').textContent = `${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })} de ${date.getFullYear()}`;
+            document.getElementById('sectionButtons').style.display = 'flex';
+            document.getElementById('blockDateBtn').disabled = false;
+            updateScheduleButton();
+            populateHours(date);
+        }
+        function autoSelectToday() {
+            const today = new Date(2025, 10, 6); // Data fixa
+            const days = document.querySelectorAll('.day');
+            for (let day of days) {
+                const dayNum = parseInt(day.textContent);
+                if (!isNaN(dayNum)) {
+                    const testDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNum);
+                    if (testDate.toDateString() === today.toDateString() && testDate.getMonth() === currentDate.getMonth()) {
+                        const dayOfWeek = testDate.getDay();
+                        const dateStr = testDate.toLocaleDateString('pt-BR');
+                        const isHolidayDay = isHoliday(testDate);
+                        const selectedAgendaType = document.getElementById('agendaTypeSelect').value;
+                        const isBlockedDay = selectedAgendaType ? isBlocked(dateStr, selectedAgendaType) : false;
+                        const slots = generateSlotsForDay(selectedAgendaType || 'Agenda Especialidades Médicas', dayOfWeek);
+                        const isUnavailable = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || testDate < today || isBlockedDay || slots.length === 0;
+                        if (!isUnavailable) {
+                            selectDay(testDate, day);
+                            day.focus();
+                            return;
+                        }
+                    }
+                }
+            }
+            console.log('Hoje não é selecionável (fim de semana, feriado ou bloqueado).');
+        }
         function blockSelectedDate() {
             if (!selectedDay) {
                 showToast('Selecione uma data primeiro.', 'error');
