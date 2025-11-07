@@ -1,5 +1,4 @@
-// Ajuste para a data atual fornecida (November 06, 2025)
-let currentDate = new Date(2025, 10, 6); // Mês é 0-indexed, novembro é 10
+let currentDate = new Date();
 let selectedDay = null;
 let selectedHour = null;
 let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
@@ -185,6 +184,8 @@ let currentDeclarationId = null; // Global para ID do agendamento na declaraçã
 let justScheduled = false; // Flag para indicar se um agendamento foi recém-criado
 let currentActionId = null; // Global para ID da ação (inativação/reativação)
 let currentActionType = ''; // Global para tipo de ação ('inactivate' ou 'reactivate')
+let todayMidnight = new Date();
+todayMidnight.setHours(0, 0, 0, 0);
 // Objeto de preços para serviços (exemplo de valores - ajuste conforme necessário)
 const prices = {
     'Combo Masculino': 199.00,
@@ -1428,20 +1429,15 @@ Caso o atendimento seja confirmado em data posterior ao prazo de validade ou em 
     showToast(`Comprovante ${isThermal ? 'térmica' : 'normal'} gerado com sucesso!`, 'success');
 }
 function showPrintTypeModal() {
-    closeModal('printConfirmModal');
+    // Fechamento MANUAL do modal de confirmação (não chama closeModal → não dispara reload)
+    document.getElementById('printConfirmModal').style.display = 'none';
     document.getElementById('printTypeModal').style.display = 'block';
     document.querySelector('input[name="printType"]').focus();
 }
 function generatePrintPDF() {
     const printType = document.querySelector('input[name="printType"]:checked').value;
     generatePDF(currentPrintId, printType);
-    closeModal('printTypeModal');
-    if (justScheduled) {
-        setTimeout(() => {
-            justScheduled = false;
-            window.location.reload();
-        }, 2000);
-    }
+    closeModal('printTypeModal'); // Agora o reload é disparado automaticamente pelo closeModal
 }
 function preparePrint(id) {
     currentPrintId = id;
@@ -1707,7 +1703,7 @@ function generateCalendar(agendaType = currentAgendaType) {
     const calendar = document.getElementById('calendar');
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    const today = new Date(2025, 10, 6); // Data fixa para consistência
+    const today = todayMidnight; // Usa a variável global definida no topo (hoje à meia-noite)
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
@@ -1757,7 +1753,7 @@ function generateCalendar(agendaType = currentAgendaType) {
     
             const slots = hasEnabledPeriods ? generateSlotsForDay(agendaType || 'Agenda Especialidades Médicas', dayOfWeek, selectedProf) : [];
             const isProfBlocked = selectedProf ? isProfessionalBlockedOnDate(selectedProf, agendaType, dateYYYY) : false;
-            const isUnavailableBase = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || date < today || isBlockedDay || !hasEnabledPeriods || slots.length === 0 || isProfBlocked;
+            const isUnavailableBase = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || date < todayMidnight || isBlockedDay || !hasEnabledPeriods || slots.length === 0 || isProfBlocked;
     
             if (isUnavailableBase) {
                 dayElement.classList.add('unavailable');
@@ -1792,11 +1788,12 @@ function generateCalendar(agendaType = currentAgendaType) {
             } else {
                 dayElement.onclick = () => selectDay(date);
                 dayElement.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') selectDay(date); };
-                if (date.toDateString() === today.toDateString()) {
-                    dayElement.style.background = '#ffc107';
-                    dayElement.style.color = '#000';
-                    dayElement.setAttribute('aria-label', `Hoje: ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
-                }
+                if (date.toDateString() === new Date().toDateString()) { // Compara com hoje real (ignora horário)
+    dayElement.style.background = '#ffc107';
+    dayElement.style.color = '#000';
+    dayElement.setAttribute('aria-label', `Hoje: ${date.getDate()} de ${date.toLocaleDateString('pt-BR', { month: 'long' })}`);
+    dayElement.classList.add('today-highlight');
+}
             }
             const hasAppointment = appointmentDatesSet.has(date.toDateString());
             if (hasAppointment) {
@@ -1878,30 +1875,37 @@ function selectDay(date, dayElement = null) {
             populateHours(date);
         }
         function autoSelectToday() {
-            const today = new Date(2025, 10, 6); // Data fixa
-            const days = document.querySelectorAll('.day');
-            for (let day of days) {
-                const dayNum = parseInt(day.textContent);
-                if (!isNaN(dayNum)) {
-                    const testDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNum);
-                    if (testDate.toDateString() === today.toDateString() && testDate.getMonth() === currentDate.getMonth()) {
-                        const dayOfWeek = testDate.getDay();
-                        const dateStr = testDate.toLocaleDateString('pt-BR');
-                        const isHolidayDay = isHoliday(testDate);
-                        const selectedAgendaType = document.getElementById('agendaTypeSelect').value;
-                        const isBlockedDay = selectedAgendaType ? isBlocked(dateStr, selectedAgendaType) : false;
-                        const slots = generateSlotsForDay(selectedAgendaType || 'Agenda Especialidades Médicas', dayOfWeek);
-                        const isUnavailable = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || testDate < today || isBlockedDay || slots.length === 0;
-                        if (!isUnavailable) {
-                            selectDay(testDate, day);
-                            day.focus();
-                            return;
-                        }
-                    }
+    const today = todayMidnight; // Usa a variável global (hoje à meia-noite)
+    const days = document.querySelectorAll('.day');
+    for (let day of days) {
+        const dayNum = parseInt(day.textContent);
+        if (!isNaN(dayNum)) {
+            const testDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayNum);
+            testDate.setHours(0, 0, 0, 0);
+            if (testDate.toDateString() === today.toDateString() && testDate.getMonth() === currentDate.getMonth()) {
+                const dayOfWeek = testDate.getDay();
+                const dateStr = testDate.toLocaleDateString('pt-BR');
+                const isHolidayDay = isHoliday(testDate);
+                const selectedAgendaType = document.getElementById('agendaTypeSelect').value;
+                const isBlockedDay = selectedAgendaType ? isBlocked(dateStr, selectedAgendaType) : false;
+                const selectedProf = document.getElementById('dentistSelect').value;
+                const slots = generateSlotsForDay(selectedAgendaType || 'Agenda Especialidades Médicas', dayOfWeek, selectedProf);
+                const isProfBlocked = selectedProf ? isProfessionalBlockedOnDate(selectedProf, selectedAgendaType, formatDateToYYYYMMDD(testDate)) : false;
+                const hasEnabledPeriods = agendaSchedules[selectedAgendaType]?.global?.[dayOfWeek]?.periods.some(p => p.enabled && p.start && p.end) ?? true;
+
+                const isUnavailable = dayOfWeek === 0 || dayOfWeek === 6 || isHolidayDay || testDate < today || isBlockedDay || !hasEnabledPeriods || slots.length === 0 || isProfBlocked;
+
+                if (!isUnavailable) {
+                    selectDay(testDate, day);
+                    day.focus();
+                    day.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
                 }
             }
-            console.log('Hoje não é selecionável (fim de semana, feriado ou bloqueado).');
         }
+    }
+    console.log('Hoje não é selecionável (fim de semana, feriado ou bloqueado).');
+}
         function blockSelectedDate() {
             if (!selectedDay) {
                 showToast('Selecione uma data primeiro.', 'error');
@@ -2809,12 +2813,12 @@ function confirmReason() {
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.style.display = 'none';
-    if (modalId === 'printConfirmModal' && justScheduled) {
-        setTimeout(() => {
-            justScheduled = false;
-            window.location.reload();
-        }, 1000);
-    }
+    if ((modalId === 'printConfirmModal' || modalId === 'printTypeModal') && justScheduled) {
+    setTimeout(() => {
+        justScheduled = false;
+        window.location.reload();
+    }, 2000);
+}
     const triggeringButton = document.activeElement;
     if (triggeringButton && (triggeringButton.classList.contains('btn-edit') || triggeringButton.classList.contains('btn-delete'))) {
         triggeringButton.focus();
