@@ -1671,7 +1671,7 @@ async function generateAttendanceDeclaration(cpf, patientName, entryTime) {
               </div>
             </div>
             <div class="declaration-body">
-              <p>Declaro para os devidos fins que o Senhor(a), <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF: <strong>${cpf}</strong>, compareceu ao atendimento no SESI Saúde no horário de entrada <strong>${entryTimeFormatted}</strong>, e saída ás <strong>${declTime}</strong>, tendo o atendimento realizado na data de <strong>${declDate}</strong>.</p>
+              <p>Declaro para os devidos fins que o Senhor(a), <strong>${sanitizeInput(patientName)}</strong>, portador(a) do CPF: <strong>${cpf}</strong>, compareceu ao atendimento no SESI Saúde no horário de chegada <strong>${entryTimeFormatted}</strong>, e saída ás <strong>${declTime}</strong>, tendo o atendimento realizado na data de <strong>${declDate}</strong>.</p>
               <p>O atendimento foi realizado conforme agendamento prévio, e não houve qualquer impedimento ou irregularidade que pudesse comprometer a qualidade do serviço prestado.</p>
               <p>Esta declaração serve como comprovação de presença e comparecimento ao local e horário designados.</p>
               <p>Local e Data: ${locationText}, ${declDate} às ${declTime}.</p>
@@ -3838,3 +3838,4 @@ function exportToExcel() {
     XLSX.writeFile(wb, `relatorio_agendamentos_${new Date().toISOString().split('T')[0]}.xlsx`);
     showToast('Relatório exportado para Excel com cores! ✅');
 }
+
